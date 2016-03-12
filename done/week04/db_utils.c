@@ -49,13 +49,23 @@ void print_header(const struct pictdb_header header) {
 /********************************************************************//**
  * Metadata display.
  */
-void print_metadata (const struct pict_metadata metadata)
-{
+void print_metadata (const struct pict_metadata metadata) {
     char sha_printable[2*SHA256_DIGEST_LENGTH+1];
     sha_to_string(metadata.SHA, sha_printable);
-
-    /* **********************************************************************
-     * TODO: WRITE YOUR CODE HERE
-     * **********************************************************************
-     */
+	
+	printf(
+			"PICTURE ID: %s \n
+			SHA: %s \n
+			VALID: %" PRIu16" \n
+			UNUSED: %" PRIu16" \n
+			OFFSET ORIG. : %" PRIu64" \t\t SIZE ORIG. : %" PRIu32"\n
+			OFFSET THUMB.: %" PRIu64" \t\t SIZE THUMB.: %" PRIu32"\n
+			OFFSET SMALL : %" PRIu64" \t\t SIZE SMALL : %" PRIu32"\n
+			ORIGINAL: %"PRIu32" x %"PRIu32" \n
+			*****************************************",
+			sha_printable, metadata.is_valid, metadata.unused_16,
+			metadata.offset[RES_ORIG], metadata.size[RES_ORIG],
+			metadata.offset[RES_THUMB], metadata.size[RES_THUMB],
+			metadata.offset[RES_SMALL], metadata.size[RES_SMALL],
+			metadata.res_orig[0], metadata.res_orig[1]);			
 }
