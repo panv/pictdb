@@ -78,7 +78,7 @@ struct pictdb_file {
  *
  * @param header The header to be displayed.
  */
-void print_header(const struct pictdb_header);
+void print_header(const struct pictdb_header header);
  
 
 /**
