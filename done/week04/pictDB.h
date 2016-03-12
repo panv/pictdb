@@ -86,7 +86,7 @@ void print_header(const struct pictdb_header header);
  *
  * @param metadata The metadata of one picture.
  */
-void print_metadata (const struct pict_metadata metadata);
+void print_metadata(const struct pict_metadata metadata);
 
 /**
  * @brief Displays (on stdout) pictDB metadata.

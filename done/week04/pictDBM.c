@@ -9,16 +9,14 @@
  */
 
 #include "pictDB.h"
-
 #include <stdlib.h>
 #include <string.h>
+#include "error.c"
 
 /********************************************************************//**
  * Opens pictDB file and calls do_list command.
  ********************************************************************** */
-int
-do_list_cmd (const char* filename)
-{
+int do_list_cmd (const char* filename) {
     struct pictdb_file myfile;
 
     /* This is a quick and dirty way of reading the file.
