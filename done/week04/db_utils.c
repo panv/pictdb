@@ -32,16 +32,24 @@ sha_to_string (const unsigned char* SHA,
 /********************************************************************//**
  * pictDB header display.
  */
-/* **********************************************************************
- * TODO: WRITE YOUR print_header CODE HERE
- * **********************************************************************
- */
+void print_header(const struct pictdb_header header) {
+	printf("*****************************************\n
+			**********DATABASE HEADER START**********\n
+			DB NAME: %31s \n
+			VERSION: %" PRIu32 " \n
+			IMAGE COUNT: %" PRIu32 " \t\t MAX IMAGES: %" PRIu32 "\n
+			THUMBNAIL: %" PRIu16 " x %" PRIu16" \t SMALL: %" PRIu16 " x %"PRIu16" \n
+			***********DATABASE HEADER END*********** \n
+			"***************************************** ",
+			header.db_name, header.db_version, header.num_files,
+			header.max_files, header.res_resized[0], header.res_resized[1],
+			header.res_resized[2], header.res_resized[3]);
+}
 
 /********************************************************************//**
  * Metadata display.
  */
-void
-print_metadata (const struct pict_metadata metadata)
+void print_metadata (const struct pict_metadata metadata)
 {
     char sha_printable[2*SHA256_DIGEST_LENGTH+1];
     sha_to_string(metadata.SHA, sha_printable);
