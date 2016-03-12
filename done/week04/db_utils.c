@@ -63,7 +63,8 @@ void print_metadata (const struct pict_metadata metadata) {
 			OFFSET SMALL : %" PRIu64" \t\t SIZE SMALL : %" PRIu32"\n \
 			ORIGINAL: %"PRIu32" x %"PRIu32" \n \
 			*****************************************\n",
-			sha_printable, metadata.is_valid, metadata.unused_16,
+			metadata.pict_id, sha_printable, metadata.is_valid,
+			metadata.unused_16, 
 			metadata.offset[RES_ORIG], metadata.size[RES_ORIG],
 			metadata.offset[RES_THUMB], metadata.size[RES_THUMB],
 			metadata.offset[RES_SMALL], metadata.size[RES_SMALL],
