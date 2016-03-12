@@ -93,7 +93,7 @@ void print_metadata (const struct pict_metadata metadata);
  *
  * @param db_file In memory structure with header and metadata.
  */
-void do_list(const struct pictdb_file file);
+void do_list(const struct pictdb_file db_file);
 /**
  * @brief Creates the database called db_filename. Writes the header and the
  *        preallocated empty metadata array to database file.
