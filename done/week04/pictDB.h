@@ -47,10 +47,6 @@ extern "C" {
 #endif
 
 
-/* **********************************************************************
- * TODO WEEK 04: DEFINE YOUR STRUCTS HERE.
- * **********************************************************************
- */
 struct pictdb_header {
 	char db_name[MAX_DB_NAME + 1];
 	uint32_t db_version;
@@ -82,10 +78,8 @@ struct pictdb_file {
  *
  * @param header The header to be displayed.
  */
-/* **********************************************************************
- * TODO WEEK 04: ADD THE PROTOTYPE OF print_header HERE.
- * **********************************************************************
- */
+void print_header(const struct pictdb_header);
+ 
 
 /**
  * @brief Prints picture metadata informations.
