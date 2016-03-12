@@ -52,7 +52,7 @@ struct pictdb_header {
 	uint32_t db_version;
 	uint32_t num_files;
 	uint32_t max_files;
-	uint16_t res_resized[NB_RES - 1][NB_RES - 1];
+	uint16_t res_resized[2 * (NB_RES - 1)];
 	uint32_t unused_32;
 	uint64_t unused_64;
 };
