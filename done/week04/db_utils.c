@@ -38,7 +38,7 @@ void print_header(const struct pictdb_header header) {
 			"DB NAME: %31s\n"
 			"VERSION: %" PRIu32 "\n"
 			"IMAGE COUNT: %" PRIu32 "\t\tMAX IMAGES: %" PRIu32 "\n"
-			"THUMBNAIL: %" PRIu16 " x %" PRIu16 "\tSMALL: %" PRIu16 " x %" PRIu16 "\n"
+			"THUMBNAIL %" PRIu16 " x %" PRIu16 "\tSMALL %" PRIu16 " x %" PRIu16 "\n"
 			"***********DATABASE HEADER END***********\n"
 			"*****************************************\n",
 			header.db_name, header.db_version, header.num_files,
@@ -58,9 +58,9 @@ void print_metadata (const struct pict_metadata metadata) {
 			"SHA: %s\n"
 			"VALID: %" PRIu16 "\n"
 			"UNUSED: %" PRIu16 "\n"
-			"OFFSET ORIG. : %" PRIu64 " \t\t SIZE ORIG. : %" PRIu32 "\n"
+			"OFFSET ORIG.: %" PRIu64 " \t\t SIZE ORIG.: %" PRIu32 "\n"
 			"OFFSET THUMB.: %" PRIu64 " \t\t SIZE THUMB.: %" PRIu32 "\n"
-			"OFFSET SMALL : %" PRIu64 " \t\t SIZE SMALL : %" PRIu32 "\n"
+			"OFFSET SMALL: %" PRIu64 " \t\t SIZE SMALL: %" PRIu32 "\n"
 			"ORIGINAL: %" PRIu32 " x %" PRIu32 "\n"
 			"*****************************************\n",
 			metadata.pict_id, sha_printable, metadata.is_valid,
