@@ -11,7 +11,7 @@ all: pictDBM
 test: pictDBM
 	./pictDBM list testDB01.pictdb_static > test_output.txt
 	./pictDBM list testDB02.pictdb_static >> test_output.txt
-	#the two outputs side by side:
-	#diff -y test_output.txt correct_output.txt
-	#just tells if outputs are equal:
+	# -e only show differing parts -s tells if file equal -q tells if file differ
+	diff -e test_output.txt correct_output.txt
+	diff -s test_output.txt correct_output.txt
 	diff -q test_output.txt correct_output.txt
