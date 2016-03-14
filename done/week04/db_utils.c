@@ -38,7 +38,7 @@ void print_header(const struct pictdb_header header) {
 			"DB NAME: %31s\n"
 			"VERSION: %" PRIu32 "\n"
 			"IMAGE COUNT: %" PRIu32 "\t\tMAX IMAGES: %" PRIu32 "\n"
-			"THUMBNAIL %" PRIu16 " x %" PRIu16 "\tSMALL %" PRIu16 " x %" PRIu16 "\n"
+			"THUMBNAIL: %" PRIu16 " x %" PRIu16 "\tSMALL: %" PRIu16 " x %" PRIu16 "\n"
 			"***********DATABASE HEADER END***********\n"
 			"*****************************************\n",
 			header.db_name, header.db_version, header.num_files,
