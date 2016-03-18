@@ -42,9 +42,7 @@ int do_list_cmd (const char* filename) {
 /********************************************************************//**
  * Prepares and calls do_create command.
 ********************************************************************** */
-int
-do_create_cmd (const char* filename)
-{
+int do_create_cmd (const char* filename) {
     // This will later come from the parsing of command line arguments
     const uint32_t max_files =  10;
     const uint16_t thumb_res =  64;
@@ -61,22 +59,22 @@ do_create_cmd (const char* filename)
 /********************************************************************//**
  * Displays some explanations.
  ********************************************************************** */
-int
-help (void)
-{
+int help (void) {
     /* **********************************************************************
      * TODO WEEK 05: WRITE YOUR CODE HERE (and change the return if needed).
      * **********************************************************************
      */
+    printf("pictDBM [COMMAND] [ARGUMENTS]\n"
+           "  help: displays this help.\n"
+           "  list <dbfilename>: list pictDB content.\n"
+           "  create <dbfilename>: create a new pictDB.");
     return 0;
 }
 
 /********************************************************************//**
  * Deletes a picture from the database.
  */
-int
-do_delete_cmd (const char* filename, const char* pictID)
-{
+int do_delete_cmd (const char* filename, const char* pictID) {
     /* **********************************************************************
      * TODO WEEK 06: WRITE YOUR CODE HERE (and change the return if needed).
      * **********************************************************************
@@ -87,8 +85,7 @@ do_delete_cmd (const char* filename, const char* pictID)
 /********************************************************************//**
  * MAIN
  */
-int main (int argc, char* argv[])
-{
+int main (int argc, char* argv[]) {
     int ret = 0;
 
     if (argc < 2) {
