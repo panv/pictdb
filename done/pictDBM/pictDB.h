@@ -79,7 +79,7 @@ struct pictdb_file {
  * @param header The header to be displayed.
  */
 void print_header(const struct pictdb_header header);
- 
+
 
 /**
  * @brief Prints picture metadata informations.
@@ -88,22 +88,22 @@ void print_header(const struct pictdb_header header);
  */
 void print_metadata(const struct pict_metadata metadata);
 
+
 /**
  * @brief Displays (on stdout) pictDB metadata.
  *
  * @param db_file In memory structure with header and metadata.
  */
 void do_list(const struct pictdb_file db_file);
+
+
 /**
  * @brief Creates the database called db_filename. Writes the header and the
  *        preallocated empty metadata array to database file.
  *
  * @param db_file In memory structure with header and metadata.
  */
-/* **********************************************************************
- * TODO WEEK 05: ADD THE PROTOTYPE OF do_create HERE.
- * **********************************************************************
- */
+int do_create(const char filename[], struct pictdb_file db_file);
 
 /* **********************************************************************
  * TODO WEEK 06: ADD THE PROTOTYPE OF do_delete HERE.
