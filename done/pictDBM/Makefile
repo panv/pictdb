@@ -12,6 +12,6 @@ test: pictDBM
 	./pictDBM list testDB01.pictdb_static > test_output.txt
 	./pictDBM list testDB02.pictdb_static >> test_output.txt
 	# -e only show differing parts -s tells if file equal -q tells if file differ
-	diff -y test_output.txt correct_output.txt
-	diff -s test_output.txt correct_output.txt
-	diff -q test_output.txt correct_output.txt
+	diff -y -w test_output.txt correct_output.txt
+	diff -s -w test_output.txt correct_output.txt
+	diff -q -w test_output.txt correct_output.txt
