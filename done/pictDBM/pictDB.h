@@ -47,30 +47,91 @@ extern "C" {
 #endif
 
 
+/**
+ * @brief The header, containing the pictDB configuration informations.
+ */
 struct pictdb_header {
-	char db_name[MAX_DB_NAME + 1];
-	uint32_t db_version;
-	uint32_t num_files;
-	uint32_t max_files;
-	uint16_t res_resized[2 * (NB_RES - 1)];
-	uint32_t unused_32;
-	uint64_t unused_64;
+    /**
+     * @brief Name of the picture database.
+     */
+    char db_name[MAX_DB_NAME + 1];
+    /**
+     * @brief Version of the database.
+     */
+    uint32_t db_version;
+    /**
+     * @brief Number of images contained in the database.
+     */
+    uint32_t num_files;
+    /**
+     * @brief Maximal number of images the database can contain.
+     */
+    uint32_t max_files;
+    /**
+     * @brief Maximal resolutions of the thumbnail and small images.
+     */
+    uint16_t res_resized[2 * (NB_RES - 1)];
+    /**
+     * @brief Unused 32 bit integer.
+     */
+    uint32_t unused_32;
+    /**
+     * @brief Unused 64 bit integer.
+     */
+    uint64_t unused_64;
 };
 
+/**
+ * @brief The metadata of an image.
+ */
 struct pict_metadata {
-	char pict_id[MAX_PIC_ID + 1];
-	unsigned char SHA[SHA256_DIGEST_LENGTH];
-	uint32_t res_orig[2];
-	uint32_t size[NB_RES];
-	uint64_t offset[NB_RES];
-	uint16_t is_valid;
-	uint16_t unused_16;
+    /**
+     * @brief Name of the image.
+     */
+    char pict_id[MAX_PIC_ID + 1];
+    /**
+     * @brief Hash code of the image.
+     */
+    unsigned char SHA[SHA256_DIGEST_LENGTH];
+    /**
+     * @brief Resolution of the original image.
+     */
+    uint32_t res_orig[2];
+    /**
+     * @brief Memory sizes of the multiple resolution images.
+     */
+    uint32_t size[NB_RES];
+    /**
+     * @brief Positions of the images in the database.
+     */
+    uint64_t offset[NB_RES];
+    /**
+     * @brief Indicates if the image is still in use (NON_EMPTY)
+     *        or was erased (EMPTY).
+     */
+    uint16_t is_valid;
+    /**
+     * @brief Unused 16 bit integer.
+     */
+    uint16_t unused_16;
 };
 
+/**
+ * @brief An image database.
+ */
 struct pictdb_file {
-	FILE* fpdb;
-	struct pictdb_header header;
-	struct pict_metadata metadata[MAX_MAX_FILES];
+    /**
+     * @brief File containing the database.
+     */
+    FILE* fpdb;
+    /**
+     * @brief Header of the database.
+     */
+    struct pictdb_header header;
+    /**
+     * @brief Metadata of the images.
+     */
+    struct pict_metadata metadata[MAX_MAX_FILES];
 };
 
 /**

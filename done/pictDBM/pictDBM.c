@@ -56,7 +56,7 @@ int do_create_cmd (const char* filename) {
     FILE* output = fopen(filename, "wb");
     if (output == NULL) {
         fprintf(stderr,
-                "Impossible ouvrir le fichier %s en écriture\n", filename);
+                "Error: cannot open file %s\n", filename);
         return ERR_INVALID_FILENAME;
     }
     struct pictdb_header db_header = {
@@ -64,6 +64,8 @@ int do_create_cmd (const char* filename) {
         .res_resized = {thumb_res, thumb_res, small_res, small_res}
     };
     struct pictdb_file db_file = {output, .header = db_header};
+    
+    fclose(filename);
 
     return do_create(output, db_file);
 }
