@@ -106,10 +106,26 @@ void do_list(const struct pictdb_file* db_file);
  */
 int do_create(const char filename[], struct pictdb_file* db_file);
 
-/* **********************************************************************
- * TODO WEEK 06: ADD THE PROTOTYPE OF do_delete HERE.
- * **********************************************************************
+/**
+ * @brief Open file containing, reads its content and writes it in memory
+ *
+ * @param filename The filename(path) of the file to read.
+ * @param mode The opening mode e.g. read binary, write binary...
+ * @param db_file The in memory structure of a database file to be filled
+ * with data coming from the file
+ *
+ * @return 0 if no errors occur, an int coded in error.h in case of errors
  */
+int do_open(const char* filename, const char* mode,
+        struct pictdb_file* db_file);
+
+/*
+ * @brief Closes the strem in the in memory database file
+ *
+ * @param db_file The in memory structure of a database file whose stream
+ * is to be closed
+ */
+void do_close(struct pictdb_file* db_file);
 
 /* **********************************************************************
  * TODO WEEK 09: ADD THE PROTOTYPE OF resolution_atoi HERE.
