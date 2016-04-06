@@ -78,7 +78,7 @@ struct pictdb_file {
  *
  * @param header The header to be displayed.
  */
-void print_header(const struct pictdb_header header);
+void print_header(const struct pictdb_header* header);
 
 
 /**
@@ -86,7 +86,7 @@ void print_header(const struct pictdb_header header);
  *
  * @param metadata The metadata of one picture.
  */
-void print_metadata(const struct pict_metadata metadata);
+void print_metadata(const struct pict_metadata* metadata);
 
 
 /**
@@ -94,7 +94,7 @@ void print_metadata(const struct pict_metadata metadata);
  *
  * @param db_file In memory structure with header and metadata.
  */
-void do_list(const struct pictdb_file db_file);
+void do_list(const struct pictdb_file* db_file);
 
 
 /**
@@ -104,7 +104,7 @@ void do_list(const struct pictdb_file db_file);
  * @param filename Path to the file we want to write to;
  * @param db_file In memory structure with header and metadata.
  */
-int do_create(const char filename[], struct pictdb_file db_file);
+int do_create(const char filename[], struct pictdb_file* db_file);
 
 /* **********************************************************************
  * TODO WEEK 06: ADD THE PROTOTYPE OF do_delete HERE.
