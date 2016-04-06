@@ -35,7 +35,7 @@ int do_list_cmd (const char* filename) {
     fread(&myfile.header , sizeof(struct pictdb_header),             1, myfile.fpdb);
     fread(myfile.metadata, sizeof(struct pict_metadata), MAX_MAX_FILES, myfile.fpdb);
 
-    do_list(myfile);
+    do_list(&myfile);
     return 0;
 }
 
@@ -60,7 +60,7 @@ int do_create_cmd (const char* filename) {
     };
     struct pictdb_file db_file = {.header = db_header};
 
-    return do_create(filename, db_file);
+    return do_create(filename, &db_file);
 }
 
 /********************************************************************//**
