@@ -10,6 +10,9 @@
 
 #include <string.h> // for strncpy
 
+// Prototype
+struct pict_metadata empty_metadata(void);
+
 /********************************************************************//**
  * Creates the database called db_filename. Writes the header and the
  * preallocated empty metadata array to database file.
@@ -35,7 +38,7 @@ int do_create(const char filename[], struct pictdb_file db_file) {
     db_file.fpdb = output; // maybe, i don't know
     
     for (size_t i = 0; i < db_file.header.max_files; ++i) {
-        db_file.metadata[i] = empty_metadata;
+        db_file.metadata[i] = empty_metadata();
     }
 
     size_t header_ctrl = fwrite(&db_file.header, sizeof(db_file.header), 1, output);
