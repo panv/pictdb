@@ -98,11 +98,11 @@ struct pict_metadata {
      */
     uint32_t res_orig[2];
     /**
-     * @brief Memory sizes of the multiple resolution images.
+     * @brief Memory sizes of the resized images.
      */
     uint32_t size[NB_RES];
     /**
-     * @brief Positions of the images in the database.
+     * @brief Positions of the resized images in the database.
      */
     uint64_t offset[NB_RES];
     /**
