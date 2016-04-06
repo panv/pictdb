@@ -162,10 +162,10 @@ void do_list(const struct pictdb_file db_file);
  * @brief Creates the database called db_filename. Writes the header and the
  *        preallocated empty metadata array to database file.
  *
- * @param stream Stream where to write
+ * @param filename Path to the file we want to write to;
  * @param db_file In memory structure with header and metadata.
  */
-int do_create(FILE* stream, struct pictdb_file db_file);
+int do_create(const char filename[], struct pictdb_file db_file);
 
 /* **********************************************************************
  * TODO WEEK 06: ADD THE PROTOTYPE OF do_delete HERE.
