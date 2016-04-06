@@ -50,6 +50,14 @@ void print_header(const struct pictdb_header header) {
 /********************************************************************//**
  * Metadata display.
  */
+
+/*
+ *
+ * @brief Prints the content of a metadata object
+ *
+ * @param metadata In memory object representing the metadata
+ * describing an image.
+ */
 void print_metadata (const struct pict_metadata metadata) {
     char sha_printable[2 * SHA256_DIGEST_LENGTH + 1];
     sha_to_string(metadata.SHA, sha_printable);
