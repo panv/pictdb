@@ -12,6 +12,33 @@
 #include <openssl/sha.h> // for SHA256_DIGEST_LENGTH
 #include <inttypes.h>
 
+int do_open(const char* filename, const char* mode,
+        struct pictdb_file* db_file)
+{
+    // POINTERS/ERROR CHECKING
+
+    FILE* input_stream = fopen(filename, mode);
+    db_file->fpdb = input_stream;
+
+    size_t read_els = fread(&db_file->header, sizeof(struct pictdb_header), 1,
+            input_stream);
+    if (read_els != 1) {} // error check
+
+    read_els = fread(&db_file->metadata, sizeof(struct pict_metadata),
+            db_file->header.num_files, input_stream);
+    if(read_els != db_file->header.num_files) {} //error check
+
+
+    return 0;
+}
+
+void do_close(struct pictdb_file* db_file)
+{
+    // POINTER CHECK
+
+    int status = fclose(db_file->fpdb);
+}
+
 /********************************************************************//**
  * Human-readable SHA
  */
