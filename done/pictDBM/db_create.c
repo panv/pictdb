@@ -21,13 +21,16 @@ struct pict_metadata empty_metadata(void);
 int do_create(const char filename[], struct pictdb_file db_file)
 {
     // Sets the DB header name
-    strncpy(db_file.header.db_name, CAT_TXT,  MAX_DB_NAME);
+    strncpy(db_file.header.db_name, filename,  MAX_DB_NAME);
     db_file.header.db_name[MAX_DB_NAME] = '\0';
 
     // Initialize header
     db_file.header.db_version = 0;
-    db_file.header.num_files = 0;
-    db_file.header.max_files = MAX_MAX_FILES; // already done in do_create_cmd, remove?
+    db_file.header.num_files = db_file.header.max_files;
+    
+    for (size_t i = 0; i < db_file.header.num_files; ++i) {
+        db_file.metadata[i] = empty_metadata();
+    }
 
     FILE* output = fopen(filename, "wb");
     if (output == NULL) {
@@ -38,20 +41,16 @@ int do_create(const char filename[], struct pictdb_file db_file)
 
     db_file.fpdb = output; // maybe, i don't know
 
-    for (size_t i = 0; i < db_file.header.max_files; ++i) {
-        db_file.metadata[i] = empty_metadata();
-    }
-
     size_t header_ctrl = fwrite(&db_file.header, sizeof(db_file.header), 1, output);
-    size_t metadata_ctrl = fwrite(&db_file.metadata, sizeof(db_file.metadata), 1, output);
-    if (header_ctrl != 1 || metadata_ctrl != 1) {
+    size_t metadata_ctrl = fwrite(&db_file.metadata,
+            sizeof(struct pict_metadata), db_file.header.num_files, output);
+    if (header_ctrl != 1 || metadata_ctrl != db_file.header.num_files) {
         fprintf(stderr, "Error : cannot create database %s\n", db_file.header.db_name);
         return ERR_IO;
     }
-    size_t total = 1 + db_file.header.num_files;
 
     fclose(output);
-    printf("%zu item(s) written\n", total);
+    printf("%zu item(s) written\n", header_ctrl + metadata_ctrl);
     return 0;
 }
 
