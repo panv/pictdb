@@ -15,7 +15,8 @@
  * @param db_file In memory object representing a
  * database file
 */
-void do_list(const struct pictdb_file db_file) {
+void do_list(const struct pictdb_file db_file)
+{
     print_header(db_file.header);
     if (db_file.header.num_files == 0) {
         printf("<< empty database >>\n");

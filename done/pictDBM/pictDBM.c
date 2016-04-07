@@ -17,7 +17,8 @@
 /********************************************************************//**
  * Opens pictDB file and calls do_list command.
  ********************************************************************** */
-int do_list_cmd (const char* filename) {
+int do_list_cmd (const char* filename)
+{
     struct pictdb_file myfile;
 
     /* This is a quick and dirty way of reading the file.
@@ -43,7 +44,8 @@ int do_list_cmd (const char* filename) {
 /********************************************************************//**
  * Prepares and calls do_create command.
 ********************************************************************** */
-int do_create_cmd (const char* filename) {
+int do_create_cmd (const char* filename)
+{
     // This will later come from the parsing of command line arguments
     const uint32_t max_files =  10;
     const uint16_t thumb_res =  64;
@@ -66,11 +68,8 @@ int do_create_cmd (const char* filename) {
 /********************************************************************//**
  * Displays some explanations.
  ********************************************************************** */
-int help (void) {
-    /* **********************************************************************
-     * TODO WEEK 05: WRITE YOUR CODE HERE (and change the return if needed).
-     * **********************************************************************
-     */
+int help (void)
+{
     printf("pictDBM [COMMAND] [ARGUMENTS]\n"
            "  help: displays this help.\n"
            "  list <dbfilename>: list pictDB content.\n"
@@ -82,7 +81,8 @@ int help (void) {
 /********************************************************************//**
  * Deletes a picture from the database.
  */
-int do_delete_cmd (const char* filename, const char* pictID) {
+int do_delete_cmd (const char* filename, const char* pictID)
+{
     /* **********************************************************************
      * TODO WEEK 06: WRITE YOUR CODE HERE (and change the return if needed).
      * **********************************************************************
@@ -93,7 +93,8 @@ int do_delete_cmd (const char* filename, const char* pictID) {
 /********************************************************************//**
  * MAIN
  */
-int main (int argc, char* argv[]) {
+int main (int argc, char* argv[])
+{
     int ret = 0;
 
     if (argc < 2) {
@@ -103,7 +104,8 @@ int main (int argc, char* argv[]) {
          * TODO WEEK 08: THIS PART SHALL BE REVISED THEN (WEEK 09) EXTENDED.
          * **********************************************************************
          */
-        argc--; argv++; // skips command call name
+        argc--;
+        argv++; // skips command call name
         if (!strcmp("list", argv[0])) {
             if (argc < 2) {
                 ret = ERR_NOT_ENOUGH_ARGUMENTS;

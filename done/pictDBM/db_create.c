@@ -18,7 +18,8 @@ struct pict_metadata empty_metadata(void);
  * preallocated empty metadata array to database file.
  */
 
-int do_create(const char filename[], struct pictdb_file db_file) {
+int do_create(const char filename[], struct pictdb_file db_file)
+{
     // Sets the DB header name
     strncpy(db_file.header.db_name, CAT_TXT,  MAX_DB_NAME);
     db_file.header.db_name[MAX_DB_NAME] = '\0';
@@ -34,9 +35,9 @@ int do_create(const char filename[], struct pictdb_file db_file) {
                 "Error : cannot open file %s\n", filename);
         return ERR_INVALID_FILENAME;
     }
-    
+
     db_file.fpdb = output; // maybe, i don't know
-    
+
     for (size_t i = 0; i < db_file.header.max_files; ++i) {
         db_file.metadata[i] = empty_metadata();
     }
@@ -54,7 +55,8 @@ int do_create(const char filename[], struct pictdb_file db_file) {
     return 0;
 }
 
-struct pict_metadata empty_metadata(void) {
+struct pict_metadata empty_metadata(void)
+{
     struct pict_metadata metadata;
     metadata.is_valid = EMPTY;
     return metadata;
