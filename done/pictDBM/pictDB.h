@@ -101,7 +101,7 @@ void do_list(const struct pictdb_file* db_file);
  * @brief Creates the database called db_filename. Writes the header and the
  *        preallocated empty metadata array to database file.
  *
- * @param filename Path to the file we want to write to;
+ * @param filename Path to the file we want to write to.
  * @param db_file In memory structure with header and metadata.
  */
 int do_create(const char filename[], struct pictdb_file* db_file);
@@ -112,7 +112,7 @@ int do_create(const char filename[], struct pictdb_file* db_file);
  * @param filename The filename(path) of the file to read.
  * @param mode The opening mode e.g. read binary, write binary...
  * @param db_file The in memory structure of a database file to be filled
- * with data coming from the file
+ * with data coming from the file.
  *
  * @return 0 if no errors occur, an int coded in error.h in case of errors
  */
@@ -123,9 +123,21 @@ int do_open(const char* filename, const char* mode,
  * @brief Closes the strem in the in memory database file
  *
  * @param db_file The in memory structure of a database file whose stream
- * is to be closed
+ * is to be closed.
  */
 void do_close(struct pictdb_file* db_file);
+
+/*
+ * @brief Deletes an image from a database
+ *
+ * @param db_file The in memory structure of the object representing a
+ * database.
+ * @param pict_id The name (identifier) of the image to remove from the
+ * database.
+ *
+ * @return 0 if no errors occur, an in coded in error.h in case of errors
+ */
+int do_delete(struct pictdb_file* db_file, const char* pict_id);
 
 /* **********************************************************************
  * TODO WEEK 09: ADD THE PROTOTYPE OF resolution_atoi HERE.
