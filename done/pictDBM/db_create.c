@@ -17,13 +17,12 @@
 
 int do_create(const char filename[], struct pictdb_file* db_file) {
     // Sets the DB header name
-    strncpy(db_file->header.db_name, CAT_TXT,  MAX_DB_NAME);
+    strncpy(db_file->header.db_name, filename,  MAX_DB_NAME);
     db_file->header.db_name[MAX_DB_NAME] = '\0';
 
     // Initialize header
     db_file->header.db_version = 0;
-    db_file->header.num_files = 0;
-    db_file->header.max_files = MAX_MAX_FILES;
+    db_file->header.num_files = db_file->header.max_files;
 
     // Open stream and check for errors
     FILE* output = fopen(filename, "wb");

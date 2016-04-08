@@ -74,7 +74,8 @@ int help (void) {
     printf("pictDBM [COMMAND] [ARGUMENTS]\n"
            "  help: displays this help.\n"
            "  list <dbfilename>: list pictDB content.\n"
-           "  create <dbfilename>: create a new pictDB.");
+           "  create <dbfilename>: create a new pictDB.\n"
+           "  delete <dbfilename> <pictID>: delete picture pictID from pictDB.");
     return 0;
     // should we return one of the errors defined in error.h? INVALID_COMMAND?
 }

@@ -24,4 +24,3 @@ const char * const ERROR_MESSAGES[] = {
     "Vips error",
     "Debug"
 };
-
