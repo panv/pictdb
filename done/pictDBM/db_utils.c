@@ -12,31 +12,61 @@
 #include <openssl/sha.h> // for SHA256_DIGEST_LENGTH
 #include <inttypes.h>
 
+
+int do_delete(struct pictdb_file* db_file, const char* pict_id)
+{
+    if (db_file == NULL || pict_id == NULL){
+        return ERR_INVALID_ARGUMENT;
+    }
+
+    int index = indexOf(pict_id, db_file->metadata, db_file->header.num_files);
+}
+
+
+int indexOf(const char* pict_id, const char[] array, const uint32_t db_size)
+{
+    for (uint32_t i = 0; i < db_size; ++i) {
+        if ()
+    }
+}
+
+
 int do_open(const char* filename, const char* mode,
         struct pictdb_file* db_file)
 {
-    // POINTERS/ERROR CHECKING
+    if (filename == NULL || mode == NULL || db_file == NULL) {
+        fprintf(stderr,
+                "Invalid pointer\n");
+        return ERR_INVALID_ARGUMENT;
+    }
 
     FILE* input_stream = fopen(filename, mode);
+    if (input_stream == NULL) {
+        fprintf(stderr, "Error opening %s\n", filename);
+        return ERR_IO;
+    }
     db_file->fpdb = input_stream;
 
     size_t read_els = fread(&db_file->header, sizeof(struct pictdb_header), 1,
             input_stream);
-    if (read_els != 1) {} // error check
+    if (read_els != 1) {
+        fprintf(stderr, "Could not read header from %s\n", filename);
+        return ERR_IO;
+    }
 
     read_els = fread(&db_file->metadata, sizeof(struct pict_metadata),
             db_file->header.num_files, input_stream);
-    if(read_els != db_file->header.num_files) {} //error check
-
+    if(read_els != db_file->header.num_files) {
+        fprintf(stderr, "Could not read metadata from %s\n", filename);
+        return ERR_IO;
+    }
 
     return 0;
 }
 
 void do_close(struct pictdb_file* db_file)
 {
-    // POINTER CHECK
-
-    int status = fclose(db_file->fpdb);
+    if (db_file != NULL) fclose(db_file->fpdb);
 }
 
 /********************************************************************//**
