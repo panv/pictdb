@@ -18,9 +18,9 @@ struct pict_metadata empty_metadata(void);
  * preallocated empty metadata array to database file.
  */
 
-int do_create(const char filename[], struct pictdb_file db_file)
+int do_create(const char* filename, struct pictdb_file db_file)
 {
-    if (strlen(filename) > MAX_DB_NAME) {
+    if (filename == NULL || strlen(filename) > MAX_DB_NAME) {
         fprintf(stderr, "Error : invalid filename\n");
         return ERR_INVALID_FILENAME;
     }
