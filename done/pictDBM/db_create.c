@@ -8,7 +8,7 @@
 
 #include "pictDB.h"
 
-#include <string.h> // for strncpy
+#include <string.h> // for strncpy and strlen
 
 // Prototype
 struct pict_metadata empty_metadata(void);
@@ -20,6 +20,10 @@ struct pict_metadata empty_metadata(void);
 
 int do_create(const char filename[], struct pictdb_file db_file)
 {
+    if (strlen(filename) > MAX_DB_NAME) {
+        fprintf(stderr, "Error : invalid filename\n");
+        return ERR_INVALID_FILENAME;
+    }
     // Sets the DB header name
     strncpy(db_file.header.db_name, filename,  MAX_DB_NAME);
     db_file.header.db_name[MAX_DB_NAME] = '\0';
