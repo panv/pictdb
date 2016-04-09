@@ -46,7 +46,11 @@ int do_delete(struct pictdb_file* db_file, const char* pict_id)
     }
 
     // Mark the image as invalid
-    db_file->metadata[index].is_valid = EMPTY;
+    if (db_file->metadata[index].is_valid == EMPTY) {
+        return 0;
+    } else {
+        db_file->metadata[index].is_valid == EMPTY;
+    }
     
     // Position write head after the header
     int seek_success = fseek(db_file->fpdb, sizeof(struct pictdb_header), SEEK_SET);
@@ -75,7 +79,8 @@ int index_of_image(const char* pict_id, const struct pict_metadata images[],
         const uint32_t db_size, uint32_t* index)
 {
     for (uint32_t i = 0; i < db_size; ++i) {
-        if (equal_string(pict_id, images[i].pict_id) != 0) {
+        //if (equal_string(pict_id, images[i].pict_id)) {
+        if (strcmp(pict_id, images[i].pict_id) == 0) {
             *index = i;
             return 0;
         }
@@ -83,17 +88,17 @@ int index_of_image(const char* pict_id, const struct pict_metadata images[],
     return ERR_FILE_NOT_FOUND;
 }
 
+// use strcmp instead
 int equal_string(const char* s1, const char* s2)
 {
-    int are_equal = strlen(s1) == strlen(s2);
+    /*int are_equal = strlen(s1) == strlen(s2);
     for (size_t i = 0; i < strlen(s1) && are_equal != 0; ++i) {
         are_equal = s1[i] == s2[i];
     }
-    return are_equal;
-    /*
+    return are_equal;*/
     int are_equal = 1;
     for (size_t i = 0; i < strlen(s1); ++i){
         are_equal = (s1[i] == s2[i]) && are_equal;
     }
-    return are_equal && (strlen(s1) == strlen(s2));*/
+    return are_equal && (strlen(s1) == strlen(s2));
 }

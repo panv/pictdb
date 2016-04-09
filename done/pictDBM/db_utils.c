@@ -30,7 +30,6 @@ int do_open(const char* filename, const char* mode,
 
     size_t read_els = fread(&db_file->header, sizeof(struct pictdb_header), 1,
             input_stream);
-    printf("%zu\n", read_els);
     if (read_els != 1) {
         fprintf(stderr, "Could not read header from %s\n", filename);
         return ERR_IO;
