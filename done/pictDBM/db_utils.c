@@ -27,7 +27,6 @@ int do_open(const char* filename, const char* mode,
         fprintf(stderr, "Error opening %s\n", filename);
         return ERR_IO;
     }
-    db_file->fpdb = input_stream; // shouldn't it be affectected after a successful read?
 
     size_t read_els = fread(&db_file->header, sizeof(struct pictdb_header), 1,
             input_stream);
@@ -43,6 +42,7 @@ int do_open(const char* filename, const char* mode,
         return ERR_IO;
     }
 
+    db_file->fpdb = input_stream; // shouldn't it be affectected after a successful read?
     return 0;
 }
 

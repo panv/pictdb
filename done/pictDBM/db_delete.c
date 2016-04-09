@@ -47,12 +47,27 @@ int do_delete(struct pictdb_file* db_file, const char* pict_id)
 
     // Mark the image as invalid
     db_file->metadata[index].is_valid = EMPTY;
-
-    // Update header
-    ++db_file->header.db_version;
-    --db_file->header.num_files;
-
-    /* TODO: Write dans file using fseek and fwrite */
+    
+    // Position write head after the header
+    int seek_success = fseek(db_file->fpdb, sizeof(struct pictdb_header), SEEK_SET);
+    if (seek_success == 0) {
+        // Write metadata
+        size_t write_success = fwrite(db_file->metadata, sizeof(struct pict_metadata),
+                db_file->header.num_files, db_file->fpdb);
+        if (write_success == db_file->header.num_files) {
+            // Update header
+            ++db_file->header.db_version;
+            --db_file->header.num_files;
+            // Position write head at beginning of file
+            seek_success = fseek(db_file->fpdb, 0, SEEK_SET);
+            if (seek_success == 0) {
+                // Write header
+                write_success = fwrite(db_file->header, sizeof(pictdb_header), 1, db_file->fpdb);
+                return write_success == 1 ? 0 : ERR_IO;
+            }
+        }
+    }
+    return ERR_IO;
 }
 
 
@@ -60,7 +75,7 @@ int index_of_image(const char* pict_id, const struct pict_metadata images[],
         const uint32_t db_size, uint32_t* index)
 {
     for (uint32_t i = 0; i < db_size; ++i) {
-        if (equal_string(pict_id, images[i].pict_id)){
+        if (equal_string(pict_id, images[i].pict_id) != 0) {
             *index = i;
             return 0;
         }
@@ -70,9 +85,15 @@ int index_of_image(const char* pict_id, const struct pict_metadata images[],
 
 int equal_string(const char* s1, const char* s2)
 {
+    int are_equal = strlen(s1) == strlen(s2);
+    for (size_t i = 0; i < strlen(s1) && are_equal != 0; ++i) {
+        are_equal = s1[i] == s2[i];
+    }
+    return are_equal;
+    /*
     int are_equal = 1;
     for (size_t i = 0; i < strlen(s1); ++i){
         are_equal = (s1[i] == s2[i]) && are_equal;
     }
-    return are_equal && (strlen(s1) == strlen(s2));
+    return are_equal && (strlen(s1) == strlen(s2));*/
 }

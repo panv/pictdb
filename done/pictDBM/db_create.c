@@ -31,7 +31,7 @@ int do_create(const char* filename, struct pictdb_file* db_file) {
     db_file->header.num_files = db_file->header.max_files;
 
     for (uint32_t i = 0; i < db_file->header.num_files; ++i) {
-        db_file.metadata[i] = empty_metadata();
+        db_file->metadata[i] = empty_metadata();
     }
     
     // Open stream and check for errors
