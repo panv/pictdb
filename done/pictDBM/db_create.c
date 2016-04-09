@@ -10,7 +10,11 @@
 
 #include <string.h> // for strncpy
 
-// Prototype
+/*
+ * @brief Returns an empty pict_metadata object
+ *
+ * @return An empty pict_metadata object (is_valid = EMTPY)
+ */
 struct pict_metadata empty_metadata(void);
 
 /********************************************************************//**
