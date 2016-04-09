@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS += -Wall -std=c99 -g
 LDLIBS += -lssl -lcrypto
-SRCS = db_utils.c pictDBM.c db_list.c error.c db_create.c
+SRCS = db_utils.c pictDBM.c db_list.c error.c db_create.c db_delete.c
 
 pictDBM: $(SRCS)
 	$(CC) $(LDLIBS) $(CFLAGS) -o pictDBM $(SRCS)

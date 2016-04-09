@@ -23,10 +23,8 @@ int do_list_cmd (const char* filename) {
     if (db_opened == 0) {
         do_list(&db_file);
         do_close(&db_file);
-        return 0;
-    } else {
-        return db_opened;
     }
+    return db_opened;
 
     /* This is a quick and dirty way of reading the file.
      * It's provided here as such to avoid solution leak.
