@@ -62,7 +62,7 @@ int do_delete(struct pictdb_file* db_file, const char* pict_id)
             seek_success = fseek(db_file->fpdb, 0, SEEK_SET);
             if (seek_success == 0) {
                 // Write header
-                write_success = fwrite(db_file->header, sizeof(pictdb_header), 1, db_file->fpdb);
+                write_success = fwrite(&db_file->header, sizeof(struct pictdb_header), 1, db_file->fpdb);
                 return write_success == 1 ? 0 : ERR_IO;
             }
         }

@@ -96,15 +96,14 @@ int help (void) {
 int do_delete_cmd (const char* filename, const char* pictID) {
     // No test on filename, do_open will take care of it
     if (pictID == NULL || strlen(pictID) > MAX_PIC_ID) {
-        fprintf(stderr, "Error : invalid picture ID\n");
         return ERR_INVALID_PICID;
     }
     
     struct pictdb_file db_file;
-    puts("Delete");
     
     int db_opened = do_open(filename, "wb", &db_file);
     if (db_opened == 0) {
+        puts("Delete");
         int pict_deleted = do_delete(&db_file, pictID);
         do_close(&db_file);
         return pict_deleted;
