@@ -48,29 +48,29 @@ extern "C" {
 
 
 struct pictdb_header {
-	char db_name[MAX_DB_NAME + 1];
-	uint32_t db_version;
-	uint32_t num_files;
-	uint32_t max_files;
-	uint16_t res_resized[2 * (NB_RES - 1)];
-	uint32_t unused_32;
-	uint64_t unused_64;
+    char db_name[MAX_DB_NAME + 1];
+    uint32_t db_version;
+    uint32_t num_files;
+    uint32_t max_files;
+    uint16_t res_resized[2 * (NB_RES - 1)];
+    uint32_t unused_32;
+    uint64_t unused_64;
 };
 
 struct pict_metadata {
-	char pict_id[MAX_PIC_ID + 1];
-	unsigned char SHA[SHA256_DIGEST_LENGTH];
-	uint32_t res_orig[2];
-	uint32_t size[NB_RES];
-	uint64_t offset[NB_RES];
-	uint16_t is_valid;
-	uint16_t unused_16;
+    char pict_id[MAX_PIC_ID + 1];
+    unsigned char SHA[SHA256_DIGEST_LENGTH];
+    uint32_t res_orig[2];
+    uint32_t size[NB_RES];
+    uint64_t offset[NB_RES];
+    uint16_t is_valid;
+    uint16_t unused_16;
 };
 
 struct pictdb_file {
-	FILE* fpdb;
-	struct pictdb_header header;
-	struct pict_metadata metadata[MAX_MAX_FILES];
+    FILE* fpdb;
+    struct pictdb_header header;
+    struct pict_metadata metadata[MAX_MAX_FILES];
 };
 
 /**

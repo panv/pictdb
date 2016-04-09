@@ -1,3 +1,11 @@
+/**
+ * @file db_delete.c
+ * @brief pictDB library: do_delete implementation.
+ *
+ * @author Vincenzo Bazzucchi and Nicolas Phan Van
+ * @date 9 Apr 2016
+ */
+
 #include "pictDB.h"
 #include <string.h>
 /**
