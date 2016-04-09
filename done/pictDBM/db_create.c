@@ -43,7 +43,7 @@ int do_create(const char* filename, struct pictdb_file db_file)
         return ERR_IO;
     }
 
-    size_t header_ctrl = fwrite(&db_file.header, sizeof(db_file.header), 1, output);
+    size_t header_ctrl = fwrite(&db_file.header, sizeof(struct pictdb_header), 1, output);
     size_t metadata_ctrl = fwrite(&db_file.metadata,
             sizeof(struct pict_metadata), db_file.header.num_files, output);
     if (header_ctrl != 1 || metadata_ctrl != db_file.header.num_files) {
