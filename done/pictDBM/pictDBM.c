@@ -52,10 +52,7 @@ int do_create_cmd (const char* filename)
     const uint16_t small_res = 256;
 
     puts("Create");
-    /* **********************************************************************
-     * TODO WEEK 05: WRITE YOUR CODE HERE (and change the return if needed).
-     * **********************************************************************
-     */
+    
     struct pictdb_header db_header = {
         .max_files = max_files,
         .res_resized = {thumb_res, thumb_res, small_res, small_res}
