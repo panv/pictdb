@@ -94,11 +94,6 @@ int help (void) {
  * Deletes a picture from the database.
  */
 int do_delete_cmd (const char* filename, const char* pictID) {
-    // No test on filename, do_open will take care of it
-    if (pictID == NULL || strlen(pictID) > MAX_PIC_ID) {
-        return ERR_INVALID_PICID;
-    }
-    
     struct pictdb_file db_file;
     
     int db_opened = do_open(filename, "rb+", &db_file);

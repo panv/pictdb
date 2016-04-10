@@ -33,8 +33,11 @@ int equal_string(const char* s1, const char* s2);
 
 int do_delete(struct pictdb_file* db_file, const char* pict_id)
 {
-    if (db_file == NULL || pict_id == NULL){
+    if (db_file == NULL || pict_id == NULL) {
         return ERR_INVALID_ARGUMENT;
+    }
+    if (strlen(pictID) > MAX_PIC_ID) {
+        return ERR_INVALID_PICID;
     }
 
     // Find index of image to remove
