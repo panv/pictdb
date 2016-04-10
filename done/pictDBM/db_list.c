@@ -10,10 +10,9 @@
 #include "pictDB.h"
 
 /**
- * @brief Prints information about a pictdb_file object
+ * @brief Prints the metadata of all images of a database.
  *
- * @param db_file In memory object representing a
- * database file
+ * @param db_file In memory structure representing a database
 */
 void do_list(const struct pictdb_file db_file)
 {
@@ -21,9 +20,10 @@ void do_list(const struct pictdb_file db_file)
     if (db_file.header.num_files == 0) {
         printf("<< empty database >>\n");
     } else {
-        for (uint32_t i = 0; i < MAX_MAX_FILES; ++i) {
-            if (db_file.metadata[i].is_valid == NON_EMPTY)
+        for (uint32_t i = 0; i < db_file.header.max_files; ++i) {
+            if (db_file.metadata[i].is_valid == NON_EMPTY) {
                 print_metadata(db_file.metadata[i]);
+            }
         }
     }
 }

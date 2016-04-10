@@ -48,7 +48,8 @@ extern "C" {
 
 
 /**
- * @brief The header, containing the pictDB configuration informations.
+ * @brief The header of the database, containing
+ *        the pictDB configuration information.
  */
 struct pictdb_header {
     /**
@@ -98,7 +99,7 @@ struct pict_metadata {
      */
     uint32_t res_orig[2];
     /**
-     * @brief Memory sizes of the resized images.
+     * @brief Memory sizes (in bytes) of the resized images.
      */
     uint32_t size[NB_RES];
     /**
@@ -135,7 +136,7 @@ struct pictdb_file {
 };
 
 /**
- * @brief Prints database header informations.
+ * @brief Prints a database header informations.
  *
  * @param header The header to be displayed.
  */
