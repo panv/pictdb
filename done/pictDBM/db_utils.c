@@ -36,8 +36,8 @@ int do_open(const char* filename, const char* mode,
     }
 
     read_els = fread(&db_file->metadata, sizeof(struct pict_metadata),
-            db_file->header.num_files, input_stream);
-    if(read_els != db_file->header.num_files) {
+            db_file->header.max_files, input_stream);
+    if(read_els != db_file->header.max_files) {
         fprintf(stderr, "Could not read metadata from %s\n", filename);
         return ERR_IO;
     }

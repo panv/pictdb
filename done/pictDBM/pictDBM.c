@@ -101,7 +101,7 @@ int do_delete_cmd (const char* filename, const char* pictID) {
     
     struct pictdb_file db_file;
     
-    int db_opened = do_open(filename, "r+", &db_file);
+    int db_opened = do_open(filename, "rb+", &db_file);
     if (db_opened == 0) {
         puts("Delete");
         int pict_deleted = do_delete(&db_file, pictID);

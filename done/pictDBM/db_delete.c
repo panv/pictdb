@@ -40,17 +40,17 @@ int do_delete(struct pictdb_file* db_file, const char* pict_id)
     // Find index of image to remove
     uint32_t index;
     int found = index_of_image(pict_id, db_file->metadata,
-            db_file->header.num_files, &index);
+            db_file->header.max_files, &index);
     if (found == ERR_FILE_NOT_FOUND) {
         return ERR_FILE_NOT_FOUND;
     }
 
-    // Mark the image as invalid
+    // No need to delete an image that is not valid
     if (db_file->metadata[index].is_valid == EMPTY) {
         return 0;
-    } else {
-        db_file->metadata[index].is_valid == EMPTY;
     }
+    // Mark the image as invalid
+    db_file->metadata[index].is_valid = EMPTY;
     
     // Position write head after the header
     int seek_success = fseek(db_file->fpdb, sizeof(struct pictdb_header), SEEK_SET);
