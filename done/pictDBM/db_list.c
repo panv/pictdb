@@ -20,7 +20,7 @@ void do_list(const struct pictdb_file db_file)
     if (db_file.header.num_files == 0) {
         printf("<< empty database >>\n");
     } else {
-        for (uint32_t i = 0; i < db_file.max_files; ++i) {
+        for (uint32_t i = 0; i < db_file.header.max_files; ++i) {
             if (db_file.metadata[i].is_valid == NON_EMPTY) {
                 print_metadata(db_file.metadata[i]);
             }

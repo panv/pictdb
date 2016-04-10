@@ -24,7 +24,7 @@ int do_create(const char* filename, struct pictdb_file db_file)
         fprintf(stderr, "Error : invalid filename\n");
         return ERR_INVALID_FILENAME;
     }
-    if (db_file.max_files > MAX_MAX_FILES) {
+    if (db_file.header.max_files > MAX_MAX_FILES) {
         return ERR_MAX_FILES;
     }
     // Sets the DB header name
