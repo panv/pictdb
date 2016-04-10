@@ -75,7 +75,6 @@ int help (void)
            "  list <dbfilename>: list pictDB content.\n"
            "  create <dbfilename>: create a new pictDB.\n");
     return 0;
-    // should we return one of the errors defined in error.h? INVALID_COMMAND?
 }
 
 /********************************************************************//**
