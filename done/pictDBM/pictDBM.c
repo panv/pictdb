@@ -16,7 +16,8 @@
 /********************************************************************//**
  * Opens pictDB file and calls do_list command.
  ********************************************************************** */
-int do_list_cmd (const char* filename) {
+int do_list_cmd (const char* filename)
+{
     struct pictdb_file db_file;
 
     int db_opened = do_open(filename, "rb", &db_file);
@@ -86,7 +87,8 @@ int help (void)
 /********************************************************************//**
  * Deletes a picture from the database.
  */
-int do_delete_cmd (const char* filename, const char* pictID) {
+int do_delete_cmd (const char* filename, const char* pictID)
+{
     // No test on filename, do_open will take care of it
 
     struct pictdb_file db_file;

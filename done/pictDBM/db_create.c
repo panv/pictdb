@@ -55,9 +55,12 @@ int do_create(const char* filename, struct pictdb_file* db_file)
 
     // Writes the header and the array of max_files metadata to file
     size_t header_ctrl = fwrite(&db_file->header,
-            sizeof(struct pictdb_header), 1, output);
+                                sizeof(struct pictdb_header), 1, output);
+
     size_t metadata_ctrl = fwrite(&db_file->metadata,
-            sizeof(struct pict_metadata), db_file->header.max_files, output);
+                                  sizeof(struct pict_metadata),
+                                  db_file->header.max_files, output);
+
     if (header_ctrl != 1 || metadata_ctrl != db_file->header.max_files) {
         fprintf(stderr, "Error : cannot create database %s\n",
                 db_file->header.db_name);

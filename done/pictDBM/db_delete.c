@@ -19,7 +19,7 @@
  * @return 0 if no error occurs, an error coded in error.h in case of error
  */
 int index_of_image(const char* pict_id, const struct pict_metadata images[],
-        const uint32_t db_size, uint32_t* index);
+                   const uint32_t db_size, uint32_t* index);
 
 /*
  * @brief Checks for equality between two strings
@@ -33,7 +33,7 @@ int equal_string(const char* s1, const char* s2);
 
 int do_delete(struct pictdb_file* db_file, const char* pict_id)
 {
-    if (db_file == NULL || pict_id == NULL){
+    if (db_file == NULL || pict_id == NULL) {
         return ERR_INVALID_ARGUMENT;
     }
     if (strlen(pict_id) > MAX_PIC_ID) {
@@ -43,7 +43,7 @@ int do_delete(struct pictdb_file* db_file, const char* pict_id)
     // Find index of image to remove
     uint32_t index;
     int found = index_of_image(pict_id, db_file->metadata,
-            db_file->header.max_files, &index);
+                               db_file->header.max_files, &index);
     if (found == ERR_FILE_NOT_FOUND) {
         return ERR_FILE_NOT_FOUND;
     }
@@ -60,7 +60,7 @@ int do_delete(struct pictdb_file* db_file, const char* pict_id)
     if (seek_success == 0) {
         // Write metadata
         size_t write_success = fwrite(db_file->metadata, sizeof(struct pict_metadata),
-                db_file->header.num_files, db_file->fpdb);
+                                      db_file->header.num_files, db_file->fpdb);
         if (write_success == db_file->header.num_files) {
             // Update header
             ++db_file->header.db_version;
@@ -79,7 +79,7 @@ int do_delete(struct pictdb_file* db_file, const char* pict_id)
 
 
 int index_of_image(const char* pict_id, const struct pict_metadata images[],
-        const uint32_t db_size, uint32_t* index)
+                   const uint32_t db_size, uint32_t* index)
 {
     for (uint32_t i = 0; i < db_size; ++i) {
         //if (equal_string(pict_id, images[i].pict_id)) {

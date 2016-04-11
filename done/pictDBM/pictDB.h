@@ -179,7 +179,7 @@ int do_create(const char* filename, struct pictdb_file* db_file);
  * @return 0 if no errors occur, an int coded in error.h in case of errors
  */
 int do_open(const char* filename, const char* mode,
-        struct pictdb_file* db_file);
+            struct pictdb_file* db_file);
 
 /*
  * @brief Closes the strem in the in memory database file
