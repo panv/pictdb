@@ -21,15 +21,6 @@
 int index_of_image(const char* pict_id, const struct pict_metadata images[],
                    const uint32_t db_size, uint32_t* index);
 
-/*
- * @brief Checks for equality between two strings
- *
- * @param s1, s2 The two strings to compare.
- *
- * @return A non-zero value if the strings are equal, else 0.
- */
-int equal_string(const char* s1, const char* s2);
-
 
 int do_delete(struct pictdb_file* db_file, const char* pict_id)
 {
@@ -77,7 +68,6 @@ int do_delete(struct pictdb_file* db_file, const char* pict_id)
     return ERR_IO;
 }
 
-
 int index_of_image(const char* pict_id, const struct pict_metadata images[],
                    const uint32_t db_size, uint32_t* index)
 {
@@ -90,4 +80,3 @@ int index_of_image(const char* pict_id, const struct pict_metadata images[],
     }
     return ERR_FILE_NOT_FOUND;
 }
-
