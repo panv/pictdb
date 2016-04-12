@@ -39,8 +39,17 @@ int do_create(const char* filename, struct pictdb_file* db_file)
     // Initialize header
     db_file->header.db_version = 0;
     db_file->header.num_files = 0;
+    
+    // Dynamically allocates memory to the metadata
+    struct pict_metadata* metadata = calloc(db_file->header.max_files,
+                                            sizeof(struct pict_metadata));
+    // Check for allocation error
+    if (metadata == NULL) {
+        return ERR_OUT_OF_MEMORY;
+    }
+    db_file->metadata = metadata;
 
-    // Sets all metadata validity to EMPTY
+    // Sets all metadata validity to EMPTY (still useful after calloc?)
     for (uint32_t i = 0; i < db_file->header.max_files; ++i) {
         db_file->metadata[i].is_valid = EMPTY;
     }
@@ -61,13 +70,16 @@ int do_create(const char* filename, struct pictdb_file* db_file)
                                   sizeof(struct pict_metadata),
                                   db_file->header.max_files, output);
 
+    fclose(output);
+    free(metadata);
+    metadata = NULL;
+    
     if (header_ctrl != 1 || metadata_ctrl != db_file->header.max_files) {
         fprintf(stderr, "Error : cannot create database %s\n",
                 db_file->header.db_name);
         return ERR_IO;
     }
 
-    fclose(output);
     printf("%zu item(s) written\n", header_ctrl + metadata_ctrl);
     return 0;
 }

@@ -69,7 +69,7 @@ int do_delete(struct pictdb_file* db_file, const char* pict_id)
     return ERR_IO;
 }
 
-int index_of_image(const char* pict_id, const struct pict_metadata images[],
+int index_of_image(const char* pict_id, const struct pict_metadata* images,
                    const uint32_t db_size, uint32_t* index)
 {
     for (uint32_t i = 0; i < db_size; ++i) {
