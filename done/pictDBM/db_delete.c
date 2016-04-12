@@ -35,7 +35,7 @@ int do_delete(struct pictdb_file* db_file, const char* pict_id)
     uint32_t index;
     int found = index_of_image(pict_id, db_file->metadata,
                                db_file->header.max_files, &index);
-    if (found == ERR_FILE_NOT_FOUND) {
+    if (found != 0) {
         return ERR_FILE_NOT_FOUND;
     }
 
@@ -72,8 +72,8 @@ int index_of_image(const char* pict_id, const struct pict_metadata images[],
                    const uint32_t db_size, uint32_t* index)
 {
     for (uint32_t i = 0; i < db_size; ++i) {
-        //if (equal_string(pict_id, images[i].pict_id)) {
-        if (strcmp(pict_id, images[i].pict_id) == 0) {
+        if (strcmp(pict_id, images[i].pict_id) == 0
+            && images[i].is_valid == NON_EMPTY) {
             *index = i;
             return 0;
         }
