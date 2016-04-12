@@ -10,12 +10,6 @@
 
 #include <string.h> // for strncpy and strlen
 
-/*
- * @brief Returns an empty pict_metadata object
- *
- * @return An empty pict_metadata object (is_valid = EMTPY)
- */
-struct pict_metadata empty_metadata(void);
 
 /********************************************************************//**
  * Creates the database called db_filename. Writes the header and the
@@ -25,7 +19,10 @@ struct pict_metadata empty_metadata(void);
 int do_create(const char* filename, struct pictdb_file* db_file)
 {
     // Error checks
-    if (filename == NULL || strlen(filename) > MAX_DB_NAME) {
+    if (filename == NULL || db_file == NULL) {
+        return ERR_INVALID_ARGUMENT;
+    }
+    if (strlen(filename) > MAX_DB_NAME) {
         return ERR_INVALID_FILENAME;
     }
     if (db_file->header.max_files > MAX_MAX_FILES) {
@@ -42,7 +39,7 @@ int do_create(const char* filename, struct pictdb_file* db_file)
 
     // Sets all metadata validity to EMPTY
     for (uint32_t i = 0; i < db_file->header.max_files; ++i) {
-        db_file->metadata[i] = empty_metadata();
+        db_file->metadata[i].is_valid = EMPTY;
     }
 
     // Open stream and check for errors
@@ -71,13 +68,3 @@ int do_create(const char* filename, struct pictdb_file* db_file)
     printf("%zu item(s) written\n", header_ctrl + metadata_ctrl);
     return 0;
 }
-
-/**
- * @brief Returns an empty metadata.
- */
-struct pict_metadata empty_metadata(void)
-{
-    struct pict_metadata metadata = {.is_valid = EMPTY};
-    return metadata;
-}
-
