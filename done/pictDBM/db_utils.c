@@ -34,9 +34,23 @@ int do_open(const char* filename, const char* mode,
         fprintf(stderr, "Could not read header from %s\n", filename);
         return ERR_IO;
     }
+    
+    // Dynamically allocates memory to the metadata
+    struct pict_metadata* metadata = calloc(db_file->header.max_files,
+                                            sizeof(struct pict_metadata));
+    // Check for allocation error
+    if (metadata == NULL) {
+        return ERR_OUT_OF_MEMORY;
+    }
+    db_file->metadata = metadata;
 
     read_els = fread(&db_file->metadata, sizeof(struct pict_metadata),
                      db_file->header.max_files, input_stream);
+    
+    // Free memory and overwrite pointer
+    free(metadata);
+    metadata = NULL;
+    
     if(read_els != db_file->header.max_files) {
         fprintf(stderr, "Could not read metadata from %s\n", filename);
         return ERR_IO;

@@ -39,6 +39,14 @@ int do_create(const char* filename, struct pictdb_file* db_file)
     // Initialize header
     db_file->header.db_version = 0;
     db_file->header.num_files = 0;
+
+    // Open stream and check for errors
+    FILE* output = fopen(filename, "wb");
+    if (output == NULL) {
+        fprintf(stderr,
+                "Error : cannot open file %s\n", filename);
+        return ERR_IO;
+    }
     
     // Dynamically allocates memory to the metadata
     struct pict_metadata* metadata = calloc(db_file->header.max_files,
@@ -54,14 +62,6 @@ int do_create(const char* filename, struct pictdb_file* db_file)
         db_file->metadata[i].is_valid = EMPTY;
     }
 
-    // Open stream and check for errors
-    FILE* output = fopen(filename, "wb");
-    if (output == NULL) {
-        fprintf(stderr,
-                "Error : cannot open file %s\n", filename);
-        return ERR_IO;
-    }
-
     // Writes the header and the array of max_files metadata to file
     size_t header_ctrl = fwrite(&db_file->header,
                                 sizeof(struct pictdb_header), 1, output);
@@ -71,6 +71,7 @@ int do_create(const char* filename, struct pictdb_file* db_file)
                                   db_file->header.max_files, output);
 
     fclose(output);
+    // Free memory and overwrite pointer
     free(metadata);
     metadata = NULL;
     
