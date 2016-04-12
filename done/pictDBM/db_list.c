@@ -1,15 +1,19 @@
 /**
  * @file db_list.c
- * @brief implementation of the do_list function
+ * @brief Implementation of the do_list function.
  *
  * @author Vincenzo Bazzucchi and Nicolas Phan Van
  * @date 12 Mar 2016
 */
 
-
 #include <stdio.h>
 #include "pictDB.h"
 
+/**
+ * @brief Prints the metadata of all images of a database.
+ *
+ * @param db_file In memory structure representing a database
+*/
 void do_list(const struct pictdb_file* db_file)
 {
     // Print header
@@ -19,9 +23,10 @@ void do_list(const struct pictdb_file* db_file)
     } else {
         // iterate over all elements in array of metadata and print them
         // only if they are valid
-        for (size_t i = 0; i < MAX_MAX_FILES; ++i) {
-            if (db_file->metadata[i].is_valid == NON_EMPTY)
+        for (uint32_t i = 0; i < db_file->header.max_files; ++i) {
+            if (db_file->metadata[i].is_valid == NON_EMPTY) {
                 print_metadata(&db_file->metadata[i]);
+            }
         }
     }
 }

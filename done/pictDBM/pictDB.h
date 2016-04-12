@@ -30,7 +30,7 @@
 /* constraints */
 #define MAX_DB_NAME 31  // max. size of a PictDB name
 #define MAX_PIC_ID 127  // max. size of a picture id
-#define MAX_MAX_FILES 10  // will be increased later in the project
+#define MAX_MAX_FILES 100000  // will be increased later in the project
 
 /* For is_valid in pictdb_metadata */
 #define EMPTY 0
@@ -47,34 +47,96 @@ extern "C" {
 #endif
 
 
+/**
+ * @brief The header of the database, containing
+ *        the pictDB configuration information.
+ */
 struct pictdb_header {
+    /**
+     * @brief Name of the picture database.
+     */
     char db_name[MAX_DB_NAME + 1];
+    /**
+     * @brief Version of the database.
+     */
     uint32_t db_version;
+    /**
+     * @brief Number of images contained in the database.
+     */
     uint32_t num_files;
+    /**
+     * @brief Maximal number of images the database can contain.
+     */
     uint32_t max_files;
+    /**
+     * @brief Maximal resolutions of the thumbnail and small images.
+     */
     uint16_t res_resized[2 * (NB_RES - 1)];
+    /**
+     * @brief Unused 32 bit integer.
+     */
     uint32_t unused_32;
+    /**
+     * @brief Unused 64 bit integer.
+     */
     uint64_t unused_64;
 };
 
+/**
+ * @brief The metadata of an image.
+ */
 struct pict_metadata {
+    /**
+     * @brief Name of the image.
+     */
     char pict_id[MAX_PIC_ID + 1];
+    /**
+     * @brief Hash code of the image.
+     */
     unsigned char SHA[SHA256_DIGEST_LENGTH];
+    /**
+     * @brief Resolution of the original image.
+     */
     uint32_t res_orig[2];
+    /**
+     * @brief Memory sizes (in bytes) of the resized images.
+     */
     uint32_t size[NB_RES];
+    /**
+     * @brief Positions of the resized images in the database.
+     */
     uint64_t offset[NB_RES];
+    /**
+     * @brief Indicates if the image is still in use (NON_EMPTY)
+     *        or was erased (EMPTY).
+     */
     uint16_t is_valid;
+    /**
+     * @brief Unused 16 bit integer.
+     */
     uint16_t unused_16;
 };
 
+/**
+ * @brief An image database.
+ */
 struct pictdb_file {
+    /**
+     * @brief File containing the database.
+     */
     FILE* fpdb;
+    /**
+     * @brief Header of the database.
+     */
     struct pictdb_header header;
-    struct pict_metadata metadata[MAX_MAX_FILES];
+    /**
+     * @brief Metadata of the images.
+     */
+    struct pict_metadata* metadata;
 };
 
 /**
- * @brief Prints database header informations.
+ * @brief Prints a database header informations.
  *
  * @param header The header to be displayed.
  */
@@ -104,7 +166,7 @@ void do_list(const struct pictdb_file* db_file);
  * @param filename Path to the file we want to write to.
  * @param db_file In memory structure with header and metadata.
  */
-int do_create(const char filename[], struct pictdb_file* db_file);
+int do_create(const char* filename, struct pictdb_file* db_file);
 
 /**
  * @brief Open file containing, reads its content and writes it in memory
@@ -117,7 +179,7 @@ int do_create(const char filename[], struct pictdb_file* db_file);
  * @return 0 if no errors occur, an int coded in error.h in case of errors
  */
 int do_open(const char* filename, const char* mode,
-        struct pictdb_file* db_file);
+            struct pictdb_file* db_file);
 
 /*
  * @brief Closes the strem in the in memory database file
