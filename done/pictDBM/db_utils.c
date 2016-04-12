@@ -42,7 +42,7 @@ int do_open(const char* filename, const char* mode,
         return ERR_IO;
     }
 
-    db_file->fpdb = input_stream; // shouldn't it be affectected after a successful read?
+    db_file->fpdb = input_stream;
     return 0;
 }
 

@@ -30,4 +30,3 @@ void do_list(const struct pictdb_file* db_file)
         }
     }
 }
-

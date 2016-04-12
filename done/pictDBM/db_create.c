@@ -42,7 +42,7 @@ int do_create(const char* filename, struct pictdb_file* db_file)
 
     // Sets all metadata validity to EMPTY
     for (uint32_t i = 0; i < db_file->header.max_files; ++i) {
-        db_file->metadata[i] = empty_metadata();
+        db_file->metadata[i].is_valid = EMPTY;
     }
 
     // Open stream and check for errors
@@ -71,13 +71,3 @@ int do_create(const char* filename, struct pictdb_file* db_file)
     printf("%zu item(s) written\n", header_ctrl + metadata_ctrl);
     return 0;
 }
-
-/**
- * @brief Returns an empty metadata.
- */
-struct pict_metadata empty_metadata(void)
-{
-    struct pict_metadata metadata = {.is_valid = EMPTY};
-    return metadata;
-}
-

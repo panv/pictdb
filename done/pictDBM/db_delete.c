@@ -21,16 +21,6 @@
 int index_of_image(const char* pict_id, const struct pict_metadata images[],
                    const uint32_t db_size, uint32_t* index);
 
-/*
- * @brief Checks for equality between two strings
- *
- * @param s1, s2 The two strings to compare.
- *
- * @return A non-zero value if the strings are equal, else 0.
- */
-int equal_string(const char* s1, const char* s2);
-
-
 int do_delete(struct pictdb_file* db_file, const char* pict_id)
 {
     if (db_file == NULL || pict_id == NULL) {
@@ -44,14 +34,16 @@ int do_delete(struct pictdb_file* db_file, const char* pict_id)
     uint32_t index;
     int found = index_of_image(pict_id, db_file->metadata,
                                db_file->header.max_files, &index);
-    if (found == ERR_FILE_NOT_FOUND) {
+    if (found != 0) {
         return ERR_FILE_NOT_FOUND;
     }
 
+    /*
     // No need to delete an image that is not valid
     if (db_file->metadata[index].is_valid == EMPTY) {
         return 0;
     }
+    */
     // Mark the image as invalid
     db_file->metadata[index].is_valid = EMPTY;
 
@@ -77,17 +69,15 @@ int do_delete(struct pictdb_file* db_file, const char* pict_id)
     return ERR_IO;
 }
 
-
 int index_of_image(const char* pict_id, const struct pict_metadata images[],
                    const uint32_t db_size, uint32_t* index)
 {
     for (uint32_t i = 0; i < db_size; ++i) {
-        //if (equal_string(pict_id, images[i].pict_id)) {
-        if (strcmp(pict_id, images[i].pict_id) == 0) {
+        if (strcmp(pict_id, images[i].pict_id) == 0
+            && images[i].is_valid == NON_EMPTY) {
             *index = i;
             return 0;
         }
     }
     return ERR_FILE_NOT_FOUND;
 }
-
