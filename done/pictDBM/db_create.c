@@ -57,6 +57,8 @@ int do_create(const char* filename, struct pictdb_file* db_file)
     size_t metadata_ctrl = fwrite(&db_file->metadata,
                                   sizeof(struct pict_metadata),
                                   db_file->header.max_files, output);
+    
+    fclose(output);
 
     if (header_ctrl != 1 || metadata_ctrl != db_file->header.max_files) {
         fprintf(stderr, "Error : cannot create database %s\n",
@@ -64,7 +66,6 @@ int do_create(const char* filename, struct pictdb_file* db_file)
         return ERR_IO;
     }
 
-    fclose(output);
     printf("%zu item(s) written\n", header_ctrl + metadata_ctrl);
     return 0;
 }
