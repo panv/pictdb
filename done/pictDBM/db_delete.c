@@ -38,11 +38,12 @@ int do_delete(struct pictdb_file* db_file, const char* pict_id)
     if (found != 0) {
         return ERR_FILE_NOT_FOUND;
     }
-
+    /*
     // No need to delete an image that is not valid
     if (db_file->metadata[index].is_valid == EMPTY) {
         return 0;
     }
+    */
     // Mark the image as invalid
     db_file->metadata[index].is_valid = EMPTY;
 
@@ -60,11 +61,13 @@ int do_delete(struct pictdb_file* db_file, const char* pict_id)
             seek_success = fseek(db_file->fpdb, 0, SEEK_SET);
             if (seek_success == 0) {
                 // Write header
-                write_success = fwrite(&db_file->header, sizeof(struct pictdb_header), 1, db_file->fpdb);
+                write_success = fwrite(&db_file->header, sizeof(struct pictdb_header),
+                                       1, db_file->fpdb);
                 return write_success == 1 ? 0 : ERR_IO;
             }
         }
     }
+    // Return error code if any of the seek or write checks fails
     return ERR_IO;
 }
 
