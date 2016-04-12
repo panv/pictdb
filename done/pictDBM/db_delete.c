@@ -18,7 +18,7 @@
  *
  * @return 0 if no error occurs, an error coded in error.h in case of error
  */
-int index_of_image(const char* pict_id, const struct pict_metadata images[],
+int index_of_image(const char* pict_id, const struct pict_metadata* images,
                    const uint32_t db_size, uint32_t* index);
 
 int do_delete(struct pictdb_file* db_file, const char* pict_id)

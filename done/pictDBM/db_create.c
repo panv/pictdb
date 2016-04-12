@@ -11,12 +11,6 @@
 
 #include <string.h> // for strncpy and strlen
 
-/*
- * @brief Returns an empty pict_metadata object
- *
- * @return An empty pict_metadata object (is_valid = EMTPY)
- */
-struct pict_metadata empty_metadata(void);
 
 /********************************************************************//**
  * Creates the database called db_filename. Writes the header and the
@@ -50,13 +44,12 @@ int do_create(const char* filename, struct pictdb_file* db_file)
     }
     
     // Dynamically allocates memory to the metadata
-    struct pict_metadata* metadata = calloc(db_file->header.max_files,
-                                            sizeof(struct pict_metadata));
+    db_file->metadata = calloc(db_file->header.max_files,
+                               sizeof(struct pict_metadata));
     // Check for allocation error
-    if (metadata == NULL) {
+    if (db_file->metadata == NULL) {
         return ERR_OUT_OF_MEMORY;
     }
-    db_file->metadata = metadata;
 
     // Sets all metadata validity to EMPTY (still useful after calloc?)
     for (uint32_t i = 0; i < db_file->header.max_files; ++i) {
@@ -73,8 +66,8 @@ int do_create(const char* filename, struct pictdb_file* db_file)
 
     fclose(output);
     // Free memory and overwrite pointer
-    free(metadata);
-    metadata = NULL;
+    free(db_file->metadata);
+    db_file->metadata = NULL;
     
     if (header_ctrl != 1 || metadata_ctrl != db_file->header.max_files) {
         fprintf(stderr, "Error : cannot create database %s\n",
