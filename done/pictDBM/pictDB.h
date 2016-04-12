@@ -30,7 +30,7 @@
 /* constraints */
 #define MAX_DB_NAME 31  // max. size of a PictDB name
 #define MAX_PIC_ID 127  // max. size of a picture id
-#define MAX_MAX_FILES 10  // will be increased later in the project
+#define MAX_MAX_FILES 100000  // will be increased later in the project
 
 /* For is_valid in pictdb_metadata */
 #define EMPTY 0
@@ -132,7 +132,7 @@ struct pictdb_file {
     /**
      * @brief Metadata of the images.
      */
-    struct pict_metadata metadata[MAX_MAX_FILES];
+    struct pict_metadata* metadata;
 };
 
 /**
