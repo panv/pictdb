@@ -17,32 +17,32 @@ int do_open(const char* filename, const char* mode,
             struct pictdb_file* db_file)
 {
     if (filename == NULL || mode == NULL || db_file == NULL) {
-        fprintf(stderr,
-                "Invalid pointer\n");
         return ERR_INVALID_ARGUMENT;
     }
 
     FILE* input_stream = fopen(filename, mode);
     if (input_stream == NULL) {
-        fprintf(stderr, "Error opening %s\n", filename);
+        fprintf(stderr, "Error : cannot open file %s\n", filename);
         return ERR_IO;
     }
 
     size_t read_els = fread(&db_file->header, sizeof(struct pictdb_header), 1,
                             input_stream);
     if (read_els != 1) {
-        fprintf(stderr, "Could not read header from %s\n", filename);
+        fprintf(stderr, "Error : cannot read header from %s\n", filename);
+        fclose(input_stream);
         return ERR_IO;
     }
 
     read_els = fread(&db_file->metadata, sizeof(struct pict_metadata),
                      db_file->header.max_files, input_stream);
     if(read_els != db_file->header.max_files) {
-        fprintf(stderr, "Could not read metadata from %s\n", filename);
+        fprintf(stderr, "Error : cannot read metadata from %s\n", filename);
+        fclose(input_stream);
         return ERR_IO;
     }
 
-    db_file->fpdb = input_stream; // shouldn't it be affectected after a successful read?
+    db_file->fpdb = input_stream;
     return 0;
 }
 

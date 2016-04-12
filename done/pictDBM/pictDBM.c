@@ -89,8 +89,6 @@ int help (void)
  */
 int do_delete_cmd (const char* filename, const char* pictID)
 {
-    // No test on filename, do_open will take care of it
-
     struct pictdb_file db_file;
 
     int db_opened = do_open(filename, "rb+", &db_file);
