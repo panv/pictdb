@@ -7,7 +7,7 @@
  */
 
 #include "pictDB.h"
-#include <string.h>
+
 /**
  * @brief Finds the index of an image in an array of metadata
  *
@@ -83,3 +83,4 @@ int index_of_image(const char* pict_id, const struct pict_metadata images[],
     }
     return ERR_FILE_NOT_FOUND;
 }
+

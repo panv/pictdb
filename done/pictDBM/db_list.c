@@ -6,7 +6,6 @@
  * @date 12 Mar 2016
 */
 
-#include <stdio.h>
 #include "pictDB.h"
 
 /**
@@ -30,3 +29,4 @@ void do_list(const struct pictdb_file* db_file)
         }
     }
 }
+

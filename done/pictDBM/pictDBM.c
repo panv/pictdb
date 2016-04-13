@@ -10,8 +10,6 @@
 
 #include "pictDB.h"
 #include <stdlib.h>
-#include <string.h>
-#include "error.h"
 
 /********************************************************************//**
  * Opens pictDB file and calls do_list command.

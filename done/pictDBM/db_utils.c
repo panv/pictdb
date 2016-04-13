@@ -7,11 +7,7 @@
  */
 
 #include "pictDB.h"
-#include <stdint.h> // for uint8_t
-#include <stdio.h> // for sprintf
-#include <openssl/sha.h> // for SHA256_DIGEST_LENGTH
-#include <string.h> // for strlen
-#include <inttypes.h>
+#include <inttypes.h> // For printing types int stdint
 
 int do_open(const char* filename, const char* mode,
             struct pictdb_file* db_file)

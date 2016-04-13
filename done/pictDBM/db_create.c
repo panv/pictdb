@@ -8,9 +8,6 @@
 
 #include "pictDB.h"
 
-#include <string.h> // for strncpy and strlen
-
-
 /********************************************************************//**
  * Creates the database called db_filename. Writes the header and the
  * preallocated empty metadata array to database file.
@@ -57,7 +54,7 @@ int do_create(const char* filename, struct pictdb_file* db_file)
     size_t metadata_ctrl = fwrite(&db_file->metadata,
                                   sizeof(struct pict_metadata),
                                   db_file->header.max_files, output);
-    
+
     fclose(output);
 
     if (header_ctrl != 1 || metadata_ctrl != db_file->header.max_files) {
@@ -69,3 +66,4 @@ int do_create(const char* filename, struct pictdb_file* db_file)
     printf("%zu item(s) written\n", header_ctrl + metadata_ctrl);
     return 0;
 }
+
