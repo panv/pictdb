@@ -1,4 +1,7 @@
 # Binary file
 pictDBM
 
+# Test files
+testDB*
+
 progOSProject.sublime-workspace
