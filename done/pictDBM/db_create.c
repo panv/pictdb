@@ -12,11 +12,6 @@
 #include <string.h> // for strncpy and strlen
 
 
-/********************************************************************//**
- * Creates the database called db_filename. Writes the header and the
- * preallocated empty metadata array to database file.
- */
-
 int do_create(const char* filename, struct pictdb_file* db_file)
 {
     // Error checks
@@ -42,7 +37,7 @@ int do_create(const char* filename, struct pictdb_file* db_file)
                 "Error : cannot open file %s\n", filename);
         return ERR_IO;
     }
-    
+
     // Dynamically allocates memory to the metadata
     db_file->metadata = calloc(db_file->header.max_files,
                                sizeof(struct pict_metadata));
@@ -68,7 +63,7 @@ int do_create(const char* filename, struct pictdb_file* db_file)
     // Free memory and overwrite pointer
     free(db_file->metadata);
     db_file->metadata = NULL;
-    
+
     if (header_ctrl != 1 || metadata_ctrl != db_file->header.max_files) {
         fprintf(stderr, "Error : cannot create database %s\n",
                 db_file->header.db_name);
