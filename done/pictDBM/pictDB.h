@@ -21,16 +21,16 @@
 #include "error.h" /* not needed here, but provides it as required by
                     * all functions of this lib.
                     */
-#include <stdio.h> // for FILE
-#include <stdint.h> // for uint32_t, uint64_t
+#include <stdio.h>       // for FILE
+#include <stdint.h>      // for uint32_t, uint64_t
 #include <openssl/sha.h> // for SHA256_DIGEST_LENGTH
-#include <string.h> // for strcmp, strncpy, strlen
+#include <string.h>      // for strcmp, strncpy, strlen
 
 #define CAT_TXT "EPFL PictDB binary"
 
 /* constraints */
-#define MAX_DB_NAME 31  // max. size of a PictDB name
-#define MAX_PIC_ID 127  // max. size of a picture id
+#define MAX_DB_NAME 31    // max. size of a PictDB name
+#define MAX_PIC_ID 127    // max. size of a picture id
 #define MAX_MAX_FILES 10  // will be increased later in the project
 
 /* For is_valid in pictdb_metadata */

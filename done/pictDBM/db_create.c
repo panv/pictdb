@@ -66,4 +66,3 @@ int do_create(const char* filename, struct pictdb_file* db_file)
     printf("%zu item(s) written\n", header_ctrl + metadata_ctrl);
     return 0;
 }
-

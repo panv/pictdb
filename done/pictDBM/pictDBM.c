@@ -24,24 +24,6 @@ int do_list_cmd (const char* filename)
         do_close(&db_file);
     }
     return db_opened;
-
-    /* This is a quick and dirty way of reading the file.
-     * It's provided here as such to avoid solution leak.
-     * You shall NOT proceed as such in your future open function
-     * (in week 6).
-     */
-    /* **********************************************************************
-     * TODO WEEK 06: REPLACE THE PROVIDED CODE BY YOUR OWN CODE HERE
-     * **********************************************************************
-     */
-    /*
-    myfile.fpdb = fopen(filename, "rb");
-    if (myfile.fpdb == NULL) {
-        return ERR_IO;
-    }
-    fread(&myfile.header , sizeof(struct pictdb_header),             1, myfile.fpdb);
-    fread(myfile.metadata, sizeof(struct pict_metadata), MAX_MAX_FILES, myfile.fpdb);
-    */
 }
 
 /********************************************************************//**
