@@ -58,13 +58,16 @@ int do_open(const char* filename, const char* mode,
 
 void do_close(struct pictdb_file* db_file)
 {
-    // check for metadata == NULL ?;
-    if (db_file != NULL && db_file->fpdb != NULL) {
+    if (db_file != NULL) {
+        if (db_file->fpdb != NULL) {
+            fclose(db_file->fpdb);
+            db_file->fpdb = NULL;
+        }
         // Free memory and overwrite metadata pointer
-        free(db_file->metadata);
-        db_file->metadata = NULL;
-        fclose(db_file->fpdb);
-        db_file->fpdb = NULL;
+        if (db_file->metadata != NULL) {
+            free(db_file->metadata);
+            db_file->metadata = NULL;
+        }
     }
 }
 
