@@ -2,8 +2,8 @@
 
 // Prototypes
 int valid_resolution(int resolution);
-long write_to_disk(struct pictdb_file* db_file,
-                   void* to_write, long offset, int whence);
+long write_to_disk(struct pictdb_file* db_file, void* to_write,
+                   size_t size, size_t nmemb, long offset, int whence);
 
 
 int lazily_resize(int resolution, struct pictdb_file* db_file, size_t index) {
@@ -28,12 +28,13 @@ int lazily_resize(int resolution, struct pictdb_file* db_file, size_t index) {
 
     // assume db_file.fpdb is open?
     // image = return value of function resizes image
-    long offset = write_to_disk(db_file, image, 0, SEEK_END);
+    long offset = write_to_disk(db_file, image, sizeof(image),
+                                1, 0, SEEK_END);
     if (offset != -1) {
         db_file->metadata[index].size[resolution] = sizeof(image);
         metadata->offset[resolution] = offset;
-        offset = write_to_disk(db_file, db_file->metadata,
-                               sizeof(struct pictdb_header), SEEK_SET);
+        offset = write_to_disk(db_file, db_file->metadata, sizeof(struct pict_metadata),
+                               db_file->header.max_files, sizeof(struct pictdb_header), SEEK_SET);
         return (offset != -1) ? 0 : ERR_IO;
     }
     return ERR_IO;
@@ -53,19 +54,21 @@ int valid_resolution(int resolution) {
 /**
  * @brief Writes the data pointed to by the given pointer to disk.
  *
- * @param db_file The database containing the file to write to.
+ * @param db_file  The database containing the file to write to.
  * @param to_write The pointer pointing to the data to write.
- * @param offset The offset required by fseek.
- * @param whence The starting position of the write head.
+ * @param size     The size in bytes of each element to be written.
+ * @param nmemb    The number of elements to be written.
+ * @param offset   The offset required by fseek.
+ * @param whence   The starting position of the write head.
  * @return -1 in case of error, the size of the file before writing the data otherwise.
  */
-long write_to_disk(struct pictdb_file* db_file,
-                   void* to_write, long offset, int whence) {
+long write_to_disk(struct pictdb_file* db_file, void* to_write,
+                   size_t size, size_t nmemb, long offset, int whence) {
     int seek_success = fseek(db_file->fpdb, offset, whence);
     if (seek_success == 0) {
-        long size = ftell(db_file->fpdb);
-        int write_success = fwrite(to_write, sizeof(*to_write), 1, db_file->fpdb);
-        return (write_success == 1) ? size : -1;
+        long file_size = ftell(db_file->fpdb);
+        int write_success = fwrite(to_write, size, nmemb, db_file->fpdb);
+        return (write_success == size) ? file_size : -1;
     }
     return -1;
 }
