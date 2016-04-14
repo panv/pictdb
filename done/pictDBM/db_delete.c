@@ -47,8 +47,8 @@ int do_delete(struct pictdb_file* db_file, const char* pict_id)
     if (seek_success == 0) {
         // Write metadata
         size_t write_success = fwrite(db_file->metadata, sizeof(struct pict_metadata),
-                                      db_file->header.num_files, db_file->fpdb);
-        if (write_success == db_file->header.num_files) {
+                                      db_file->header.max_files, db_file->fpdb);
+        if (write_success == db_file->header.max_files) {
             // Update header
             ++db_file->header.db_version;
             --db_file->header.num_files;
