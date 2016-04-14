@@ -1,4 +1,4 @@
-#include pictDB.h
+#include "pictDB.h"
 
 // Prototypes
 int valid_resolution(int resolution);
@@ -8,7 +8,7 @@ long write_to_disk(struct pictdb_file* db_file, void* to_write,
 
 int lazily_resize(int resolution, struct pictdb_file* db_file, size_t index) {
     // Error checks on arguments
-    if (db_file == NULL || index >= db_file->max_files) {
+    if (db_file == NULL || index >= db_file->header.max_files) {
         return ERR_INVALID_ARGUMENT;
     }
     if (db_file->metadata[index].is_valid == EMPTY) {
@@ -32,7 +32,7 @@ int lazily_resize(int resolution, struct pictdb_file* db_file, size_t index) {
                                 1, 0, SEEK_END);
     if (offset != -1) {
         db_file->metadata[index].size[resolution] = sizeof(image);
-        metadata->offset[resolution] = offset;
+        db_file->metadata[index].offset[resolution] = offset;
         offset = write_to_disk(db_file, db_file->metadata, sizeof(struct pict_metadata),
                                db_file->header.max_files, sizeof(struct pictdb_header), SEEK_SET);
         return (offset != -1) ? 0 : ERR_IO;
