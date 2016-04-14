@@ -63,9 +63,9 @@ long write_to_disk(struct pictdb_file* db_file,
                    void* to_write, long offset, int whence) {
     int seek_success = fseek(db_file->fpdb, offset, whence);
     if (seek_success == 0) {
-        long offset = ftell(db_file->fpdb);
+        long size = ftell(db_file->fpdb);
         int write_success = fwrite(to_write, sizeof(*to_write), 1, db_file->fpdb);
-        return (write_success == 1) ? offset : -1;
+        return (write_success == 1) ? size : -1;
     }
     return -1;
 }
