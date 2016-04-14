@@ -70,8 +70,8 @@ int index_of_image(const char* pict_id, const struct pict_metadata images[],
                    const uint32_t db_size, uint32_t* index)
 {
     for (uint32_t i = 0; i < db_size; ++i) {
-        if (strcmp(pict_id, images[i].pict_id) == 0
-            && images[i].is_valid == NON_EMPTY) {
+        if (images[i].is_valid == NON_EMPTY
+            && strcmp(pict_id, images[i].pict_id) == 0) {
             *index = i;
             return 0;
         }
