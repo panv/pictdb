@@ -9,6 +9,7 @@
  */
 
 #include "pictDB.h"
+#include "image_content.h"
 #include <stdlib.h>
 #include <string.h>
 #include "error.h"

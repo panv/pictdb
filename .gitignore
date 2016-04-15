@@ -1,7 +1,9 @@
 # Binary file
-pictDBM
+/done/pictDBM/pictDBM
 
 # Test files
 testDB*
 
+# Text editors config
+CProjectSession
 progOSProject.sublime-workspace
