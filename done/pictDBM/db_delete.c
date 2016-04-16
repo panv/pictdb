@@ -9,14 +9,14 @@
 #include "pictDB.h"
 
 /**
- * @brief Finds the index of an image in an array of metadata
+ * @brief Finds the index of an image in an array of metadata.
  *
  * @param pict_id The identifier of the image to be found.
  * @param images The array of metadata.
  * @param db_size The length of the array.
  * @param index Pointer to the variable where to write the index of the image.
  *
- * @return 0 if no error occurs, an error coded in error.h in case of error
+ * @return 0 if no error occurs, an error coded in error.h in case of error.
  */
 int index_of_image(const char* pict_id, const struct pict_metadata images[],
                    const uint32_t db_size, uint32_t* index);
@@ -47,8 +47,8 @@ int do_delete(struct pictdb_file* db_file, const char* pict_id)
     if (seek_success == 0) {
         // Write metadata
         size_t write_success = fwrite(db_file->metadata, sizeof(struct pict_metadata),
-                                      db_file->header.num_files, db_file->fpdb);
-        if (write_success == db_file->header.num_files) {
+                                      db_file->header.max_files, db_file->fpdb);
+        if (write_success == db_file->header.max_files) {
             // Update header
             ++db_file->header.db_version;
             --db_file->header.num_files;
@@ -78,4 +78,3 @@ int index_of_image(const char* pict_id, const struct pict_metadata images[],
     }
     return ERR_FILE_NOT_FOUND;
 }
-

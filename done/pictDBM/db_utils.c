@@ -46,6 +46,7 @@ void do_close(struct pictdb_file* db_file)
 {
     if (db_file != NULL && db_file->fpdb != NULL) {
         fclose(db_file->fpdb);
+        db_file->fpdb = NULL;
     }
 }
 
