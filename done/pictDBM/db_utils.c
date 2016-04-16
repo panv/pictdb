@@ -60,10 +60,10 @@ sha_to_string (const unsigned char* SHA,
         return;
     }
     for (int i = 0; i < SHA256_DIGEST_LENGTH; ++i) {
-        sprintf(&sha_string[i*2], "%02x", SHA[i]);
+        sprintf(&sha_string[i * 2], "%02x", SHA[i]);
     }
 
-    sha_string[2*SHA256_DIGEST_LENGTH] = '\0';
+    sha_string[2 * SHA256_DIGEST_LENGTH] = '\0';
 }
 
 /********************************************************************//**

@@ -38,12 +38,7 @@ int do_delete(struct pictdb_file* db_file, const char* pict_id)
     if (found != 0) {
         return ERR_FILE_NOT_FOUND;
     }
-    /*
-    // No need to delete an image that is not valid
-    if (db_file->metadata[index].is_valid == EMPTY) {
-        return 0;
-    }
-    */
+
     // Mark the image as invalid
     db_file->metadata[index].is_valid = EMPTY;
 
@@ -76,7 +71,7 @@ int index_of_image(const char* pict_id, const struct pict_metadata images[],
 {
     for (uint32_t i = 0; i < db_size; ++i) {
         if (strcmp(pict_id, images[i].pict_id) == 0
-            && images[i].is_valid == NON_EMPTY) {
+                && images[i].is_valid == NON_EMPTY) {
             *index = i;
             return 0;
         }
