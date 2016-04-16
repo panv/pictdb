@@ -5,6 +5,12 @@ int valid_resolution(int resolution);
 long write_to_disk(struct pictdb_file* db_file, void* to_write,
                    size_t size, size_t nmemb, long offset, int whence);
 
+double shrink_value(VipsImage** image, int max_thumbnail_width, int max_thumbnail_height)
+{
+    const double h_shrink = (double) max_thumbnail_width / (double) image->Xsize ;
+    const double v_shrink = (double) max_thumbnail_height / (double) image->Ysize ;
+    return h_shrink > v_shrink ? v_shrink : h_shrink ;
+}
 
 int lazily_resize(int resolution, struct pictdb_file* db_file, size_t index)
 {
@@ -33,13 +39,13 @@ int lazily_resize(int resolution, struct pictdb_file* db_file, size_t index)
     // Position read head to start of original image
     int seek_success = fseek(db_file->fpdb, size, SEEK_SET);
     // Initialize array for image and read it into it.
-    void image_in_bytes[size];
+    void* image_in_bytes = malloc(size);
     int read_image = fread(image_in_bytes, size, 1, db_file->fpdb); //check == 1
 
     // allocate pointer
     VipsImage** original;
     // image_loaded_correctly 0 on success, -1 on error
-    int image_loaded_correctly = vips_jpegload_buffer(image_in_bytes, size, original);
+    int image_loaded_correctly = vips_jpegload_buffer(image_in_bytes, size, original, NULL);
 
     // modify image (heavily inspired by thumbify.c)
     VipsObject* process = VIPS_OBJECT( vips_image_new() );
@@ -57,9 +63,10 @@ int lazily_resize(int resolution, struct pictdb_file* db_file, size_t index)
     int could_resize = vips_resize(original, &resized[0], ratio, ratio, NULL);
 
     // store image back to array
-    void outputBuffer[VIPS_IMAGE_SIZEOF_PEL];
+    size_t length = sizeof(resized[0]);
+    void* outputBuffer = malloc(length);
     // 0 on success, -1 on error
-    int write_to_buffer_ok = vips_jpegsave_buffer(resized[0], outputBuffer, sizeof(resized[0]));
+    int write_to_buffer_ok = vips_jpegsave_buffer(resized[0], outputBuffer, &length, NULL);
 
 
 
