@@ -27,7 +27,7 @@ int do_delete(struct pictdb_file* db_file, const char* pict_id)
     if (db_file == NULL || pict_id == NULL) {
         return ERR_INVALID_ARGUMENT;
     }
-    if (strlen(pict_id) > MAX_PIC_ID) {
+    if (strlen(pict_id) == 0 || strlen(pict_id) > MAX_PIC_ID) {
         return ERR_INVALID_PICID;
     }
 
