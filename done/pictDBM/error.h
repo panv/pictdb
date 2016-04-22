@@ -40,7 +40,7 @@ extern "C" {
  *
  */
 extern
-const char * const ERROR_MESSAGES[];
+const char* const ERROR_MESSAGES[];
 
 #ifdef __cplusplus
 }

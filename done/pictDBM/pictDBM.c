@@ -17,47 +17,47 @@
 /********************************************************************//**
  * Opens pictDB file and calls do_list command.
  ********************************************************************** */
-int do_list_cmd (const char* filename)
+int do_list_cmd(const char* filename)
 {
     struct pictdb_file db_file;
-
     int db_opened = do_open(filename, "rb", &db_file);
+
     if (db_opened == 0) {
         do_list(&db_file);
         do_close(&db_file);
     }
+
     return db_opened;
 }
 
 /********************************************************************//**
  * Prepares and calls do_create command.
 ********************************************************************** */
-int do_create_cmd (const char* filename)
+int do_create_cmd(const char* filename)
 {
     // This will later come from the parsing of command line arguments
     const uint32_t max_files =  10;
     const uint16_t thumb_res =  64;
     const uint16_t small_res = 256;
-
     puts("Create");
-
     struct pictdb_header db_header = {
         .max_files = max_files,
         .res_resized = {thumb_res, thumb_res, small_res, small_res}
     };
     struct pictdb_file db_file = {.header = db_header};
-
     int db_created = do_create(filename, &db_file);
+
     if (db_created == 0) {
         print_header(&db_file.header);
     }
+
     return db_created;
 }
 
 /********************************************************************//**
  * Displays some explanations.
  ********************************************************************** */
-int help (void)
+int help(void)
 {
     printf("pictDBM [COMMAND] [ARGUMENTS]\n"
            "  help: displays this help.\n"
@@ -70,11 +70,11 @@ int help (void)
 /********************************************************************//**
  * Deletes a picture from the database.
  */
-int do_delete_cmd (const char* filename, const char* pictID)
+int do_delete_cmd(const char* filename, const char* pictID)
 {
     struct pictdb_file db_file;
-
     int db_opened = do_open(filename, "rb+", &db_file);
+
     if (db_opened == 0) {
         puts("Delete");
         int pict_deleted = do_delete(&db_file, pictID);
@@ -88,7 +88,7 @@ int do_delete_cmd (const char* filename, const char* pictID)
 /********************************************************************//**
  * MAIN
  */
-int main (int argc, char* argv[])
+int main(int argc, char* argv[])
 {
     int ret = 0;
 
@@ -101,6 +101,7 @@ int main (int argc, char* argv[])
          */
         argc--;
         argv++; // skips command call name
+
         if (!strcmp("list", argv[0])) {
             if (argc < 2) {
                 ret = ERR_NOT_ENOUGH_ARGUMENTS;
