@@ -80,7 +80,17 @@ int help (int args, char* argv[])
     printf("pictDBM [COMMAND] [ARGUMENTS]\n"
            "  help: displays this help.\n"
            "  list <dbfilename>: list pictDB content.\n"
-           "  create <dbfilename>: create a new pictDB.\n"
+           "  create <dbfilename> [options]: create a new pictDB.\n"
+           "      options are:\n"
+           "          -max_files <MAX_FILES>: maximum number of files.\n"
+           "                                  default value is 10\n"
+           "                                  maximum value is 100000\n"
+           "          -thumb_res <X_RES> <Y_RES>: resolution for thumbnail images.\n"
+           "                                  default value is 64x64\n"
+           "                                  maximum value is 128x128\n"
+           "          -small_res <X_RES> <Y_RES>: resolution for small images.\n"
+           "                                  default value is 256x256\n"
+           "                                  maximum value is 512x512\n"
            "  delete <dbfilename> <pictID>: delete picture pictID from pictDB.\n");
     return 0;
 }
