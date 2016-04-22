@@ -14,14 +14,28 @@
 #include <string.h>
 #include "error.h"
 
+#define NB_CMD 4 // Number of command line functions the database possesses
+
+typedef int (* command)();
+
+typedef struct {
+    const char* command_name;
+    command cmd;
+} command_mapping;
+
+
 /********************************************************************//**
  * Opens pictDB file and calls do_list command.
  ********************************************************************** */
-int do_list_cmd (const char* filename)
+int do_list_cmd (int args, char* argv[])
 {
+    if (args < 2) {
+        return ERR_NOT_ENOUGH_ARGUMENTS;
+    }
+
     struct pictdb_file db_file;
 
-    int db_opened = do_open(filename, "rb", &db_file);
+    int db_opened = do_open(argv[1], "rb", &db_file);
     if (db_opened == 0) {
         do_list(&db_file);
         do_close(&db_file);
@@ -32,8 +46,12 @@ int do_list_cmd (const char* filename)
 /********************************************************************//**
  * Prepares and calls do_create command.
 ********************************************************************** */
-int do_create_cmd (const char* filename)
+int do_create_cmd (int args, char* argv[])
 {
+    if (args < 2) {
+        return ERR_NOT_ENOUGH_ARGUMENTS;
+    }
+
     // This will later come from the parsing of command line arguments
     const uint32_t max_files =  10;
     const uint16_t thumb_res =  64;
@@ -47,7 +65,7 @@ int do_create_cmd (const char* filename)
     };
     struct pictdb_file db_file = {.header = db_header};
 
-    int db_created = do_create(filename, &db_file);
+    int db_created = do_create(argv[1], &db_file);
     if (db_created == 0) {
         print_header(&db_file.header);
     }
@@ -57,7 +75,7 @@ int do_create_cmd (const char* filename)
 /********************************************************************//**
  * Displays some explanations.
  ********************************************************************** */
-int help (void)
+int help (int args, char* argv[])
 {
     printf("pictDBM [COMMAND] [ARGUMENTS]\n"
            "  help: displays this help.\n"
@@ -70,14 +88,18 @@ int help (void)
 /********************************************************************//**
  * Deletes a picture from the database.
  */
-int do_delete_cmd (const char* filename, const char* pictID)
+int do_delete_cmd (int args, char* argv[])
 {
+    if (args < 3) {
+        return ERR_NOT_ENOUGH_ARGUMENTS;
+    }
+
     struct pictdb_file db_file;
 
-    int db_opened = do_open(filename, "rb+", &db_file);
+    int db_opened = do_open(argv[1], "rb+", &db_file);
     if (db_opened == 0) {
         puts("Delete");
-        int pict_deleted = do_delete(&db_file, pictID);
+        int pict_deleted = do_delete(&db_file, argv[2]);
         do_close(&db_file);
         return pict_deleted;
     } else {
@@ -92,43 +114,33 @@ int main (int argc, char* argv[])
 {
     int ret = 0;
 
+    // Map from function name to its pointer
+    command_mapping commands[NB_CMD] = {
+        {"list", do_list_cmd},
+        {"create", do_create_cmd},
+        {"delete", do_delete_cmd},
+        {"help", help}
+    };
+
     if (argc < 2) {
         ret = ERR_NOT_ENOUGH_ARGUMENTS;
     } else {
-        /* **********************************************************************
-         * TODO WEEK 08: THIS PART SHALL BE REVISED THEN (WEEK 09) EXTENDED.
-         * **********************************************************************
-         */
-        argc--;
-        argv++; // skips command call name
-        if (!strcmp("list", argv[0])) {
-            if (argc < 2) {
-                ret = ERR_NOT_ENOUGH_ARGUMENTS;
-            } else {
-                ret = do_list_cmd(argv[1]);
+        --argc;
+        ++argv; // skips command call name
+
+        int found = 0;
+        for (size_t i = 0; i < NB_CMD && found == 0; ++i) {
+            if (strcmp(argv[0], commands[i].command_name) == 0) {
+                ret = commands[i].cmd(argc, argv);
+                found = 1;
             }
-        } else if (!strcmp("create", argv[0])) {
-            if (argc < 2) {
-                ret = ERR_NOT_ENOUGH_ARGUMENTS;
-            } else {
-                ret = do_create_cmd(argv[1]);
-            }
-        } else if (!strcmp("delete", argv[0])) {
-            if (argc < 3) {
-                ret = ERR_NOT_ENOUGH_ARGUMENTS;
-            } else {
-                ret = do_delete_cmd(argv[1], argv[2]);
-            }
-        } else if (!strcmp("help", argv[0])) {
-            ret = help();
-        } else {
-            ret = ERR_INVALID_COMMAND;
         }
+        ret = (found != 0) ? ret : ERR_INVALID_COMMAND;
     }
 
     if (ret) {
         fprintf(stderr, "ERROR: %s\n", ERROR_MESSAGES[ret]);
-        (void)help();
+        (void)help(0, NULL);
     }
 
     return ret;
