@@ -24,6 +24,7 @@ int do_open(const char* filename, const char* mode,
     }
 
     FILE* input_stream = fopen(filename, mode);
+
     if (input_stream == NULL) {
         fprintf(stderr, "Error opening %s\n", filename);
         return ERR_IO;
@@ -31,6 +32,7 @@ int do_open(const char* filename, const char* mode,
 
     size_t read_els = fread(&db_file->header, sizeof(struct pictdb_header), 1,
                             input_stream);
+
     if (read_els != 1) {
         fprintf(stderr, "Could not read header from %s\n", filename);
         return ERR_IO;
@@ -39,6 +41,7 @@ int do_open(const char* filename, const char* mode,
     // Dynamically allocates memory to the metadata
     db_file->metadata = calloc(db_file->header.max_files,
                                sizeof(struct pict_metadata));
+
     // Check for allocation error
     if (db_file->metadata == NULL) {
         return ERR_OUT_OF_MEMORY;
@@ -47,7 +50,7 @@ int do_open(const char* filename, const char* mode,
     read_els = fread(db_file->metadata, sizeof(struct pict_metadata),
                      db_file->header.max_files, input_stream);
 
-    if(read_els != db_file->header.max_files) {
+    if (read_els != db_file->header.max_files) {
         fprintf(stderr, "Could not read metadata from %s\n", filename);
         return ERR_IO;
     }
@@ -63,6 +66,7 @@ void do_close(struct pictdb_file* db_file)
             fclose(db_file->fpdb);
             db_file->fpdb = NULL;
         }
+
         // Free memory and overwrite metadata pointer
         if (db_file->metadata != NULL) {
             free(db_file->metadata);
@@ -75,17 +79,18 @@ void do_close(struct pictdb_file* db_file)
  * Human-readable SHA
  */
 static void
-sha_to_string (const unsigned char* SHA,
-               char* sha_string)
+sha_to_string(const unsigned char* SHA,
+              char* sha_string)
 {
     if (SHA == NULL) {
         return;
     }
+
     for (int i = 0; i < SHA256_DIGEST_LENGTH; ++i) {
-        sprintf(&sha_string[i*2], "%02x", SHA[i]);
+        sprintf(&sha_string[i * 2], "%02x", SHA[i]);
     }
 
-    sha_string[2*SHA256_DIGEST_LENGTH] = '\0';
+    sha_string[2 * SHA256_DIGEST_LENGTH] = '\0';
 }
 
 /********************************************************************//**
@@ -119,7 +124,7 @@ void print_header(const struct pictdb_header* header)
  * @param metadata In memory object representing the metadata
  * describing an image.
  */
-void print_metadata (const struct pict_metadata* metadata)
+void print_metadata(const struct pict_metadata* metadata)
 {
     char sha_printable[2 * SHA256_DIGEST_LENGTH + 1];
     sha_to_string(metadata->SHA, sha_printable);

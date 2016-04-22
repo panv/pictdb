@@ -40,6 +40,7 @@ int do_list_cmd (int args, char* argv[])
         do_list(&db_file);
         do_close(&db_file);
     }
+
     return db_opened;
 }
 
@@ -56,9 +57,7 @@ int do_create_cmd (int args, char* argv[])
     const uint32_t max_files =  10;
     const uint16_t thumb_res =  64;
     const uint16_t small_res = 256;
-
     puts("Create");
-
     struct pictdb_header db_header = {
         .max_files = max_files,
         .res_resized = {thumb_res, thumb_res, small_res, small_res}
@@ -69,6 +68,7 @@ int do_create_cmd (int args, char* argv[])
     if (db_created == 0) {
         print_header(&db_file.header);
     }
+
     return db_created;
 }
 
@@ -110,7 +110,7 @@ int do_delete_cmd (int args, char* argv[])
 /********************************************************************//**
  * MAIN
  */
-int main (int argc, char* argv[])
+int main(int argc, char* argv[])
 {
     int ret = 0;
 

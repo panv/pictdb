@@ -51,8 +51,7 @@ extern "C" {
  * @brief The header of the database, containing
  *        the pictDB configuration information.
  */
-struct pictdb_header
-{
+struct pictdb_header {
     /**
      * @brief Name of the picture database.
      */
@@ -86,8 +85,7 @@ struct pictdb_header
 /**
  * @brief The metadata of an image.
  */
-struct pict_metadata
-{
+struct pict_metadata {
     /**
      * @brief Name of the image.
      */
@@ -122,8 +120,7 @@ struct pict_metadata
 /**
  * @brief An image database.
  */
-struct pictdb_file
-{
+struct pictdb_file {
     /**
      * @brief File containing the database.
      */

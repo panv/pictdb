@@ -18,3 +18,6 @@ test: pictDBM
 	diff -y -w test_output.txt correct_output.txt
 	diff -s -w test_output.txt correct_output.txt
 	diff -q -w test_output.txt correct_output.txt
+
+format: $(SRCS)
+	astyle --style=linux --suffix=none --add-brackets --break-blocks --unpad-paren --pad-oper --pad-header --align-pointer=type -n *.c *.h
