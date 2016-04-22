@@ -61,10 +61,12 @@ int lazily_resize(uint16_t resolution, struct pictdb_file* db_file, size_t index
 
     // assume db_file.fpdb is open?
     // image = return value of function resizes image
-    long offset = write_to_disk(db_file, output_buffer, sizeof(output_buffer), 1, 0, SEEK_END);
+    size_t output_size = sizeof(output_size);
+    long offset = write_to_disk(db_file, output_buffer, output_size, 1, 0, SEEK_END);
+    free(output_size);
 
     if (offset != -1) {
-        db_file->metadata[index].size[resolution] = sizeof(output_buffer);
+        db_file->metadata[index].size[resolution] = output_size;
         db_file->metadata[index].offset[resolution] = offset;
         offset = write_to_disk(db_file, db_file->metadata, sizeof(struct pict_metadata),
                                db_file->header.max_files, sizeof(struct pictdb_header), SEEK_SET);
