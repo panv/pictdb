@@ -8,19 +8,31 @@
  * @date 2 Nov 2015
  */
 
-#include "pictDB.h"
-#include "image_content.h"
 #include <stdlib.h>
 #include <string.h>
+#include "pictDB.h"
 #include "error.h"
+#include "image_content.h"
 #include "pictDBM_tools.h"
 
 #define NB_CMD 4 // Number of command line functions the database possesses
 
+/**
+ * @brief A pointer to a function returning an int.
+ */
 typedef int (* command)();
 
+/**
+ * @brief Map from a command name to the function implementing it.
+ */
 typedef struct {
+    /**
+     * @brief The command-line name of the function.
+     */
     const char* command_name;
+    /**
+     * @brief The function.
+     */
     command cmd;
 } command_mapping;
 
@@ -130,6 +142,13 @@ int do_create_cmd (int args, char* argv[])
     return db_created;
 }
 
+/**
+ * @brief Parses the command line options of do_create_cmd.
+ *
+ * @param option The option to parse.
+ * @return A non-zero int corresponding to the option,
+ *         or 0 if the argument is not a valid option.
+ */
 int parse_create_options(char* option) {
     return (strcmp(option, "-max_files") == 0) ? 1 :
            (strcmp(option, "-thumb_res") == 0) ? 2 :
@@ -137,10 +156,26 @@ int parse_create_options(char* option) {
            0;
 }
 
+/**
+ * @brief Checks if there is enough arguments remaining for an option.
+ *
+ * @param remaining The number of remaining arguments.
+ * @param expected  The number of expected arguments for the option.
+ * @return 0 if there is enough arguments remaining, 1 otherwise.
+ */
 int check_argument_number(int remaining, int expected) {
     return (remaining < expected) ? 1 : 0;
 }
 
+/**
+ * @brief Checks whether the given width and height are within
+ *        the acceptable values (0 and max_value).
+ *
+ * @param x_res     The width.
+ * @param y_res     The height.
+ * @param max_value The maximum value.
+ * @return 0 if the values are valid, 1 otherwise.
+ */
 int check_values(uint16_t x_res, uint16_t y_res, uint16_t max_value) {
     return (x_res == 0 || y_res == 0
             || x_res > max_value || y_res > max_value) ? 1 : 0;
@@ -219,6 +254,7 @@ int main(int argc, char* argv[])
                 found = 1;
             }
         }
+        // Command not found
         ret = (found != 0) ? ret : ERR_INVALID_COMMAND;
     }
 
