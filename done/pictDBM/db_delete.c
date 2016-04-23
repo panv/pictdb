@@ -33,10 +33,8 @@ int do_delete(struct pictdb_file* db_file, const char* pict_id)
 
     // Find index of image to remove
     uint32_t index;
-    int found = index_of_image(pict_id, db_file->metadata,
-                               db_file->header.max_files, &index);
-
-    if (found != 0) {
+    if (index_of_image(pict_id, db_file->metadata,
+                       db_file->header.max_files, &index) != 0) {
         return ERR_FILE_NOT_FOUND;
     }
 
@@ -65,7 +63,8 @@ int do_delete(struct pictdb_file* db_file, const char* pict_id)
 
             if (seek_success == 0) {
                 // Write header
-                write_success = fwrite(&db_file->header, sizeof(struct pictdb_header), 1, db_file->fpdb);
+                write_success = fwrite(&db_file->header,
+                                       sizeof(struct pictdb_header), 1, db_file->fpdb);
                 return write_success == 1 ? 0 : ERR_IO;
             }
         }
@@ -78,8 +77,8 @@ int index_of_image(const char* pict_id, const struct pict_metadata* images,
                    const uint32_t db_size, uint32_t* index)
 {
     for (uint32_t i = 0; i < db_size; ++i) {
-        if (strcmp(pict_id, images[i].pict_id) == 0
-            && images[i].is_valid == NON_EMPTY) {
+        if (images[i].is_valid == NON_EMPTY
+            && strcmp(pict_id, images[i].pict_id) == 0) {
             *index = i;
             return 0;
         }

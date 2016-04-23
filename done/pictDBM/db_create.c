@@ -8,7 +8,6 @@
 
 #include "pictDB.h"
 #include <stdlib.h> // for calloc
-
 #include <string.h> // for strncpy and strlen
 
 

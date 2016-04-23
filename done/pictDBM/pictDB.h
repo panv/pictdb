@@ -21,15 +21,15 @@
 #include "error.h" /* not needed here, but provides it as required by
                     * all functions of this lib.
                     */
-#include <stdio.h> // for FILE
-#include <stdint.h> // for uint32_t, uint64_t
+#include <stdio.h>       // for FILE
+#include <stdint.h>      // for uint32_t, uint64_t
 #include <openssl/sha.h> // for SHA256_DIGEST_LENGTH
 
 #define CAT_TXT "EPFL PictDB binary"
 
 /* constraints */
-#define MAX_DB_NAME 31  // max. size of a PictDB name
-#define MAX_PIC_ID 127  // max. size of a picture id
+#define MAX_DB_NAME 31        // max. size of a PictDB name
+#define MAX_PIC_ID 127        // max. size of a picture id
 #define MAX_MAX_FILES 100000  // will be increased later in the project
 
 /* For is_valid in pictdb_metadata */
@@ -181,7 +181,7 @@ int do_create(const char* filename, struct pictdb_file* db_file);
 int do_open(const char* filename, const char* mode,
             struct pictdb_file* db_file);
 
-/*
+/**
  * @brief Closes the strem in the in memory database file
  *
  * @param db_file The in memory structure of a database file whose stream
@@ -189,7 +189,7 @@ int do_open(const char* filename, const char* mode,
  */
 void do_close(struct pictdb_file* db_file);
 
-/*
+/**
  * @brief Deletes an image from a database
  *
  * @param db_file The in memory structure of the object representing a

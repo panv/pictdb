@@ -6,8 +6,8 @@
  * @date 12 Mar 2016
 */
 
-#include <stdio.h>
 #include "pictDB.h"
+#include <stdio.h>
 
 /**
  * @brief Prints the metadata of all images of a database.
