@@ -120,17 +120,17 @@ int do_create_cmd (int args, char* argv[])
         }
     }
 
-    const uint32_t default_max_files = max_files == 0 ? 10 : max_files;
-    const uint16_t default_x_thumb_res = x_thumb_res == 0 ? 64 : x_thumb_res;
-    const uint16_t default_y_thumb_res = y_thumb_res == 0 ? 64 : y_thumb_res;
-    const uint16_t default_x_small_res = x_small_res == 0 ? 256: x_small_res;
-    const uint16_t default_y_small_res = y_small_res == 0 ? 256: y_small_res;
+    max_files = max_files == 0 ? 10 : max_files;
+    x_thumb_res = x_thumb_res == 0 ? 64 : x_thumb_res;
+    y_thumb_res = y_thumb_res == 0 ? 64 : y_thumb_res;
+    x_small_res = x_small_res == 0 ? 256: x_small_res;
+    y_small_res = y_small_res == 0 ? 256: y_small_res;
 
     puts("Create");
     struct pictdb_header db_header = {
-        .max_files = default_max_files,
-        .res_resized = {default_x_thumb_res, default_y_thumb_res,
-                        default_x_small_res, default_y_small_res}
+        .max_files = max_files,
+        .res_resized = {x_thumb_res, y_thumb_res,
+                        x_small_res, y_small_res}
     };
     struct pictdb_file db_file = {.header = db_header};
 
