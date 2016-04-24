@@ -5,7 +5,7 @@ int valid_resolution(int resolution);
 long write_to_disk(struct pictdb_file* db_file, void* to_write,
                    size_t size, size_t nmemb, long offset, int whence);
 
-void* resize(char* input_buffer, uint32_t input_size, uint16_t max_x, uint16_t max_y);
+void* resize(char* input_buffer, uint32_t input_size, uint16_t max_x, uint16_t max_y, size_t output_size);
 
 double shrink_value(VipsImage* image, int max_thumbnail_width, int max_thumbnail_height)
 {
@@ -37,7 +37,7 @@ int lazily_resize(uint16_t resolution, struct pictdb_file* db_file, size_t index
     }
 
     // store in var as used often
-    uint32_t size = db_file->metadata[index].size[resolution];
+    uint32_t size = db_file->metadata[index].size[RES_ORIG];
 
     // Initialize array for image and read it into it.
     //void* image_in_bytes = malloc(size);
@@ -50,9 +50,11 @@ int lazily_resize(uint16_t resolution, struct pictdb_file* db_file, size_t index
     }
 
     uint16_t index_first_res = resolution * 2;
+    size_t output_size = db_file->metadata[index].size[resolution];
     void* output_buffer = resize(image_in_bytes, size,
                                  db_file->header.res_resized[index_first_res],
-                                 db_file->header.res_resized[index_first_res + 1]);
+                                 db_file->header.res_resized[index_first_res + 1],
+                                 output_size);
 
     if (output_buffer == NULL) {
         fprintf(stderr, ERROR_MESSAGES[ERR_VIPS]);
@@ -61,8 +63,6 @@ int lazily_resize(uint16_t resolution, struct pictdb_file* db_file, size_t index
 
     // assume db_file.fpdb is open?
     // image = return value of function resizes image
-    size_t output_size = sizeof(output_buffer); //ERROR WITH THIS SIZE; ALSO IL NEXT METHOD
-                                                // THIS DOESN'T WORK
     long offset = write_to_disk(db_file, output_buffer, output_size, 1, 0, SEEK_END);
     free(output_buffer);
 
@@ -77,7 +77,7 @@ int lazily_resize(uint16_t resolution, struct pictdb_file* db_file, size_t index
     return ERR_IO;
 }
 
-void* resize(char* input_buffer, uint32_t input_size, uint16_t max_x, uint16_t max_y)
+void* resize(char* input_buffer, uint32_t input_size, uint16_t max_x, uint16_t max_y, size_t output_size)
 {
     // modify image (heavily inspired by thumbify.c)
     VipsObject* process = VIPS_OBJECT(vips_image_new());
@@ -93,10 +93,8 @@ void* resize(char* input_buffer, uint32_t input_size, uint16_t max_x, uint16_t m
 
     // store image back to array
     // 0 on success, -1 on error
-    size_t length = sizeof(pics[0]);
-
-    void* output_buffer = malloc(length);
-    int not_written = vips_jpegsave_buffer(pics[0], &output_buffer, &length, NULL);
+    void* output_buffer = malloc(output_size);
+    int not_written = vips_jpegsave_buffer(pics[0], &output_buffer, &output_size, NULL);
     g_object_unref(process);
 
     if (not_loaded || not_resized || not_written) {
