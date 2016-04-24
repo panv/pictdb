@@ -8,10 +8,6 @@
 
 #include "pictDB.h"
 
-#include <stdlib.h> // for calloc
-#include <string.h> // for strncpy and strlen
-
-
 int do_create(const char* filename, struct pictdb_file* db_file)
 {
     // Error checks

@@ -11,8 +11,6 @@
 #include "pictDB.h"
 #include "pictDBM_tools.h"
 #include "image_content.h"
-#include <stdlib.h>
-#include <string.h>
 
 #define NB_CMD 4 // Number of command line functions the database possesses
 

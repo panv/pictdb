@@ -1,4 +1,5 @@
 #include "image_content.h"
+#include <vips/vips.h>
 
 // Prototypes
 int valid_resolution(int resolution);
