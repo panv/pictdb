@@ -38,6 +38,7 @@ int do_open(const char* filename, const char* mode,
                                sizeof(struct pict_metadata));
     // Check for allocation error
     if (db_file->metadata == NULL) {
+        fclose(input_stream);
         return ERR_OUT_OF_MEMORY;
     }
 
@@ -45,6 +46,7 @@ int do_open(const char* filename, const char* mode,
                      db_file->header.max_files, input_stream);
     if (read_els != db_file->header.max_files) {
         fprintf(stderr, "Error : cannot read metadata from %s\n", filename);
+        free(db_file->metadata);
         fclose(input_stream);
         return ERR_IO;
     }

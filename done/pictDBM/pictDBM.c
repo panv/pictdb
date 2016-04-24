@@ -217,9 +217,8 @@ int do_delete_cmd(int args, char* argv[])
         int pict_deleted = do_delete(&db_file, argv[2]);
         do_close(&db_file);
         return pict_deleted;
-    } else {
-        return db_opened;
     }
+    return db_opened;
 }
 
 /********************************************************************/ /**

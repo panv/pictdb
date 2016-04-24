@@ -37,6 +37,7 @@ int do_create(const char* filename, struct pictdb_file* db_file)
                                sizeof(struct pict_metadata));
     // Check for allocation error
     if (db_file->metadata == NULL) {
+        fclose(output);
         return ERR_OUT_OF_MEMORY;
     }
 
