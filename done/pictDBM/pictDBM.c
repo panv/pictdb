@@ -124,8 +124,7 @@ int do_create_cmd(int args, char* argv[])
     puts("Create");
     struct pictdb_header db_header = {
         .max_files = max_files,
-        .res_resized = { x_thumb_res, y_thumb_res,
-            x_small_res, y_small_res }
+        .res_resized = { x_thumb_res, y_thumb_res, x_small_res, y_small_res }
     };
     struct pictdb_file db_file = {.header = db_header };
 

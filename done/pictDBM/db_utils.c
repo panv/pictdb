@@ -15,6 +15,9 @@ int do_open(const char* filename, const char* mode,
     if (filename == NULL || mode == NULL || db_file == NULL) {
         return ERR_INVALID_ARGUMENT;
     }
+    if (strlen(filename) == 0 || strlen(filename) > MAX_DB_NAME) {
+        return ERR_INVALID_FILENAME;
+    }
 
     FILE* input_stream = fopen(filename, mode);
     if (input_stream == NULL) {
@@ -22,8 +25,8 @@ int do_open(const char* filename, const char* mode,
         return ERR_IO;
     }
 
-    size_t read_els = fread(&db_file->header, sizeof(struct pictdb_header), 1,
-                            input_stream);
+    size_t read_els = fread(&db_file->header, sizeof(struct pictdb_header),
+                            1, input_stream);
     if (read_els != 1) {
         fprintf(stderr, "Error : cannot read header from %s\n", filename);
         fclose(input_stream);
