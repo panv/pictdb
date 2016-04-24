@@ -1,4 +1,5 @@
 #include "image_content.h"
+#include <vips/vips.h>
 
 // Prototypes
 int valid_resolution(int resolution);
@@ -7,14 +8,16 @@ long write_to_disk(struct pictdb_file* db_file, void* to_write,
 
 void* resize(char* input_buffer, uint32_t input_size, uint16_t max_x, uint16_t max_y, size_t output_size);
 
-double shrink_value(VipsImage* image, int max_thumbnail_width, int max_thumbnail_height)
+double shrink_value(VipsImage* image, int max_thumbnail_width,
+                    int max_thumbnail_height)
 {
     const double h_shrink = (double)max_thumbnail_width / (double)image->Xsize;
     const double v_shrink = (double)max_thumbnail_height / (double)image->Ysize;
     return h_shrink > v_shrink ? v_shrink : h_shrink;
 }
 
-int lazily_resize(uint16_t resolution, struct pictdb_file* db_file, size_t index)
+int lazily_resize(uint16_t resolution, struct pictdb_file* db_file,
+                  size_t index)
 {
     // Error checks on arguments
     if (db_file == NULL || index >= db_file->header.max_files) {
@@ -63,14 +66,18 @@ int lazily_resize(uint16_t resolution, struct pictdb_file* db_file, size_t index
 
     // assume db_file.fpdb is open?
     // image = return value of function resizes image
-    long offset = write_to_disk(db_file, output_buffer, output_size, 1, 0, SEEK_END);
+    size_t output_size = sizeof(output_buffer);
+    long offset = write_to_disk(db_file, output_buffer, output_size, 1, 0,
+                                SEEK_END);
     free(output_buffer);
 
     if (offset != -1) {
         db_file->metadata[index].size[resolution] = output_size;
         db_file->metadata[index].offset[resolution] = offset;
-        offset = write_to_disk(db_file, db_file->metadata, sizeof(struct pict_metadata),
-                               db_file->header.max_files, sizeof(struct pictdb_header), SEEK_SET);
+        offset = write_to_disk(db_file, db_file->metadata,
+                               sizeof(struct pict_metadata),
+                               db_file->header.max_files,
+                               sizeof(struct pictdb_header), SEEK_SET);
         return (offset != -1) ? 0 : ERR_IO;
     }
 
@@ -85,7 +92,8 @@ void* resize(char* input_buffer, uint32_t input_size, uint16_t max_x, uint16_t m
     // allocate pointer
     VipsImage** pics = (VipsImage**) vips_object_local_array(process, 2);
     // image_loaded_correctly 0 on success, -1 on error
-    int not_loaded = vips_jpegload_buffer(input_buffer, input_size, &pics[0], NULL); //C
+    int not_loaded = vips_jpegload_buffer(input_buffer, input_size,
+                                          &pics[0], NULL); //C
 
     double ratio = shrink_value(pics[0], max_x, max_y); // 0 on success, -1 on error
 
@@ -112,7 +120,8 @@ void* resize(char* input_buffer, uint32_t input_size, uint16_t max_x, uint16_t m
  */
 int valid_resolution(int resolution)
 {
-    return (resolution == RES_THUMB || resolution == RES_SMALL || resolution == RES_ORIG) ? 0 : 1;
+    return (resolution == RES_THUMB || resolution == RES_SMALL
+            || resolution == RES_ORIG) ? 0 : 1;
 }
 
 /**

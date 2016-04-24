@@ -6,7 +6,7 @@
  * @date 25 Nov 2015
  */
 
-#include <stdint.h> // for uint16_t, uint32_t
+#include <stdint.h>   // for uint16_t, uint32_t
 #include <errno.h>
 #include <inttypes.h> // strtoumax()
 

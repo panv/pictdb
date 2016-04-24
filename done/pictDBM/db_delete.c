@@ -37,12 +37,6 @@ int do_delete(struct pictdb_file* db_file, const char* pict_id)
         return ERR_FILE_NOT_FOUND;
     }
 
-    /*
-    // No need to delete an image that is not valid
-    if (db_file->metadata[index].is_valid == EMPTY) {
-        return 0;
-    }
-    */
     // Mark the image as invalid
     db_file->metadata[index].is_valid = EMPTY;
     // Position write head after the header
@@ -51,9 +45,9 @@ int do_delete(struct pictdb_file* db_file, const char* pict_id)
     if (seek_success == 0) {
         // Write metadata
         size_t write_success = fwrite(db_file->metadata, sizeof(struct pict_metadata),
-                                      db_file->header.num_files, db_file->fpdb);
+                                      db_file->header.max_files, db_file->fpdb);
 
-        if (write_success == db_file->header.num_files) {
+        if (write_success == db_file->header.max_files) {
             // Update header
             ++db_file->header.db_version;
             --db_file->header.num_files;
@@ -68,8 +62,8 @@ int do_delete(struct pictdb_file* db_file, const char* pict_id)
             }
         }
     }
-    // Return error code if any of the seek or write checks fails
 
+    // Return error code if any of the seek or write checks fails
     return ERR_IO;
 }
 

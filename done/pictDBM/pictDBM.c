@@ -11,8 +11,6 @@
 #include "pictDB.h"
 #include "pictDBM_tools.h"
 #include "image_content.h"
-#include <stdlib.h>
-#include <string.h>
 
 #define NB_CMD 4 // Number of command line functions the database possesses
 
@@ -126,8 +124,7 @@ int do_create_cmd(int args, char* argv[])
     puts("Create");
     struct pictdb_header db_header = {
         .max_files = max_files,
-        .res_resized = { x_thumb_res, y_thumb_res,
-            x_small_res, y_small_res }
+        .res_resized = { x_thumb_res, y_thumb_res, x_small_res, y_small_res }
     };
     struct pictdb_file db_file = {.header = db_header };
 
@@ -148,7 +145,9 @@ int do_create_cmd(int args, char* argv[])
  */
 int parse_create_options(char* option)
 {
-    return (strcmp(option, "-max_files") == 0) ? 1 : (strcmp(option, "-thumb_res") == 0) ? 2 : (strcmp(option, "-small_res") == 0) ? 3 : 0;
+    return (strcmp(option, "-max_files") == 0) ? 1 :
+           (strcmp(option, "-thumb_res") == 0) ? 2 :
+           (strcmp(option, "-small_res") == 0) ? 3 : 0;
 }
 
 /**
@@ -174,10 +173,8 @@ int check_argument_number(int remaining, int expected)
  */
 int check_values(uint16_t x_res, uint16_t y_res, uint16_t max_value)
 {
-    return (x_res == 0 || y_res == 0
-               || x_res > max_value || y_res > max_value)
-        ? 1
-        : 0;
+    return (x_res == 0 || y_res == 0 || x_res > max_value
+            || y_res > max_value) ? 1 : 0;
 }
 
 /********************************************************************/ /**
@@ -221,9 +218,7 @@ int do_delete_cmd(int args, char* argv[])
         do_close(&db_file);
         return pict_deleted;
     }
-    else {
-        return db_opened;
-    }
+    return db_opened;
 }
 
 /********************************************************************/ /**
@@ -243,8 +238,7 @@ int main(int argc, char* argv[])
 
     if (argc < 2) {
         ret = ERR_NOT_ENOUGH_ARGUMENTS;
-    }
-    else {
+    } else {
         --argc;
         ++argv; // skips command call name
 
