@@ -17,7 +17,6 @@ int do_open(const char* filename, const char* mode,
     }
 
     FILE* input_stream = fopen(filename, mode);
-
     if (input_stream == NULL) {
         fprintf(stderr, "Error : cannot open file %s\n", filename);
         return ERR_IO;
@@ -25,7 +24,6 @@ int do_open(const char* filename, const char* mode,
 
     size_t read_els = fread(&db_file->header, sizeof(struct pictdb_header), 1,
                             input_stream);
-
     if (read_els != 1) {
         fprintf(stderr, "Error : cannot read header from %s\n", filename);
         fclose(input_stream);
@@ -35,7 +33,6 @@ int do_open(const char* filename, const char* mode,
     // Dynamically allocates memory to the metadata
     db_file->metadata = calloc(db_file->header.max_files,
                                sizeof(struct pict_metadata));
-
     // Check for allocation error
     if (db_file->metadata == NULL) {
         return ERR_OUT_OF_MEMORY;
@@ -43,7 +40,6 @@ int do_open(const char* filename, const char* mode,
 
     read_els = fread(db_file->metadata, sizeof(struct pict_metadata),
                      db_file->header.max_files, input_stream);
-
     if (read_els != db_file->header.max_files) {
         fprintf(stderr, "Error : cannot read metadata from %s\n", filename);
         fclose(input_stream);
@@ -57,6 +53,7 @@ int do_open(const char* filename, const char* mode,
 void do_close(struct pictdb_file* db_file)
 {
     if (db_file != NULL) {
+        // Close file
         if (db_file->fpdb != NULL) {
             fclose(db_file->fpdb);
             db_file->fpdb = NULL;
@@ -91,7 +88,6 @@ sha_to_string(const unsigned char* SHA,
 /********************************************************************//**
  * pictDB header display.
  */
-
 void print_header(const struct pictdb_header* header)
 {
     printf("*****************************************\n"
@@ -110,14 +106,6 @@ void print_header(const struct pictdb_header* header)
 
 /********************************************************************//**
  * Metadata display.
- */
-
-/*
- *
- * @brief Prints the content of a metadata object
- *
- * @param metadata In memory object representing the metadata
- * describing an image.
  */
 void print_metadata(const struct pict_metadata* metadata)
 {
