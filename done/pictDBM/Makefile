@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS += -Wall -std=c99 -g $$(pkg-config vips --cflags)
+CFLAGS += -Wall -Wextra --pedantic -std=c99 -g $$(pkg-config vips --cflags)
 LDLIBS += -lssl -lcrypto $$(pkg-config vips --libs) #-lm?
 SRCS = db_utils.c pictDBM.c db_list.c error.c db_create.c \
        db_delete.c image_content.c pictDBM_tools.c
