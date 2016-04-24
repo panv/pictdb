@@ -1,6 +1,7 @@
 #include "dedup.h"
 
-int do_name_and_content_dedup(struct pictdb_file* db_file, uint32_t index) {
+int do_name_and_content_dedup(struct pictdb_file* db_file, uint32_t index)
+{
     for (size_t i; i < db_file->header.max_files; ++i) {
         if (i != index && db_file->metadata[i].is_valid == NON_EMPTY) {
             if (strcmp(db_file->metadata[i].pict_id,
