@@ -6,7 +6,7 @@
  * @date 2 Nov 2015
  */
 
-const char * const ERROR_MESSAGES[] = {
+const char* const ERROR_MESSAGES[] = {
     "", // no error
     "I/O Error",
     "(re|m|c)alloc failled",

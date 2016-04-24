@@ -7,6 +7,11 @@
  */
 
 #include "pictDB.h"
+#include <stdint.h>       // for uint8_t
+#include <stdio.h>        // for sprintf
+#include <stdlib.h>       // for calloc
+#include <openssl/sha.h>  // for SHA256_DIGEST_LENGTH
+#include <string.h>       // for strlen
 #include <inttypes.h> // For printing types int stdint
 
 int do_open(const char* filename, const char* mode,
@@ -17,6 +22,7 @@ int do_open(const char* filename, const char* mode,
     }
 
     FILE* input_stream = fopen(filename, mode);
+
     if (input_stream == NULL) {
         fprintf(stderr, "Error : cannot open file %s\n", filename);
         return ERR_IO;
@@ -24,15 +30,26 @@ int do_open(const char* filename, const char* mode,
 
     size_t read_els = fread(&db_file->header, sizeof(struct pictdb_header), 1,
                             input_stream);
+
     if (read_els != 1) {
         fprintf(stderr, "Error : cannot read header from %s\n", filename);
         fclose(input_stream);
         return ERR_IO;
     }
 
-    read_els = fread(&db_file->metadata, sizeof(struct pict_metadata),
+    // Dynamically allocates memory to the metadata
+    db_file->metadata = calloc(db_file->header.max_files,
+                               sizeof(struct pict_metadata));
+
+    // Check for allocation error
+    if (db_file->metadata == NULL) {
+        return ERR_OUT_OF_MEMORY;
+    }
+
+    read_els = fread(db_file->metadata, sizeof(struct pict_metadata),
                      db_file->header.max_files, input_stream);
-    if(read_els != db_file->header.max_files) {
+
+    if (read_els != db_file->header.max_files) {
         fprintf(stderr, "Error : cannot read metadata from %s\n", filename);
         fclose(input_stream);
         return ERR_IO;
@@ -44,9 +61,17 @@ int do_open(const char* filename, const char* mode,
 
 void do_close(struct pictdb_file* db_file)
 {
-    if (db_file != NULL && db_file->fpdb != NULL) {
-        fclose(db_file->fpdb);
-        db_file->fpdb = NULL;
+    if (db_file != NULL) {
+        if (db_file->fpdb != NULL) {
+            fclose(db_file->fpdb);
+            db_file->fpdb = NULL;
+        }
+
+        // Free memory and overwrite metadata pointer
+        if (db_file->metadata != NULL) {
+            free(db_file->metadata);
+            db_file->metadata = NULL;
+        }
     }
 }
 
@@ -54,12 +79,13 @@ void do_close(struct pictdb_file* db_file)
  * Human-readable SHA
  */
 static void
-sha_to_string (const unsigned char* SHA,
-               char* sha_string)
+sha_to_string(const unsigned char* SHA,
+              char* sha_string)
 {
     if (SHA == NULL) {
         return;
     }
+
     for (int i = 0; i < SHA256_DIGEST_LENGTH; ++i) {
         sprintf(&sha_string[i * 2], "%02x", SHA[i]);
     }
@@ -98,7 +124,7 @@ void print_header(const struct pictdb_header* header)
  * @param metadata In memory object representing the metadata
  * describing an image.
  */
-void print_metadata (const struct pict_metadata* metadata)
+void print_metadata(const struct pict_metadata* metadata)
 {
     char sha_printable[2 * SHA256_DIGEST_LENGTH + 1];
     sha_to_string(metadata->SHA, sha_printable);

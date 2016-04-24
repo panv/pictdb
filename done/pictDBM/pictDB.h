@@ -29,9 +29,9 @@
 #define CAT_TXT "EPFL PictDB binary"
 
 /* constraints */
-#define MAX_DB_NAME 31    // max. size of a PictDB name
-#define MAX_PIC_ID 127    // max. size of a picture id
-#define MAX_MAX_FILES 10  // will be increased later in the project
+#define MAX_DB_NAME 31        // max. size of a PictDB name
+#define MAX_PIC_ID 127        // max. size of a picture id
+#define MAX_MAX_FILES 100000  // will be increased later in the project
 
 /* For is_valid in pictdb_metadata */
 #define EMPTY 0
@@ -133,7 +133,7 @@ struct pictdb_file {
     /**
      * @brief Metadata of the images.
      */
-    struct pict_metadata metadata[MAX_MAX_FILES];
+    struct pict_metadata* metadata;
 };
 
 /**
@@ -182,7 +182,7 @@ int do_create(const char* filename, struct pictdb_file* db_file);
 int do_open(const char* filename, const char* mode,
             struct pictdb_file* db_file);
 
-/*
+/**
  * @brief Closes the strem in the in memory database file
  *
  * @param db_file The in memory structure of a database file whose stream
@@ -190,7 +190,7 @@ int do_open(const char* filename, const char* mode,
  */
 void do_close(struct pictdb_file* db_file);
 
-/*
+/**
  * @brief Deletes an image from a database
  *
  * @param db_file The in memory structure of the object representing a
