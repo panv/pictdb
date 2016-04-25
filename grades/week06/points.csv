@@ -1,0 +1,3 @@
+group number,db_create.c,db_list.c,db_utils.c:print_X,db_utils.c:do_open,db_utils.c:do_close,pictDB.h:revisions,pictDB.h:do_open,pictDB.h:do_close,pictDB.h:do_delete,pictDBM.c,db_delete.c,Makefile,Total
+barème,1,1,2,5,1.5,3.5,2,1,2,4.5,9.5,1,34
+team-c-la-vie,1,1,2,5,1.5,3.5,2,1,2,4,8.5,0,31.5
