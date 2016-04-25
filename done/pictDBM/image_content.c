@@ -102,7 +102,7 @@ void* resize(char* input_buffer, uint32_t input_size, uint16_t max_x, uint16_t m
     // store image back to array
     // 0 on success, -1 on error
     void* output_buffer = malloc(output_size);
-    int not_written = vips_jpegsave_buffer(pics[0], &output_buffer, &output_size, NULL);
+    int not_written = vips_jpegsave_buffer(pics[1], &output_buffer, &output_size, NULL);
     g_object_unref(process);
 
     if (not_loaded || not_resized || not_written) {
