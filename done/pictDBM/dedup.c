@@ -7,18 +7,20 @@ int do_name_and_content_dedup(struct pictdb_file* db_file, uint32_t index)
     struct pict_metadata img_index = db_file->metadata[index];
     for (size_t i = 0; i < db_file->header.max_files; ++i) {
         if (i != index) {
-            if (db_file->metadata[i].is_valid == NON_EMPTY && !strcmp(db_file->metadata[i].pict_id, img_index.pict_id)) {
+            if (db_file->metadata[i].is_valid == NON_EMPTY &&
+                    !strcmp(db_file->metadata[i].pict_id, img_index.pict_id)) {
                 return ERR_DUPLICATE_ID;
             }
             if (!strncmp(db_file->metadata[i].SHA, img_index.SHA, SHA256_DIGEST_LENGTH)) {
-                // NO DEDUP
+                img_index.offsets[RES_ORIG] = 0;
+                return 0;
             }
             else {
-                img_index.offsets[RES_ORIG] = db_file->metadata.offsets[RES_ORIG];
-                img_index.offsets[RES_THUMB] = db_file->metadata.offsets[RES_THUMB];
-                img_index.offsets[RES_SMALL] = db_file->metadata.offsets[RES_SMALL];
-                // img_index.offset[RES_ORIG] = 0;
-                // return 0;
+                for (size_t i = 0; i < NB_RES; ++i) {
+                    img_index.offset[i] = db_file->metadata.offsets[i];
+                    img_index.size[i] = db_file->metadata.size[i];
+                }
+                return 0;
             }
         }
     }
