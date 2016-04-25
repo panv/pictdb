@@ -2,6 +2,8 @@
 #include<stdlib.h>
 #include <openssl/sha.h>
 
+int hashcmp(unsigned char* h1, unsigned char* h2);
+
 int do_name_and_content_dedup(struct pictdb_file* db_file, uint32_t index)
 {
     struct pict_metadata img_index = db_file->metadata[index];
@@ -11,19 +13,30 @@ int do_name_and_content_dedup(struct pictdb_file* db_file, uint32_t index)
                     !strcmp(db_file->metadata[i].pict_id, img_index.pict_id)) {
                 return ERR_DUPLICATE_ID;
             }
-            if (!strncmp(db_file->metadata[i].SHA, img_index.SHA, SHA256_DIGEST_LENGTH)) {
-                img_index.offsets[RES_ORIG] = 0;
+            if (!hashcmp(db_file->metadata[i].SHA, img_index.SHA)) {
+                img_index.offset[RES_ORIG] = 0;
                 return 0;
             }
             else {
-                for (size_t i = 0; i < NB_RES; ++i) {
-                    img_index.offset[i] = db_file->metadata.offsets[i];
-                    img_index.size[i] = db_file->metadata.size[i];
+                for (size_t res = 0; i < NB_RES; ++i) {
+                    img_index.offset[i] = db_file->metadata[i].offset[res];
+                    img_index.size[i] = db_file->metadata[i].size[res];
                 }
                 return 0;
             }
         }
     }
+    return 0;
+}
+
+int hashcmp(unsigned char* h1, unsigned char* h2)
+{
+    for (size_t i = 0; i < SHA256_DIGEST_LENGTH; ++i) {
+        if (h1[i] != h2[i]) {
+            return 1;
+        }
+    }
+    return 0;
 }
 
 unsigned char* hash_of_image(struct pictdb_file* db_file, uint32_t index)
