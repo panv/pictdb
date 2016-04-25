@@ -14,6 +14,21 @@
 
 #define NB_CMD 4 // Number of command line functions the database possesses
 
+// Macro that checks the number of arguments of a command
+#define ARG_CHECK(args, min) \
+    if (args < min) return ERR_NOT_ENOUGH_ARGUMENTS;
+// Macro that checks the number of arguments of a create option
+#define OPTION_ARG_CHECK(args, index, expected) \
+    if (check_argument_number(args - (index + 1), expected) != 0) \
+        return ERR_NOT_ENOUGH_ARGUMENTS;
+// Macro that checks that resolutions are valid
+#define RES_CHECK(x_res, y_res, max) \
+    if (check_values(x_res, y_res, max) != 0) \
+        return ERR_RESOLUTIONS;
+// Macro for assigning values to create options
+#define ASSIGN_VALUE(value, default_value) \
+    value = value == 0 ? default_value : value;
+
 /**
  * @brief A pointer to a function returning an int.
  */
@@ -43,9 +58,7 @@ int check_values(uint16_t x_res, uint16_t y_res, uint16_t max_value);
  ********************************************************************** */
 int do_list_cmd(int args, char* argv[])
 {
-    if (args < 2) {
-        return ERR_NOT_ENOUGH_ARGUMENTS;
-    }
+    ARG_CHECK(args, 2);
 
     struct pictdb_file db_file;
 
@@ -62,9 +75,7 @@ int do_list_cmd(int args, char* argv[])
 ********************************************************************** */
 int do_create_cmd(int args, char* argv[])
 {
-    if (args < 2) {
-        return ERR_NOT_ENOUGH_ARGUMENTS;
-    }
+    ARG_CHECK(args, 2);
 
     char* filename = argv[1];
     args -= 2;
@@ -79,9 +90,7 @@ int do_create_cmd(int args, char* argv[])
     for (size_t i = 0; i < args; ++i) {
         switch (parse_create_options(argv[i])) {
         case 1:
-            if (check_argument_number(args - (i + 1), 1) != 0) {
-                return ERR_NOT_ENOUGH_ARGUMENTS;
-            }
+            OPTION_ARG_CHECK(args, i, 1);
             max_files = atouint32(argv[i + 1]);
             if (max_files == 0 || max_files > MAX_MAX_FILES) {
                 return ERR_MAX_FILES;
@@ -89,25 +98,17 @@ int do_create_cmd(int args, char* argv[])
             i += 1;
             break;
         case 2:
-            if (check_argument_number(args - (i + 1), 2) != 0) {
-                return ERR_NOT_ENOUGH_ARGUMENTS;
-            }
+            OPTION_ARG_CHECK(args, i, 2);
             x_thumb_res = atouint16(argv[i + 1]);
             y_thumb_res = atouint16(argv[i + 2]);
-            if (check_values(x_thumb_res, y_thumb_res, 128) != 0) {
-                return ERR_RESOLUTIONS;
-            }
+            RES_CHECK(x_thumb_res, y_thumb_res, 128);
             i += 2;
             break;
         case 3:
-            if (check_argument_number(args - (i + 1), 2) != 0) {
-                return ERR_NOT_ENOUGH_ARGUMENTS;
-            }
+            OPTION_ARG_CHECK(args, i, 2);
             x_small_res = atouint16(argv[i + 1]);
             y_small_res = atouint16(argv[i + 2]);
-            if (check_values(x_small_res, y_small_res, 512) != 0) {
-                return ERR_RESOLUTIONS;
-            }
+            RES_CHECK(x_small_res, y_small_res, 512);
             i += 2;
             break;
         case 0:
@@ -115,11 +116,11 @@ int do_create_cmd(int args, char* argv[])
         }
     }
 
-    max_files = max_files == 0 ? 10 : max_files;
-    x_thumb_res = x_thumb_res == 0 ? 64 : x_thumb_res;
-    y_thumb_res = y_thumb_res == 0 ? 64 : y_thumb_res;
-    x_small_res = x_small_res == 0 ? 256 : x_small_res;
-    y_small_res = y_small_res == 0 ? 256 : y_small_res;
+    ASSIGN_VALUE(max_files, 10);
+    ASSIGN_VALUE(x_thumb_res, 64);
+    ASSIGN_VALUE(y_thumb_res, 64);
+    ASSIGN_VALUE(x_small_res, 256);
+    ASSIGN_VALUE(y_small_res, 256);
 
     puts("Create");
     struct pictdb_header db_header = {
@@ -205,9 +206,7 @@ int help(int args, char* argv[])
  */
 int do_delete_cmd(int args, char* argv[])
 {
-    if (args < 3) {
-        return ERR_NOT_ENOUGH_ARGUMENTS;
-    }
+    ARG_CHECK(args, 3);
 
     struct pictdb_file db_file;
 
