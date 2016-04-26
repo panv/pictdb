@@ -18,9 +18,9 @@ int do_name_and_content_dedup(struct pictdb_file* db_file, uint32_t index)
                 return 0;
             }
             else {
-                for (size_t res = 0; i < NB_RES; ++i) {
-                    img_index.offset[i] = db_file->metadata[i].offset[res];
-                    img_index.size[i] = db_file->metadata[i].size[res];
+                for (size_t res = 0; res < NB_RES; ++res) {
+                    img_index.offset[res] = db_file->metadata[i].offset[res];
+                    img_index.size[res] = db_file->metadata[i].size[res];
                 }
                 return 0;
             }
