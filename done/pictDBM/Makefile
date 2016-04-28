@@ -1,25 +1,24 @@
 CC = gcc
-CFLAGS += -Wall -std=c99 -g $$(pkg-config vips --cflags)
+CFLAGS += -std=c99 -Wall -g $$(pkg-config vips --cflags)
 LDLIBS += -lssl -lcrypto $$(pkg-config vips --libs) #-lm?
+TARGET = pictDBM
 SRCS = db_utils.c pictDBM.c db_list.c error.c db_create.c \
        db_delete.c image_content.c pictDBM_tools.c
+OBJS = $(SRCS:.c=.o)
 
-pictDBM: $(SRCS)
-	$(CC) $(LDLIBS) $(CFLAGS) -o pictDBM $(SRCS)
+all: $(TARGET)
 
-all: pictDBM
+$(TARGET): $(OBJS)
+	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS) $(LDLIBS)
 
-test: pictDBM
-	# Try to save output to variable. Probably bad end of file.
-	# http://blog.melski.net/2010/11/15/shell-commands-in-gnu-make/
-	#OUTPUT := $(shell ./pictDBM list testDB01.pictdb_static && ./pictDBM list testDB02.pictdb_static >> test_output.txt)
-	#diff -s -w $(OUTPUT) correct_output.txt
-	./pictDBM list testDB01.pictdb_static > test_output.txt
-	./pictDBM list testDB02.pictdb_static >> test_output.txt
-	# -e only show differing parts -s tells if file equal -q tells if file differ
-	diff -y -w test_output.txt correct_output.txt
-	diff -s -w test_output.txt correct_output.txt
-	diff -q -w test_output.txt correct_output.txt
+.c.o:
+	$(CC) $(CFLAGS) -c $< -o $@
+
+test: $(TARGET)
+
+
+clean:
+	$(RM) $(TARGET) *.o
 
 format: $(SRCS)
 	astyle --style=linux --indent=spaces=4 --convert-tabs --suffix=none \
