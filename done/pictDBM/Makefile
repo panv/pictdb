@@ -1,9 +1,16 @@
+# C compiler
 CC = gcc
+# flags
 CFLAGS += -std=c99 -Wall -g $$(pkg-config vips --cflags)
+# libraries
 LDLIBS += -lssl -lcrypto $$(pkg-config vips --libs) #-lm?
+# binary executable
 TARGET = pictDBM
+# C source files
 SRCS = db_utils.c pictDBM.c db_list.c error.c db_create.c \
        db_delete.c image_content.c pictDBM_tools.c
+# C object files, uses suffix replacement within a macro
+# https://www.cs.swarthmore.edu/~newhall/unixhelp/howto_makefiles.html
 OBJS = $(SRCS:.c=.o)
 
 all: $(TARGET)
@@ -11,15 +18,18 @@ all: $(TARGET)
 $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS) $(LDLIBS)
 
+# build .o's from .c's
 .c.o:
 	$(CC) $(CFLAGS) -c $< -o $@
 
+# to do: implement testing
 test: $(TARGET)
 
-
+# remove executable and object files
 clean:
 	$(RM) $(TARGET) *.o
 
+# format with astyle
 format: $(SRCS)
 	astyle --style=linux --indent=spaces=4 --convert-tabs --suffix=none \
 	--add-brackets --unpad-paren --pad-oper --pad-header --align-pointer=type \
