@@ -1,8 +1,10 @@
 # Binary file
 /done/pictDBM/pictDBM
+*.o
 
 # Test files
 testDB*
+tmp
 
 # Text editors config
 CProjectSession
