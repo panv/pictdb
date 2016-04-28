@@ -1,7 +1,7 @@
 # C compiler
 CC = gcc
 # flags
-CFLAGS += -std=c99 -Wall -g $$(pkg-config vips --cflags)
+CFLAGS += -std=c99 -Wall -pedantic -g $$(pkg-config vips --cflags)
 # libraries
 LDLIBS += -lssl -lcrypto $$(pkg-config vips --libs) #-lm?
 # binary executable
@@ -23,14 +23,16 @@ $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # to do: implement testing
-test: $(TARGET)
+# test: $(TARGET)
 
 # remove executable and object files
 clean:
 	$(RM) $(TARGET) *.o
 
 # format with astyle
-format: $(SRCS)
+format:
 	astyle --style=linux --indent=spaces=4 --convert-tabs --suffix=none \
 	--add-brackets --unpad-paren --pad-oper --pad-header --align-pointer=type \
 	--max-code-length=80 --lineend=linux -n *.c *.h
+
+.PHONY: format clean
