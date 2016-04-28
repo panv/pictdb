@@ -7,7 +7,6 @@
  */
 
 #include "pictDB.h"
-#include <inttypes.h> // For printing types int stdint
 
 int do_open(const char* filename, const char* mode,
             struct pictdb_file* db_file)

@@ -1,5 +1,5 @@
 #include "dedup.h"
-#include<stdlib.h>
+#include <stdlib.h>
 #include <openssl/sha.h>
 
 int hashcmp(unsigned char* h1, unsigned char* h2);
