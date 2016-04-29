@@ -6,7 +6,8 @@ int valid_resolution(int resolution);
 long write_to_disk(struct pictdb_file* db_file, void* to_write,
                    size_t size, size_t nmemb, long offset, int whence);
 
-void* resize(char* input_buffer, uint32_t input_size, uint16_t max_x, uint16_t max_y, size_t output_size);
+void* resize(char* input_buffer, uint32_t input_size, uint16_t max_x,
+             uint16_t max_y, size_t output_size);
 
 double shrink_value(VipsImage* image, int max_thumbnail_width,
                     int max_thumbnail_height)
@@ -83,7 +84,8 @@ int lazily_resize(uint16_t resolution, struct pictdb_file* db_file,
     return ERR_IO;
 }
 
-void* resize(char* input_buffer, uint32_t input_size, uint16_t max_x, uint16_t max_y, size_t output_size)
+void* resize(char* input_buffer, uint32_t input_size, uint16_t max_x,
+             uint16_t max_y, size_t output_size)
 {
     // modify image (heavily inspired by thumbify.c)
     VipsObject* process = VIPS_OBJECT(vips_image_new());

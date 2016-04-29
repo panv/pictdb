@@ -7,7 +7,6 @@
  */
 
 #include "pictDB.h"
-#include <inttypes.h> // For printing types int stdint
 
 int do_open(const char* filename, const char* mode,
             struct pictdb_file* db_file)
@@ -31,6 +30,10 @@ int do_open(const char* filename, const char* mode,
         fprintf(stderr, "Error : cannot read header from %s\n", filename);
         fclose(input_stream);
         return ERR_IO;
+    }
+    if (db_file->header.max_files > MAX_MAX_FILES) {
+        fclose(input_stream);
+        return ERR_MAX_FILES;
     }
 
     // Dynamically allocates memory to the metadata

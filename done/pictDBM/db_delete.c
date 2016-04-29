@@ -32,22 +32,27 @@ int do_delete(struct pictdb_file* db_file, const char* pict_id)
 
     // Find index of image to remove
     uint32_t index;
-    if (index_of_image(pict_id, db_file->metadata,
-                       db_file->header.max_files, &index) != 0) {
+    if (db_file->header.num_files == 0
+        || index_of_image(pict_id, db_file->metadata,
+                          db_file->header.max_files, &index) != 0) {
         return ERR_FILE_NOT_FOUND;
     }
 
     // Mark the image as invalid
     db_file->metadata[index].is_valid = EMPTY;
     // Position write head after the header
-    int seek_success = fseek(db_file->fpdb, sizeof(struct pictdb_header), SEEK_SET);
+    int seek_success = fseek(db_file->fpdb,
+                             sizeof(struct pictdb_header)
+                             + sizeof(struct pict_metadata) * index,
+                             SEEK_SET);
 
     if (seek_success == 0) {
         // Write metadata
-        size_t write_success = fwrite(db_file->metadata, sizeof(struct pict_metadata),
-                                      db_file->header.max_files, db_file->fpdb);
+        size_t write_success = fwrite(db_file->metadata,
+                                      sizeof(struct pict_metadata),
+                                      1, db_file->fpdb);
 
-        if (write_success == db_file->header.max_files) {
+        if (write_success == 1) {
             // Update header
             ++db_file->header.db_version;
             --db_file->header.num_files;
@@ -56,7 +61,8 @@ int do_delete(struct pictdb_file* db_file, const char* pict_id)
 
             if (seek_success == 0) {
                 // Write header
-                write_success = fwrite(&db_file->header, sizeof(struct pictdb_header),
+                write_success = fwrite(&db_file->header,
+                                       sizeof(struct pictdb_header),
                                        1, db_file->fpdb);
                 return write_success == 1 ? 0 : ERR_IO;
             }

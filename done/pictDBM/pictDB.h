@@ -25,7 +25,8 @@
 #include <stdint.h>      // for uint32_t, uint64_t
 #include <openssl/sha.h> // for SHA256_DIGEST_LENGTH
 #include <string.h>      // for strcmp, strncpy, strlen
-#include <stdlib.h>
+#include <stdlib.h>      // for calloc and malloc
+#include <inttypes.h>    // For printing types int stdint
 
 #define CAT_TXT "EPFL PictDB binary"
 
