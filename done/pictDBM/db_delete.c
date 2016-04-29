@@ -12,7 +12,7 @@
  * @brief Finds the index of an image in an array of metadata.
  *
  * @param pict_id The identifier of the image to be found.
- * @param images The array of metadata.
+ * @param images  The array of metadata.
  * @param db_size The length of the array.
  * @param index Pointer to the variable where to write the index of the image.
  *

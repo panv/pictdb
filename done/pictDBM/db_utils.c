@@ -18,21 +18,19 @@ int do_open(const char* filename, const char* mode,
         return ERR_INVALID_FILENAME;
     }
 
-    FILE* input_stream = fopen(filename, mode);
-    if (input_stream == NULL) {
+    db_file->fpdb = fopen(filename, mode);
+    if (db_file->fpdb == NULL) {
         fprintf(stderr, "Error : cannot open file %s\n", filename);
         return ERR_IO;
     }
 
     size_t read_els = fread(&db_file->header, sizeof(struct pictdb_header),
-                            1, input_stream);
+                            1, db_file->fpdb);
     if (read_els != 1) {
         fprintf(stderr, "Error : cannot read header from %s\n", filename);
-        fclose(input_stream);
         return ERR_IO;
     }
     if (db_file->header.max_files > MAX_MAX_FILES) {
-        fclose(input_stream);
         return ERR_MAX_FILES;
     }
 
@@ -41,20 +39,16 @@ int do_open(const char* filename, const char* mode,
                                sizeof(struct pict_metadata));
     // Check for allocation error
     if (db_file->metadata == NULL) {
-        fclose(input_stream);
         return ERR_OUT_OF_MEMORY;
     }
 
     read_els = fread(db_file->metadata, sizeof(struct pict_metadata),
-                     db_file->header.max_files, input_stream);
+                     db_file->header.max_files, db_file->fpdb);
     if (read_els != db_file->header.max_files) {
         fprintf(stderr, "Error : cannot read metadata from %s\n", filename);
-        free(db_file->metadata);
-        fclose(input_stream);
         return ERR_IO;
     }
 
-    db_file->fpdb = input_stream;
     return 0;
 }
 

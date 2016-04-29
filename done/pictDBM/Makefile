@@ -35,4 +35,5 @@ format:
 	--add-brackets --unpad-paren --pad-oper --pad-header --align-pointer=type \
 	--max-code-length=80 --lineend=linux -n *.c *.h
 
+# ignore format and clean
 .PHONY: format clean

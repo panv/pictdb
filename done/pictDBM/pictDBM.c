@@ -12,7 +12,13 @@
 #include "pictDBM_tools.h"
 #include "image_content.h"
 
-#define NB_CMD 4 // Number of command line functions the database possesses
+// Constants
+#define NB_CMD        4 // Number of command line functions the database possesses
+#define FILE_DEFAULT  10
+#define THUMB_DEFAULT 64
+#define THUMB_MAX     128
+#define SMALL_DEFAULT 256
+#define SMALL_MAX     512
 
 // Macro that checks the number of arguments of a command
 #define ARG_CHECK(args, min) \
@@ -62,12 +68,12 @@ int do_list_cmd(int args, char* argv[])
 
     struct pictdb_file db_file;
 
-    int db_opened = do_open(argv[1], "rb", &db_file);
-    if (db_opened == 0) {
+    int ret = do_open(argv[1], "rb", &db_file);
+    if (ret == 0) {
         do_list(&db_file);
-        do_close(&db_file);
     }
-    return db_opened;
+    do_close(&db_file);
+    return ret;
 }
 
 /********************************************************************/ /**
@@ -87,7 +93,8 @@ int do_create_cmd(int args, char* argv[])
     uint16_t x_small_res = 0;
     uint16_t y_small_res = 0;
 
-    for (size_t i = 0; i < args; ++i) {
+    // Use of int instead of size_t for the comparison with args
+    for (int i = 0; i < args; ++i) {
         switch (parse_create_options(argv[i])) {
         case 1:
             OPTION_ARG_CHECK(args, i, 1);
@@ -101,14 +108,14 @@ int do_create_cmd(int args, char* argv[])
             OPTION_ARG_CHECK(args, i, 2);
             x_thumb_res = atouint16(argv[i + 1]);
             y_thumb_res = atouint16(argv[i + 2]);
-            RES_CHECK(x_thumb_res, y_thumb_res, 128);
+            RES_CHECK(x_thumb_res, y_thumb_res, THUMB_MAX);
             i += 2;
             break;
         case 3:
             OPTION_ARG_CHECK(args, i, 2);
             x_small_res = atouint16(argv[i + 1]);
             y_small_res = atouint16(argv[i + 2]);
-            RES_CHECK(x_small_res, y_small_res, 512);
+            RES_CHECK(x_small_res, y_small_res, SMALL_MAX);
             i += 2;
             break;
         case 0:
@@ -116,25 +123,27 @@ int do_create_cmd(int args, char* argv[])
         }
     }
 
-    ASSIGN_VALUE(max_files, 10);
-    ASSIGN_VALUE(x_thumb_res, 64);
-    ASSIGN_VALUE(y_thumb_res, 64);
-    ASSIGN_VALUE(x_small_res, 256);
-    ASSIGN_VALUE(y_small_res, 256);
+    ASSIGN_VALUE(max_files, FILE_DEFAULT);
+    ASSIGN_VALUE(x_thumb_res, THUMB_DEFAULT);
+    ASSIGN_VALUE(y_thumb_res, THUMB_DEFAULT);
+    ASSIGN_VALUE(x_small_res, SMALL_DEFAULT);
+    ASSIGN_VALUE(y_small_res, SMALL_DEFAULT);
 
     puts("Create");
+
     struct pictdb_header db_header = {
         .max_files = max_files,
         .res_resized = { x_thumb_res, y_thumb_res, x_small_res, y_small_res }
     };
     struct pictdb_file db_file = {.header = db_header };
 
-    int db_created = do_create(filename, &db_file);
-    if (db_created == 0) {
+    int ret = do_create(filename, &db_file);
+    if (ret == 0) {
         print_header(&db_file.header);
     }
+    do_close(&db_file);
 
-    return db_created;
+    return ret;
 }
 
 /**
@@ -189,15 +198,17 @@ int help(int args, char* argv[])
            "  create <dbfilename> [options]: create a new pictDB.\n"
            "      options are:\n"
            "          -max_files <MAX_FILES>: maximum number of files.\n"
-           "                                  default value is 10\n"
-           "                                  maximum value is 100000\n"
+           "                                  default value is %d\n"
+           "                                  maximum value is %d\n"
            "          -thumb_res <X_RES> <Y_RES>: resolution for thumbnail images.\n"
-           "                                  default value is 64x64\n"
-           "                                  maximum value is 128x128\n"
+           "                                  default value is %dx%d\n"
+           "                                  maximum value is %dx%d\n"
            "          -small_res <X_RES> <Y_RES>: resolution for small images.\n"
-           "                                  default value is 256x256\n"
-           "                                  maximum value is 512x512\n"
-           "  delete <dbfilename> <pictID>: delete picture pictID from pictDB.\n");
+           "                                  default value is %dx%d\n"
+           "                                  maximum value is %dx%d\n"
+           "  delete <dbfilename> <pictID>: delete picture pictID from pictDB.\n",
+           FILE_DEFAULT, MAX_MAX_FILES, THUMB_DEFAULT, THUMB_DEFAULT, THUMB_MAX,
+           THUMB_MAX, SMALL_DEFAULT, SMALL_DEFAULT, SMALL_MAX, SMALL_MAX);
     return 0;
 }
 
@@ -210,14 +221,13 @@ int do_delete_cmd(int args, char* argv[])
 
     struct pictdb_file db_file;
 
-    int db_opened = do_open(argv[1], "rb+", &db_file);
-    if (db_opened == 0) {
+    int ret = do_open(argv[1], "rb+", &db_file);
+    if (ret == 0) {
         puts("Delete");
-        int pict_deleted = do_delete(&db_file, argv[2]);
-        do_close(&db_file);
-        return pict_deleted;
+        ret = do_delete(&db_file, argv[2]);
     }
-    return db_opened;
+    do_close(&db_file);
+    return ret;
 }
 
 /********************************************************************/ /**

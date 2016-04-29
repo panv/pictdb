@@ -19,8 +19,8 @@ int do_create(const char* filename, struct pictdb_file* db_file)
     }
 
     // Open stream and check for errors
-    FILE* output = fopen(filename, "wb");
-    if (output == NULL) {
+    db_file->fpdb = fopen(filename, "wb");
+    if (db_file->fpdb == NULL) {
         fprintf(stderr, "Error : cannot open file %s\n", filename);
         return ERR_IO;
     }
@@ -37,22 +37,15 @@ int do_create(const char* filename, struct pictdb_file* db_file)
                                sizeof(struct pict_metadata));
     // Check for allocation error
     if (db_file->metadata == NULL) {
-        fclose(output);
         return ERR_OUT_OF_MEMORY;
     }
 
     // Writes the header and the array of max_files metadata to file
     size_t header_ctrl = fwrite(&db_file->header,
-                                sizeof(struct pictdb_header), 1, output);
+                                sizeof(struct pictdb_header), 1, db_file->fpdb);
     size_t metadata_ctrl = fwrite(db_file->metadata,
                                   sizeof(struct pict_metadata),
-                                  db_file->header.max_files, output);
-    
-    // Free memory and overwrite pointer
-    free(db_file->metadata);
-    db_file->metadata = NULL;
-    fclose(output);
-
+                                  db_file->header.max_files, db_file->fpdb);
     if (header_ctrl != 1 || metadata_ctrl != db_file->header.max_files) {
         fprintf(stderr, "Error : cannot create database %s\n",
                 db_file->header.db_name);
