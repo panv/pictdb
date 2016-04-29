@@ -89,7 +89,7 @@ int lazily_resize(uint16_t resolution, struct pictdb_file* db_file,
     size_t output_size = 0;
     void* output_buffer = resize(image_in_bytes, size,
                                  db_file->header.res_resized[resolution * 2],
-                                 db_file->header.res_resized[res_resized * 2 + 1],
+                                 db_file->header.res_resized[resolution * 2 + 1],
                                  &output_size);
     if (output_buffer == NULL) {
         g_free(output_buffer);
