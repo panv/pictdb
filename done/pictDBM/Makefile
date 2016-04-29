@@ -23,7 +23,9 @@ $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # to do: implement testing
-# test: $(TARGET)
+test:
+	$(CC) $(CFLAGS) -o vipstest vipstest.c db_utils.c db_list.c error.c \
+	db_create.c db_delete.c image_content.c $(LDLIBS)
 
 # remove executable and object files
 clean:
