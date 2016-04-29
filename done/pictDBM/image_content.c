@@ -41,7 +41,7 @@ long write_to_disk(struct pictdb_file* db_file, void* to_write,
  *
  * return The resized image.
  */
-void* resize(char* input_buffer, uint32_t input_size, uint16_t max_x,
+ void* resize(void* input_buffer, uint32_t input_size, uint16_t max_x,
              uint16_t max_y, size_t* output_size);
 
 /**
@@ -69,22 +69,22 @@ int lazily_resize(uint16_t resolution, struct pictdb_file* db_file,
         return ERR_RESOLUTIONS;
     }
 
+
     // If the image already exists in the asked resolution or the asked resolution
     // is the original resolution, do nothing
-    if (resolution == RES_ORIG || db_file->metadata[index].size[resolution] == 0) {
+    if (resolution == RES_ORIG || db_file->metadata[index].size[resolution] != 0) {
         return 0;
     }
 
     uint32_t size = db_file->metadata[index].size[RES_ORIG]; //Used often.
 
     // Initialize array for image and read it into it.
-    char image_in_bytes[size];
-    if (!fseek(db_file->fpdb, size, SEEK_SET)
-        || fread(image_in_bytes, size, 1, db_file->fpdb) != size) {
-        fprintf(stderr, ERROR_MESSAGES[ERR_IO]);
+    void* image_in_bytes = malloc(size);
+    //char image_in_bytes[size];
+    if (fseek(db_file->fpdb, db_file->metadata[index].offset[RES_ORIG], SEEK_SET)
+        || fread(image_in_bytes, size, 1, db_file->fpdb) != 1) {
         return ERR_IO;
     }
-
     // Resize the image using VIPS
     size_t output_size = 0;
     void* output_buffer = resize(image_in_bytes, size,
@@ -99,6 +99,7 @@ int lazily_resize(uint16_t resolution, struct pictdb_file* db_file,
 
     long offset = write_to_disk(db_file, output_buffer, output_size, 1, 0,
                                 SEEK_END);
+    printf("offset %li\n", offset);
     g_free(output_buffer); // Once written, we can free the memory from the image.
 
     if (offset != -1) {
@@ -113,20 +114,24 @@ int lazily_resize(uint16_t resolution, struct pictdb_file* db_file,
     return ERR_IO;
 }
 
-void* resize(char* input_buffer, uint32_t input_size, uint16_t max_x,
+void* resize(void* input_buffer, uint32_t input_size, uint16_t max_x,
              uint16_t max_y, size_t* output_size)
 {
     VipsObject* process = VIPS_OBJECT(vips_image_new());
-    VipsImage** pics = (VipsImage**)vips_object_local_array(process, 2);
+    VipsImage** pics = (VipsImage**) vips_object_local_array(process, 2);
     double ratio = 0.0;
+    vips_jpegload_buffer(input_buffer, input_size, &pics[0], NULL);
     shrink_value(pics[0], max_x, max_y, &ratio);
     void* output_buffer;
 
+    /*
     if (vips_jpegload_buffer(input_buffer, input_size, &pics[0], NULL)
         || vips_resize(pics[0], &pics[1], ratio, NULL)
         || vips_jpegsave_buffer(pics[1], &output_buffer, output_size, NULL)) {
         return NULL;
-    }
+    }*/
+    vips_resize(pics[0], &pics[1], ratio, NULL);
+    vips_jpegsave_buffer(pics[1], &output_buffer, output_size, NULL);
 
     g_object_unref(process);
     return output_buffer;
@@ -149,10 +154,10 @@ int valid_resolution(int resolution)
 long write_to_disk(struct pictdb_file* db_file, void* to_write,
                    size_t size, size_t nmemb, long offset, int whence)
 {
-    if (!fseek(db_file->fpdb, offset, whence)) {
+    if (fseek(db_file->fpdb, offset, whence) == 0) {
         long file_size = ftell(db_file->fpdb);
         size_t write_success = fwrite(to_write, size, nmemb, db_file->fpdb);
-        return (write_success == size) ? file_size : -1;
+        return (write_success == nmemb) ? file_size : -1;
     }
     return -1;
 }

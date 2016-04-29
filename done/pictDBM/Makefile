@@ -26,6 +26,7 @@ $(TARGET): $(OBJS)
 test:
 	$(CC) $(CFLAGS) -o vipstest vipstest.c db_utils.c db_list.c error.c \
 	db_create.c db_delete.c image_content.c $(LDLIBS)
+	./vipstest testDB02.pictdb_dynamic pic1
 
 # remove executable and object files
 clean:
