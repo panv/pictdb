@@ -79,9 +79,8 @@ int lazily_resize(uint16_t resolution, struct pictdb_file* db_file,
 
     // Initialize array for image and read it into it.
     char image_in_bytes[size];
-    if (!fseek(db_file->fpdb, size, SEEK_SET)
+    if (!fseek(db_file->fpdb, db_file->metadata[index.offset[resolution]], SEEK_SET)
         || fread(image_in_bytes, size, 1, db_file->fpdb) != size) {
-        fprintf(stderr, ERROR_MESSAGES[ERR_IO]);
         return ERR_IO;
     }
 
