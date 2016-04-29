@@ -1,23 +1,34 @@
-#include "dedup.h"
-#include <stdlib.h>
-#include <openssl/sha.h>
+/**
+ * @file dedup.c
+ * @brief Implements image deduplication feature.
+ *
+ * @author Vincenzo Bazzucchi
+ * @author Nicolas Phan Van
+ */
 
+#include "dedup.h"
+
+/**
+ * @brief Compares two hash digests.
+ *
+ * @param h1, h2 The two hashes to compare.
+ *
+ * @return 0 If h1 equals h2, else 0.
+ */
 int hashcmp(unsigned char* h1, unsigned char* h2);
 
 int do_name_and_content_dedup(struct pictdb_file* db_file, uint32_t index)
 {
     struct pict_metadata img_index = db_file->metadata[index];
     for (size_t i = 0; i < db_file->header.max_files; ++i) {
-        if (i != index) {
+        if (i != index) { // for all images other than image at index
             if (db_file->metadata[i].is_valid == NON_EMPTY &&
-                    !strcmp(db_file->metadata[i].pict_id, img_index.pict_id)) {
+                    !strncmp(db_file->metadata[i].pict_id, img_index.pict_id, MAX_PIC_ID)) {
+                // Two distinc images have same ID!
                 return ERR_DUPLICATE_ID;
             }
-            if (!hashcmp(db_file->metadata[i].SHA, img_index.SHA)) {
-                img_index.offset[RES_ORIG] = 0;
-                return 0;
-            }
-            else {
+            else if (!hashcmp(db_file->metadata[i].SHA, img_index.SHA)) {
+                // Two images same hash: deduplication
                 for (size_t res = 0; res < NB_RES; ++res) {
                     img_index.offset[res] = db_file->metadata[i].offset[res];
                     img_index.size[res] = db_file->metadata[i].size[res];
@@ -26,6 +37,8 @@ int do_name_and_content_dedup(struct pictdb_file* db_file, uint32_t index)
             }
         }
     }
+    // No duplicates
+    img_index.offset[RES_ORIG] = 0;
     return 0;
 }
 
@@ -37,27 +50,4 @@ int hashcmp(unsigned char* h1, unsigned char* h2)
         }
     }
     return 0;
-}
-
-unsigned char* hash_of_image(struct pictdb_file* db_file, uint32_t index)
-{
-    // destination preparation
-    unsigned char* hash = calloc(SHA256_DIGEST_LENGTH, sizeof(char));
-
-    // Initialization of sha reaction
-    SHA256_CTX hash_calculator;
-    SHA256_Init(&hash_calculator);
-
-    // input preparation
-    uint32_t img_size = db_file->metadata[index].size[RES_ORIG];
-    fseek(db_file->fpdb, db_file->metadata[index].offset[RES_ORIG], SEEK_SET);
-    char image[img_size];
-    fread(image, img_size, 1, db_file->fpdb);
-
-    // Run over data
-    SHA256_Update(&hash_calculator, image, img_size);
-
-    //Extract hash
-    SHA256_Final(hash, &hash_calculator);
-    return hash;
 }
