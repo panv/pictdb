@@ -2,6 +2,8 @@
  * @file image_content.c
  * @brief Implements the image resizing feature.
  *
+ * @author Vincenzo Bazzucchi
+ * @author Nicolas Phan Van
  */
 
 #include "image_content.h"
