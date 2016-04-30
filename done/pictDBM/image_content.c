@@ -101,7 +101,13 @@ int lazily_resize(uint16_t resolution, struct pictdb_file* db_file,
                                sizeof(struct pict_metadata),
                                db_file->header.max_files,
                                sizeof(struct pictdb_header), SEEK_SET);
-        return (offset != -1) ? 0 : ERR_IO;
+        ++db_file->header.db_version;
+        if (offset != -1 || fseek(db_file->fpdb, 0, SEEK_SET) == 0 ||
+                fwrite(db_file->header, sizeof(struct pictdb_header), 1, db_file->fpdb) == 1) {
+            return 0;
+        } else {
+            return ERR_IO;
+        }
     }
     return ERR_IO;
 }
