@@ -64,7 +64,7 @@ int lazily_resize(int resolution, struct pictdb_file* db_file,
         return ERR_INVALID_ARGUMENT;
     }
     if (db_file->metadata[index].is_valid == EMPTY) {
-        printf("Error : image not contained in the database");
+        fprintf(stderr, "Error : image not contained in the database");
         return ERR_INVALID_ARGUMENT;
     }
 
@@ -76,16 +76,12 @@ int lazily_resize(int resolution, struct pictdb_file* db_file,
     }
 
     uint32_t size = db_file->metadata[index].size[RES_ORIG]; //Used often.
-
-    // Initialize array for image and read it into it.
-    void* image_in_bytes = malloc(size);
-    //char image_in_bytes[size];
+    char image_in_bytes[size]; //Initialize array for image and read it into it.
     if (fseek(db_file->fpdb, db_file->metadata[index].offset[RES_ORIG], SEEK_SET)
         || fread(image_in_bytes, size, 1, db_file->fpdb) != 1) {
         return ERR_IO;
     }
-    // Resize the image using VIPS
-    size_t output_size = 0;
+    size_t output_size = 0; // Resize the image using VIPS
     void* output_buffer = resize(image_in_bytes, size,
                                  db_file->header.res_resized[resolution * 2],
                                  db_file->header.res_resized[resolution * 2 + 1],
@@ -98,9 +94,7 @@ int lazily_resize(int resolution, struct pictdb_file* db_file,
 
     long offset = write_to_disk(db_file, output_buffer, output_size, 1, 0,
                                 SEEK_END);
-    printf("offset %li\n", offset);
     g_free(output_buffer); // Once written, we can free the memory from the image.
-
     if (offset != -1) {
         db_file->metadata[index].size[resolution] = output_size;
         db_file->metadata[index].offset[resolution] = offset;
@@ -108,7 +102,13 @@ int lazily_resize(int resolution, struct pictdb_file* db_file,
                                sizeof(struct pict_metadata),
                                db_file->header.max_files,
                                sizeof(struct pictdb_header), SEEK_SET);
-        return (offset != -1) ? 0 : ERR_IO;
+        ++db_file->header.db_version;
+        if (offset != -1 || fseek(db_file->fpdb, 0, SEEK_SET) == 0 ||
+                fwrite(db_file->header, sizeof(struct pictdb_header), 1, db_file->fpdb) == 1) {
+            return 0;
+        } else {
+            return ERR_IO;
+        }
     }
     return ERR_IO;
 }
@@ -135,19 +135,17 @@ void* resize(void* input_buffer, uint32_t input_size, uint16_t max_x,
 {
     VipsObject* process = VIPS_OBJECT(vips_image_new());
     VipsImage** pics = (VipsImage**) vips_object_local_array(process, 2);
-    vips_jpegload_buffer(input_buffer, input_size, &pics[0], NULL);
     void* output_buffer;
     if (vips_jpegload_buffer(input_buffer, input_size, &pics[0], NULL)) {
+        g_object_unref(process);
         return NULL;
     }
     double ratio = shrink_value(pics[0], max_x, max_y);
     if (vips_resize(pics[0], &pics[1], ratio, NULL) ||
         vips_jpegsave_buffer(pics[1], &output_buffer, output_size, NULL)) {
+        g_object_unref(process);
         return NULL;
     }
-    vips_resize(pics[0], &pics[1], ratio, NULL);
-    vips_jpegsave_buffer(pics[1], &output_buffer, output_size, NULL);
-
     g_object_unref(process);
     return output_buffer;
 }
