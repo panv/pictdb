@@ -18,6 +18,10 @@ int hashcmp(unsigned char* h1, unsigned char* h2);
 
 int do_name_and_content_dedup(struct pictdb_file* db_file, uint32_t index)
 {
+    if (db_file == NULL || db_file->metadata[index].is_valid == EMPTY) {
+        return ERR_INVALID_ARGUMENT;
+    }
+
     struct pict_metadata img_index = db_file->metadata[index];
     for (size_t i = 0; i < db_file->header.max_files; ++i) {
         // For all valid images other than the one at index
