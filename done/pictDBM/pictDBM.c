@@ -31,9 +31,6 @@
 #define RES_CHECK(x_res, y_res, max) \
     if (check_values(x_res, y_res, max) != 0) \
         return ERR_RESOLUTIONS;
-// Macro for assigning values to create options
-#define ASSIGN_VALUE(value, default_value) \
-    value = value == 0 ? default_value : value;
 
 /**
  * @brief A pointer to a function returning an int.
@@ -132,11 +129,11 @@ int do_create_cmd(int args, char* argv[])
     args -= 2;
     argv += 2;
 
-    uint32_t max_files = 0;
-    uint16_t x_thumb_res = 0;
-    uint16_t y_thumb_res = 0;
-    uint16_t x_small_res = 0;
-    uint16_t y_small_res = 0;
+    uint32_t max_files = FILE_DEFAULT;
+    uint16_t x_thumb_res = THUMB_DEFAULT;
+    uint16_t y_thumb_res = THUMB_DEFAULT;
+    uint16_t x_small_res = SMALL_DEFAULT;
+    uint16_t y_small_res = SMALL_DEFAULT;
 
     // Use of int instead of size_t for the comparison with args
     for (int i = 0; i < args; ++i) {
@@ -167,12 +164,6 @@ int do_create_cmd(int args, char* argv[])
             return ERR_INVALID_ARGUMENT;
         }
     }
-
-    ASSIGN_VALUE(max_files, FILE_DEFAULT);
-    ASSIGN_VALUE(x_thumb_res, THUMB_DEFAULT);
-    ASSIGN_VALUE(y_thumb_res, THUMB_DEFAULT);
-    ASSIGN_VALUE(x_small_res, SMALL_DEFAULT);
-    ASSIGN_VALUE(y_small_res, SMALL_DEFAULT);
 
     puts("Create");
 
