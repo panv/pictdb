@@ -20,10 +20,11 @@ int do_name_and_content_dedup(struct pictdb_file* db_file, uint32_t index)
 {
     struct pict_metadata img_index = db_file->metadata[index];
     for (size_t i = 0; i < db_file->header.max_files; ++i) {
-        if (i != index) { // For all images other than image at index
-            if (db_file->metadata[i].is_valid == NON_EMPTY
-                && !strncmp(db_file->metadata[i].pict_id, img_index.pict_id, MAX_PIC_ID)) {
-                // Two distinct images have the same ID!
+        // For all valid images other than the one at index
+        if (i != index && db_file->metadata[i].is_valid == NON_EMPTY) {
+            // Two distinct images have the same ID!
+            if (strncmp(db_file->metadata[i].pict_id,
+                        img_index.pict_id, MAX_PIC_ID) == 0) {
                 return ERR_DUPLICATE_ID;
             } else if (!hashcmp(db_file->metadata[i].SHA, img_index.SHA)) {
                 // Two images with the same hash: deduplication
