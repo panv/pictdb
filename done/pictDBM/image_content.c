@@ -68,7 +68,6 @@ int lazily_resize(uint16_t resolution, struct pictdb_file* db_file,
         return ERR_RESOLUTIONS;
     }
 
-
     // If the image already exists in the asked resolution or the asked resolution
     // is the original resolution, do nothing
     if (resolution == RES_ORIG || db_file->metadata[index].size[resolution] != 0) {
@@ -76,16 +75,12 @@ int lazily_resize(uint16_t resolution, struct pictdb_file* db_file,
     }
 
     uint32_t size = db_file->metadata[index].size[RES_ORIG]; //Used often.
-
-    // Initialize array for image and read it into it.
-    void* image_in_bytes = malloc(size);
-    //char image_in_bytes[size];
+    char image_in_bytes[size]; //Initialize array for image and read it into it.
     if (fseek(db_file->fpdb, db_file->metadata[index].offset[RES_ORIG], SEEK_SET)
         || fread(image_in_bytes, size, 1, db_file->fpdb) != 1) {
         return ERR_IO;
     }
-    // Resize the image using VIPS
-    size_t output_size = 0;
+    size_t output_size = 0; // Resize the image using VIPS
     void* output_buffer = resize(image_in_bytes, size,
                                  db_file->header.res_resized[resolution * 2],
                                  db_file->header.res_resized[resolution * 2 + 1],
@@ -98,9 +93,7 @@ int lazily_resize(uint16_t resolution, struct pictdb_file* db_file,
 
     long offset = write_to_disk(db_file, output_buffer, output_size, 1, 0,
                                 SEEK_END);
-    printf("offset %li\n", offset);
     g_free(output_buffer); // Once written, we can free the memory from the image.
-
     if (offset != -1) {
         db_file->metadata[index].size[resolution] = output_size;
         db_file->metadata[index].offset[resolution] = offset;
