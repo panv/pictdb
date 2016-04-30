@@ -3,7 +3,7 @@ CC = gcc
 # flags
 CFLAGS += -std=c99 -Wall -Wextra --pedantic -g $$(pkg-config vips --cflags)
 # libraries
-LDLIBS += -lssl -lcrypto $$(pkg-config vips --libs) #-lm?
+LDLIBS += -lssl -lcrypto -lm $$(pkg-config vips --libs)
 # binary executable
 TARGET = pictDBM
 # C source files

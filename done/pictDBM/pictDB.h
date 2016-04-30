@@ -178,7 +178,6 @@ int do_create(const char* filename, struct pictdb_file* db_file);
  * @param mode The opening mode e.g. read binary, write binary...
  * @param db_file The in memory structure of a database file to be filled
  * with data coming from the file.
- *
  * @return 0 if no errors occur, an int coded in error.h in case of errors
  */
 int do_open(const char* filename, const char* mode,
@@ -199,7 +198,6 @@ void do_close(struct pictdb_file* db_file);
  * database.
  * @param pict_id The name (identifier) of the image to remove from the
  * database.
- *
  * @return 0 if no errors occur, an in coded in error.h in case of errors
  */
 int do_delete(struct pictdb_file* db_file, const char* pict_id);

@@ -2,7 +2,8 @@
  * @file db_delete.c
  * @brief pictDB library: do_delete implementation.
  *
- * @author Vincenzo Bazzucchi and Nicolas Phan Van
+ * @author Vincenzo Bazzucchi
+ * @author Nicolas Phan Van
  * @date 9 Apr 2016
  */
 
@@ -14,8 +15,7 @@
  * @param pict_id The identifier of the image to be found.
  * @param images  The array of metadata.
  * @param db_size The length of the array.
- * @param index Pointer to the variable where to write the index of the image.
- *
+ * @param index   Pointer to the variable where to write the index of the image.
  * @return 0 if no error occurs, an error coded in error.h in case of error.
  */
 int index_of_image(const char* pict_id, const struct pict_metadata* images,

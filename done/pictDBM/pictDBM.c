@@ -136,6 +136,9 @@ int do_create_cmd(int args, char* argv[])
     uint16_t y_small_res = SMALL_DEFAULT;
 
     // Use of int instead of size_t for the comparison with args
+    // For each command line argument, checks if there are enough arguments
+    // remaining, converts the arguments to integers and assigns them to the
+    // variable, and then checks if the variable is valid.
     for (int i = 0; i < args; ++i) {
         switch (parse_create_options(argv[i])) {
         case MAX_FILES:
