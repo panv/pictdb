@@ -48,7 +48,7 @@ int do_delete(struct pictdb_file* db_file, const char* pict_id)
 
     if (seek_success == 0) {
         // Write metadata
-        size_t write_success = fwrite(db_file->metadata,
+        size_t write_success = fwrite(&db_file->metadata[index],
                                       sizeof(struct pict_metadata),
                                       1, db_file->fpdb);
 
