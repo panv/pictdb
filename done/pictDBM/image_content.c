@@ -13,7 +13,7 @@
  * @brief Checks whether the given resolution is within the valid range.
  *
  * @param resolution The resolution to check.
- * @return 0 if the resolution is valid, 1 otherwise
+ * @return 0 if the resolution is valid, 1 otherwise.
  */
 int valid_resolution(int resolution);
 
@@ -35,43 +35,43 @@ long write_to_disk(struct pictdb_file* db_file, void* to_write,
  * @brief Resizes the given image according to width and height constraints.
  *
  * @param input_buffer The image to resize.
- * @param input_size Size of the image to resize.
- * @param max_x, max_y The maximum width and height of the new image.
- * @param output_size Pointer to the location of the size of the resized image.
- *
- * return The resized image.
+ * @param input_size   The size (in bytes) of the image to resize.
+ * @param max_x        The maximum width of the new image.
+ * @param max_y        The maximum height of the new image.
+ * @param output_size  Pointer to the location of the size of the resized image.
+ * @return The resized image.
  */
- void* resize(void* input_buffer, uint32_t input_size, uint16_t max_x,
+void* resize(void* input_buffer, uint32_t input_size, uint16_t max_x,
              uint16_t max_y, size_t* output_size);
 
 /**
  * @brief Computes the ratio to use for resizing.
  *
- * @param image The image to resize.
- * @param max_width, max_height Maximal width and height of the new image.
- * @param dest Memory location where to write the ratio.
+ * @param image      The image to resize.
+ * @param max_width  The maximum width of the new image.
+ * @param max_height The maximum height of the new image.
+ * @return The resize ratio.
  */
 double shrink_value(VipsImage* image, uint16_t max_width, uint16_t max_height);
 
-int lazily_resize(uint16_t resolution, struct pictdb_file* db_file,
+
+int lazily_resize(int resolution, struct pictdb_file* db_file,
                   size_t index)
 {
     // Error checks on arguments
-    if (db_file == NULL || index >= db_file->header.max_files) {
+    if (valid_resolution(resolution) != 0 || db_file == NULL
+        || index >= db_file->header.max_files) {
         return ERR_INVALID_ARGUMENT;
     }
     if (db_file->metadata[index].is_valid == EMPTY) {
         printf("Error : image not contained in the database");
         return ERR_INVALID_ARGUMENT;
     }
-    if (valid_resolution(resolution) != 0) {
-        return ERR_RESOLUTIONS;
-    }
 
-
-    // If the image already exists in the asked resolution or the asked resolution
-    // is the original resolution, do nothing
-    if (resolution == RES_ORIG || db_file->metadata[index].size[resolution] != 0) {
+    // If the database is empty, the image already exists in the asked resolution
+    // or the asked resolution is the original resolution, do nothing.
+    if (resolution == RES_ORIG || db_file->header.num_files == 0
+        || db_file->metadata[index].size[resolution] != 0) {
         return 0;
     }
 
@@ -113,6 +113,23 @@ int lazily_resize(uint16_t resolution, struct pictdb_file* db_file,
     return ERR_IO;
 }
 
+int valid_resolution(int resolution)
+{
+    return (resolution == RES_THUMB || resolution == RES_SMALL
+            || resolution == RES_ORIG) ? 0 : 1;
+}
+
+long write_to_disk(struct pictdb_file* db_file, void* to_write,
+                   size_t size, size_t nmemb, long offset, int whence)
+{
+    if (fseek(db_file->fpdb, offset, whence) == 0) {
+        long file_size = ftell(db_file->fpdb);
+        size_t write_success = fwrite(to_write, size, nmemb, db_file->fpdb);
+        return (write_success == nmemb) ? file_size : -1;
+    }
+    return -1;
+}
+
 void* resize(void* input_buffer, uint32_t input_size, uint16_t max_x,
              uint16_t max_y, size_t* output_size)
 {
@@ -140,21 +157,4 @@ double shrink_value(VipsImage* image, uint16_t max_width, uint16_t max_height)
     const double h_shrink = (double)max_width / (double)image->Xsize;
     const double v_shrink = (double)max_height / (double)image->Ysize;
     return h_shrink > v_shrink ? v_shrink : h_shrink;
-}
-
-int valid_resolution(int resolution)
-{
-    return (resolution == RES_THUMB || resolution == RES_SMALL
-            || resolution == RES_ORIG) ? 0 : 1;
-}
-
-long write_to_disk(struct pictdb_file* db_file, void* to_write,
-                   size_t size, size_t nmemb, long offset, int whence)
-{
-    if (fseek(db_file->fpdb, offset, whence) == 0) {
-        long file_size = ftell(db_file->fpdb);
-        size_t write_success = fwrite(to_write, size, nmemb, db_file->fpdb);
-        return (write_success == nmemb) ? file_size : -1;
-    }
-    return -1;
 }
