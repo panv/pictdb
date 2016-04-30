@@ -39,4 +39,4 @@ format:
 	--max-code-length=80 --lineend=linux -n *.c *.h
 
 # ignore format and clean
-.PHONY: format clean
+.PHONY: format clean test
