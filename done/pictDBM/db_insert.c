@@ -14,7 +14,7 @@ int do_insert(const char* new_image, size_t size, const char * pict_id,
     }
     struct pict_metadata* empty = &db_file->metadata[idx_new]; // convenience
 
-    (void)SHA256((unsigned char *)new_image, size, empty->SHA); //write checksum
+    (void)SHA256((unsigned char *)new_image, size, empty->SHA); //add checksum
     strncpy(empty->pict_id, pict_id, MAX_PIC_ID + 1); //+1 necessary?
     empty->size[RES_ORIG] = (uint32_t) size; //Pourquoi attention au changement de type?
 
