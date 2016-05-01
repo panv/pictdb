@@ -233,7 +233,7 @@ int do_read(const char* pict_id, int resolution, char** image_address,
  * @param db_file   The database.
  * @return 0 if the insertion was successful, an error code otherwise.
  */
-int do_insert(const char* new_image, size_t size, const char * pict_id,
+int do_insert(const char* new_image, size_t size, const char* pict_id,
               struct pictdb_file* db_file);
 
 #ifdef __cplusplus

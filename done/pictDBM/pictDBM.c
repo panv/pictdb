@@ -240,14 +240,16 @@ int do_delete_cmd(int args, char* argv[])
 /********************************************************************/ /**
  * Inserts an image into a database.
  ********************************************************************** */
-int do_insert_cmd(int args, char* argv[]) {
+int do_insert_cmd(int args, char* argv[])
+{
     ARG_CHECK(args, 4);
 
     struct pictdb_file db_file;
 
     int ret = do_open(argv[1], "rb+", &db_file);
     if (ret == 0) {
-        ret = db_file.header.num_files < db_file.header.max_files ? 0 : ERR_FULL_DATABASE;
+        ret = db_file.header.num_files < db_file.header.max_files ? 0 :
+              ERR_FULL_DATABASE;
     }
     if (ret == 0) {
         char* image_buffer = NULL;
@@ -267,20 +269,23 @@ int do_insert_cmd(int args, char* argv[]) {
 /********************************************************************/ /**
  * Reads an image from a database and writes it to disk.
  ********************************************************************** */
-int do_read_cmd(int args, char* argv[]) {
+int do_read_cmd(int args, char* argv[])
+{
     ARG_CHECK(args, 3);
 
     struct pictdb_file db_file;
     int resolution = args > 3 ? resolution_atoi(argv[3]) : RES_ORIG;
 
-    int ret = resolution != -1 ? do_open(argv[1], "rb+", &db_file) : ERR_INVALID_ARGUMENT;
+    int ret = resolution != -1 ? do_open(argv[1], "rb+", &db_file) :
+                                 ERR_INVALID_ARGUMENT;
     if (ret == 0) {
         char* image = NULL;
         uint32_t size = 0;
         ret = do_read(argv[2], resolution, &image, &size, &db_file);
         if (ret == 0) {
             char* filename = NULL;
-            ret = (filename = create_name(argv[2], resolution)) == NULL ? ERR_OUT_OF_MEMORY : 0;
+            ret = (filename = create_name(argv[2],
+                                          resolution)) == NULL ? ERR_OUT_OF_MEMORY : 0;
             ret = ret == 0 ? write_image_to_disk(filename, image, size) : ret;
             free(filename);
         }
@@ -337,7 +342,8 @@ int parse_create_options(const char* option)
 {
     return (strcmp(option, "-max_files") == 0) ? MAX_FILES :
            (strcmp(option, "-thumb_res") == 0) ? THUMB_RES :
-           (strcmp(option, "-small_res") == 0) ? SMALL_RES : INVALID_OPTION;
+           (strcmp(option, "-small_res") == 0) ? SMALL_RES :
+                                                 INVALID_OPTION;
 }
 
 int check_argument_number(const int remaining, const int expected)
@@ -379,15 +385,15 @@ int read_image_from_disk(const char* filename, char** image_buffer,
 char* create_name(const char* pict_id, int resolution)
 {
     char* new_name = NULL;
-    switch(resolution) {
-        case RES_THUMB:
-            CONCAT_STRING(11, "_thumb.jpg");
-        case RES_SMALL:
-            CONCAT_STRING(11, "_small.jpg");
-        case RES_ORIG:
-            CONCAT_STRING(10, "_orig.jpg");
-        default:
-            return NULL;
+    switch (resolution) {
+    case RES_THUMB:
+        CONCAT_STRING(11, "_thumb.jpg");
+    case RES_SMALL:
+        CONCAT_STRING(11, "_small.jpg");
+    case RES_ORIG:
+        CONCAT_STRING(10, "_orig.jpg");
+    default:
+        return NULL;
     }
 }
 

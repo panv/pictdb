@@ -72,12 +72,18 @@ void do_close(struct pictdb_file* db_file)
 
 int resolution_atoi(const char* resolution)
 {
-    return resolution == NULL ? -1 :
-           (strncmp(resolution, "thumb", 5) == 0
-            || strncmp(resolution, "thumbnail", 9) == 0) ? RES_THUMB :
-           strncmp(resolution, "small", 5) == 0 ? RES_SMALL :
-           (strncmp(resolution, "orig", 4) == 0
-            || strncmp(resolution, "original", 8) == 0) ? RES_ORIG : -1;
+    if (resolution != NULL) {
+        if (strcmp(resolution, "thumb") == 0
+            || strcmp(resolution, "thumbnail") == 0) {
+            return RES_THUMB;
+        } else if (strcmp(resolution, "small") == 0) {
+            return RES_SMALL;
+        } else if (strcmp(resolution, "orig") == 0
+                   || strcmp(resolution, "original") == 0) {
+            return RES_ORIG;
+        }
+    }
+    return -1;
 }
 
 /********************************************************************//**
