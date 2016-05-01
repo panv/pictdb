@@ -7,7 +7,7 @@ LDLIBS += -lssl -lcrypto -lm $$(pkg-config vips --libs)
 # binary executable
 TARGET = pictDBM
 # C source files
-SRCS = $(wildcard *.c)
+SRCS = $(filter-out vipstest.c, $(wildcard *.c))
 # C object files, uses suffix replacement within a macro
 # https://www.cs.swarthmore.edu/~newhall/unixhelp/howto_makefiles.html
 OBJS = $(SRCS:.c=.o)
