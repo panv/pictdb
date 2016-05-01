@@ -158,3 +158,15 @@ long write_to_disk(struct pictdb_file* db_file, void* to_write,
     }
     return -1;
 }
+
+
+int get_resolution(uint32_t* height, uint32_t* width, const char* image_buffer, size_t image_size)
+{
+    VipsObject* process = VIPS_OBJECT(vips_image_new());
+    VipsImage** workspace = (VipsImage**) vips_object_local_array(process, 1);
+
+    vips_jpegload_buffer(image_buffer, image_size, &workspace[0], NULL);
+    *height = workspace[0]->>Ysize;
+    *width = workspace[0]->Xsize;
+}
+

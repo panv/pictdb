@@ -18,3 +18,5 @@
  */
 int lazily_resize(uint16_t resolution, struct pictdb_file* db_file,
                   size_t index);
+
+int get_resolution(uint32_t* height, uint32_t* width, const char* image_buffer, size_t image_size);
