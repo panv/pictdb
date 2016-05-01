@@ -143,15 +143,15 @@ void* resize(void* input_buffer, uint32_t input_size, uint16_t max_x,
              uint16_t max_y, size_t* output_size)
 {
     VipsObject* process = VIPS_OBJECT(vips_image_new());
-    VipsImage** pics = (VipsImage**) vips_object_local_array(process, 2);
-    void* output_buffer;
-    if (vips_jpegload_buffer(input_buffer, input_size, &pics[0], NULL) != 0) {
+    VipsImage** workspace = (VipsImage**) vips_object_local_array(process, 2);
+    if (vips_jpegload_buffer(input_buffer, input_size, &workspace[0], NULL) != 0) {
         g_object_unref(process);
         return NULL;
     }
-    double ratio = shrink_value(pics[0], max_x, max_y);
-    if (vips_resize(pics[0], &pics[1], ratio, NULL) ||
-        vips_jpegsave_buffer(pics[1], &output_buffer, output_size, NULL)) {
+    double ratio = shrink_value(workspace[0], max_x, max_y);
+    void* output_buffer;
+    if (vips_resize(workspace[0], &workspace[1], ratio, NULL) ||
+        vips_jpegsave_buffer(workspace[1], &output_buffer, output_size, NULL)) {
         g_object_unref(process);
         return NULL;
     }
