@@ -1,5 +1,6 @@
 #include "pictDB.h"
 #include "dedup.h"
+#include "image_content.h"
 
 int do_insert(const char* new_image, size_t size, const char * pict_id,
         struct pictdb_file* db_file)
@@ -28,7 +29,7 @@ int do_insert(const char* new_image, size_t size, const char * pict_id,
         empty->offset[RES_ORIG] = ftell(db_file->fpdb); //CC
     }
     empty->is_valid = NON_EMPTY;
-    // RES ORIG
+    int found_res = get_resolution(&empty->res_orig[0], &empty->res_orig[1], new_image, size); //CC
     ++db_file->header.db_version;
     ++db_file->header.num_files;
     fseek(db_file->fpdb, 0, SEEK_SET);
