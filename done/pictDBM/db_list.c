@@ -2,9 +2,10 @@
  * @file db_list.c
  * @brief Implementation of the do_list function.
  *
- * @author Vincenzo Bazzucchi and Nicolas Phan Van
+ * @author Vincenzo Bazzucchi
+ * @author Nicolas Phan Van
  * @date 12 Mar 2016
-*/
+ */
 
 #include "pictDB.h"
 
@@ -12,7 +13,7 @@
  * @brief Prints the metadata of all images of a database.
  *
  * @param db_file In memory structure representing a database.
-*/
+ */
 void do_list(const struct pictdb_file* db_file)
 {
     // Print header
