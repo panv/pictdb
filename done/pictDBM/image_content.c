@@ -41,7 +41,7 @@ long write_to_disk(struct pictdb_file* db_file, void* to_write,
  * @param output_size  Pointer to the location of the size of the resized image.
  * @return The resized image.
  */
-void* resize(void* input_buffer, uint32_t input_size, uint16_t max_x,
+void* resize(const void* input_buffer, uint32_t input_size, uint16_t max_x,
              uint16_t max_y, size_t* output_size);
 
 /**
@@ -139,12 +139,12 @@ long write_to_disk(struct pictdb_file* db_file, void* to_write,
     return -1;
 }
 
-void* resize(void* input_buffer, uint32_t input_size, uint16_t max_x,
+void* resize(const void* input_buffer, uint32_t input_size, uint16_t max_x,
              uint16_t max_y, size_t* output_size)
 {
     VipsObject* process = VIPS_OBJECT(vips_image_new());
     VipsImage** workspace = (VipsImage**) vips_object_local_array(process, 2);
-    if (vips_jpegload_buffer(input_buffer, input_size, &workspace[0], NULL) != 0) {
+    if (vips_jpegload_buffer((void *) input_buffer, input_size, &workspace[0], NULL) != 0) {
         g_object_unref(process);
         return NULL;
     }
