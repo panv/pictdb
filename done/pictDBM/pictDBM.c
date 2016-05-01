@@ -89,6 +89,13 @@ int check_argument_number(const int remaining, const int expected);
 int check_values(const uint16_t x_res, const uint16_t y_res,
                  const uint16_t max_value);
 
+int read_image_from_disk(const char* filename, char** image_buffer,
+                         size_t* image_size);
+
+int write_image_to_disk();
+
+int create_name();
+
 
 /********************************************************************/ /**
  * Opens pictDB file and calls do_list command.
@@ -224,8 +231,31 @@ int do_delete_cmd(int args, char* argv[])
     return ret;
 }
 
+/********************************************************************/ /**
+ * Inserts an image into a database.
+ ********************************************************************** */
 int do_insert_cmd(int args, char* argv[]) {
     ARG_CHECK(args, 4);
+
+    struct pictdb_file db_file;
+
+    int ret = do_open(argv[1], "rb+", &db_file);
+    if (ret == 0) {
+        ret = db_file.header.num_files < db_file.header.max_files ? 0 : ERR_FULL_DATABASE;
+    }
+    if (ret == 0) {
+        char* image_buffer = NULL;
+        size_t image_size = 0;
+        ret = read_image_from_disk(argv[3], &image_buffer, &image_size);
+        if (ret == 0) {
+            puts("Insert");
+            ret = do_insert(image_buffer, image_size, argv[2], &db_file);
+        }
+        free(image_buffer);
+    }
+    do_close(&db_file);
+
+    return ret;
 }
 
 int do_read_cmd(int args, char* argv[]) {
@@ -291,4 +321,28 @@ int check_values(const uint16_t x_res, const uint16_t y_res,
 {
     return (x_res == 0 || y_res == 0 || x_res > max_value
             || y_res > max_value) ? 1 : 0;
+}
+
+int read_image_from_disk(const char* filename, char** image_buffer,
+                         size_t* image_size)
+{
+    FILE* image = fopen(filename, "rb");
+    if (image == NULL) {
+        return ERR_IO;
+    }
+    if (fseek(image, 0, SEEK_END) == 0) {
+        *image_size = ftell(image);
+        if (fseek(image, 0, SEEK_SET) == 0) {
+            *image_buffer = malloc(*image_size);
+            if (*image_buffer != NULL) {
+                if (fread(*image_buffer, *image_size, 1, image) == 1) {
+                    fclose(image);
+                    return 0;
+                }
+            }
+        }
+    }
+    fclose(image);
+
+    return ERR_IO;
 }
