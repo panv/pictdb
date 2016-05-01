@@ -8,7 +8,8 @@ LDLIBS += -lssl -lcrypto $$(pkg-config vips --libs) #-lm?
 TARGET = pictDBM
 # C source files
 SRCS = db_utils.c pictDBM.c db_list.c error.c db_create.c \
-       db_delete.c image_content.c pictDBM_tools.c dedup.c db_insert.c
+       db_delete.c image_content.c pictDBM_tools.c dedup.c db_insert.c \
+       db_read.c
 # C object files, uses suffix replacement within a macro
 # https://www.cs.swarthmore.edu/~newhall/unixhelp/howto_makefiles.html
 OBJS = $(SRCS:.c=.o)
