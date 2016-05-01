@@ -33,7 +33,8 @@
         return ERR_RESOLUTIONS;
 // Used to concatenate a pict_id and a suffix
 #define CONCAT_STRING(size, suffix) \
-    if ((new_name = malloc(strlen(pict_id) + size)) == NULL) return NULL; \
+    if ((new_name = calloc(strlen(pict_id) + size, sizeof(char))) == NULL) \
+        return NULL; \
     strcpy(new_name, pict_id); \
     strcat(new_name, suffix); \
     return new_name;
