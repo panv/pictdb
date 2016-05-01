@@ -6,6 +6,9 @@
 testDB*
 tmp
 
+# Images
+*.jpg
+
 # Doxygen
 Doxyfile
 html
