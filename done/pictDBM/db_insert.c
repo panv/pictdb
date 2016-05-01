@@ -18,16 +18,16 @@ int do_insert(const char* new_image, size_t size, const char* pict_id,
     (void)SHA256((unsigned char*)new_image, size, empty->SHA);  //add checksum
     strncpy(empty->pict_id, pict_id, MAX_PIC_ID + 1); //+1 necessary?
     empty->size[RES_ORIG] = (uint32_t) size; //Pourquoi attention au changement de type?
+    empty->is_valid = NON_EMPTY;
 
     int dedup_err = do_name_and_content_dedup(db_file, idx_new); //dedup
     if (dedup_err) {
         return dedup_err;
     } else if (empty->offset[RES_ORIG] == 0) {
         fseek(db_file->fpdb, 0, SEEK_END); //CC
-        fwrite(new_image, size, 1, db_file->fpdb); //CC
         empty->offset[RES_ORIG] = ftell(db_file->fpdb); //CC
+        fwrite(new_image, size, 1, db_file->fpdb); //CC
     }
-    empty->is_valid = NON_EMPTY;
     int found_res = get_resolution(&empty->res_orig[0], &empty->res_orig[1],
                                    new_image, size); //CC
     ++db_file->header.db_version;
@@ -42,4 +42,3 @@ int do_insert(const char* new_image, size_t size, const char* pict_id,
     fwrite(empty, sizeof(struct pict_metadata), 1, db_file->fpdb); //C
     return 0;
 }
-
