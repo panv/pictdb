@@ -13,7 +13,7 @@
 #include "image_content.h"
 
 // Constants
-#define NB_CMD        4   // Number of command line functions the database possesses
+#define NB_CMD        6   // Number of command line functions the database possesses
 #define FILE_DEFAULT  10  // Default max file number
 #define THUMB_DEFAULT 64  // Default thumb resolution
 #define THUMB_MAX     128 // Maximal thumb resolution
@@ -66,12 +66,7 @@ enum options {
  * @return A non-zero int corresponding to the option,
  *         or 0 if the argument is not a valid option.
  */
-int parse_create_options(const char* option)
-{
-    return (strcmp(option, "-max_files") == 0) ? MAX_FILES :
-           (strcmp(option, "-thumb_res") == 0) ? THUMB_RES :
-           (strcmp(option, "-small_res") == 0) ? SMALL_RES : INVALID_OPTION;
-}
+int parse_create_options(const char* option);
 
 /**
  * @brief Checks if there is enough arguments remaining for an option.
@@ -80,10 +75,7 @@ int parse_create_options(const char* option)
  * @param expected  The number of expected arguments for the option.
  * @return 0 if there is enough arguments remaining, 1 otherwise.
  */
-int check_argument_number(const int remaining, const int expected)
-{
-    return (remaining < expected) ? 1 : 0;
-}
+int check_argument_number(const int remaining, const int expected);
 
 /**
  * @brief Checks whether the given width and height are within
@@ -95,11 +87,8 @@ int check_argument_number(const int remaining, const int expected)
  * @return 0 if the values are valid, 1 otherwise.
  */
 int check_values(const uint16_t x_res, const uint16_t y_res,
-                 const uint16_t max_value)
-{
-    return (x_res == 0 || y_res == 0 || x_res > max_value
-            || y_res > max_value) ? 1 : 0;
-}
+                 const uint16_t max_value);
+
 
 /********************************************************************/ /**
  * Opens pictDB file and calls do_list command.
@@ -235,6 +224,14 @@ int do_delete_cmd(int args, char* argv[])
     return ret;
 }
 
+int do_insert_cmd(int args, char* argv[]) {
+    ARG_CHECK(args, 4);
+}
+
+int do_read_cmd(int args, char* argv[]) {
+    ARG_CHECK(args, 4);
+}
+
 /********************************************************************/ /**
  * MAIN
  */
@@ -247,7 +244,9 @@ int main(int argc, char* argv[])
         { "list", do_list_cmd },
         { "create", do_create_cmd },
         { "delete", do_delete_cmd },
-        { "help", help }
+        { "help", help },
+        { "read", do_read_cmd },
+        { "insert", do_insert_cmd }
     };
 
     if (argc < 2) {
@@ -273,4 +272,23 @@ int main(int argc, char* argv[])
     }
 
     return ret;
+}
+
+int parse_create_options(const char* option)
+{
+    return (strcmp(option, "-max_files") == 0) ? MAX_FILES :
+           (strcmp(option, "-thumb_res") == 0) ? THUMB_RES :
+           (strcmp(option, "-small_res") == 0) ? SMALL_RES : INVALID_OPTION;
+}
+
+int check_argument_number(const int remaining, const int expected)
+{
+    return (remaining < expected) ? 1 : 0;
+}
+
+int check_values(const uint16_t x_res, const uint16_t y_res,
+                 const uint16_t max_value)
+{
+    return (x_res == 0 || y_res == 0 || x_res > max_value
+            || y_res > max_value) ? 1 : 0;
 }
