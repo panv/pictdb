@@ -31,6 +31,12 @@
 #define RES_CHECK(x_res, y_res, max) \
     if (check_values(x_res, y_res, max) != 0) \
         return ERR_RESOLUTIONS;
+// Used to concatenate a pict_id and a suffix
+#define CONCAT_STRING(size, suffix) \
+    if ((new_name = malloc(strlen(pict_id) + size) == NULL) return ERR_MEMORY; \
+    strcpy(new_name, pict_id); \
+    strcat(new_name, suffix); \
+    return new_name;
 
 /**
  * @brief A pointer to a function returning an int.
@@ -260,6 +266,8 @@ int do_insert_cmd(int args, char* argv[]) {
 
 int do_read_cmd(int args, char* argv[]) {
     ARG_CHECK(args, 4);
+
+
 }
 
 /********************************************************************/ /**
@@ -345,4 +353,17 @@ int read_image_from_disk(const char* filename, char** image_buffer,
     fclose(image);
 
     return ERR_IO;
+}
+
+char* create_name(const char* pict_id, int resolution)
+{
+    char* new_name = NULL;
+    switch(resolution) {
+        case RES_THUMB:
+            CONCAT_STRING(11, "_thumb.jpg");
+        case RES_SMALL:
+            CONCAT_STRING(11, "_small.jpg");
+        case RES_ORIG:
+            CONCAT_STRING(10, "_orig.jpg");
+    }
 }
