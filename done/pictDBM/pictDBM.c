@@ -66,7 +66,7 @@ enum options {
  * @return A non-zero int corresponding to the option,
  *         or 0 if the argument is not a valid option.
  */
-int parse_create_options(char* option)
+int parse_create_options(const char* option)
 {
     return (strcmp(option, "-max_files") == 0) ? MAX_FILES :
            (strcmp(option, "-thumb_res") == 0) ? THUMB_RES :
@@ -80,7 +80,7 @@ int parse_create_options(char* option)
  * @param expected  The number of expected arguments for the option.
  * @return 0 if there is enough arguments remaining, 1 otherwise.
  */
-int check_argument_number(int remaining, int expected)
+int check_argument_number(const int remaining, const int expected)
 {
     return (remaining < expected) ? 1 : 0;
 }
@@ -94,7 +94,8 @@ int check_argument_number(int remaining, int expected)
  * @param max_value The maximum value.
  * @return 0 if the values are valid, 1 otherwise.
  */
-int check_values(uint16_t x_res, uint16_t y_res, uint16_t max_value)
+int check_values(const uint16_t x_res, const uint16_t y_res,
+                 const uint16_t max_value)
 {
     return (x_res == 0 || y_res == 0 || x_res > max_value
             || y_res > max_value) ? 1 : 0;
