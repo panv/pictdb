@@ -90,7 +90,7 @@ struct pictdb_header {
  */
 struct pict_metadata {
     /**
-     * @brief Name of the image.
+     * @brief Name (identifier) of the image.
      */
     char pict_id[MAX_PIC_ID + 1];
     /**
@@ -184,7 +184,7 @@ int do_open(const char* filename, const char* mode,
             struct pictdb_file* db_file);
 
 /**
- * @brief Closes the strem in the in memory database file
+ * @brief Closes the stream in the in memory database file.
  *
  * @param db_file The in memory structure of a database file whose stream
  * is to be closed.
@@ -194,28 +194,47 @@ void do_close(struct pictdb_file* db_file);
 /**
  * @brief Deletes an image from a database
  *
- * @param db_file The in memory structure of the object representing a
- * database.
- * @param pict_id The name (identifier) of the image to remove from the
- * database.
- * @return 0 if no errors occur, an in coded in error.h in case of errors
+ * @param db_file The in memory structure representing a database.
+ * @param pict_id The ID of the image to remove from the database.
+ * @return 0 if the deletion was successful, an error code otherwise.
  */
 int do_delete(struct pictdb_file* db_file, const char* pict_id);
 
-/* **********************************************************************
- * TODO WEEK 09: ADD THE PROTOTYPE OF resolution_atoi HERE.
- * **********************************************************************
+/**
+ * @brief Converts a string to a resolution code.
+ *
+ * Valid codes are: RES_THUMB, RES_SMALL, RES_ORIG.
+ *
+ * @param resolution The string to convert.
+ * @return A valid resolution code if the conversion was successful, -1 otherwise.
  */
+int resolution_atoi(const char* resolution);
 
-/* **********************************************************************
- * TODO WEEK 09: ADD THE PROTOTYPE OF do_read HERE.
- * **********************************************************************
+/**
+ * @brief Reads an image from a database, resizes it in the asked resolution
+ *        if need be and saves it to memory.
+ *
+ * @param pict_id       The ID of the image.
+ * @param resolution    The resolution of the image.
+ * @param image_address The memory address of the image.
+ * @param size          The size of the image, in bytes.
+ * @param db_file       The database.
+ * @return 0 if the read was successful, an error code otherwise.
  */
+int do_read(const char* pict_id, int resolution, const char** image_address,
+            uint32_t* size, struct pictdb_file* db_file);
 
-/* **********************************************************************
- * TODO WEEK 09: ADD THE PROTOTYPE OF do_insert HERE.
- * **********************************************************************
+/**
+ * @brief Adds an image to a database.
+ *
+ * @param new_image The image to insert.
+ * @param size      The size of the image.
+ * @param pict_id   The ID of the image.
+ * @param db_file   The database.
+ * @return 0 if the insertion was successful, an error code otherwise.
  */
+int do_insert(const char* new_image, size_t size, const char * pict_id,
+              struct pictdb_file* db_file);
 
 #ifdef __cplusplus
 }
