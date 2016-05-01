@@ -178,7 +178,7 @@ int get_resolution(uint32_t* height, uint32_t* width, const char* image_buffer,
     }
     *height = workspace[0]->Ysize;
     *width = workspace[0]->Xsize;
-    g_free(workspace[0]);
+    //g_free(workspace[0]);
     g_object_unref(process);
     return 0;
 }
