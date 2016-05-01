@@ -98,9 +98,9 @@ int check_values(const uint16_t x_res, const uint16_t y_res,
 int read_image_from_disk(const char* filename, char** image_buffer,
                          size_t* image_size);
 
-int write_image_to_disk();
+char* create_name(const char* pict_id, int resolution);
 
-int create_name();
+int write_image_to_disk(const char* filename, char* image, size_t size);
 
 
 /********************************************************************/ /**
@@ -264,10 +264,30 @@ int do_insert_cmd(int args, char* argv[]) {
     return ret;
 }
 
+/********************************************************************/ /**
+ * Reads an image from a database and writes it to disk.
+ ********************************************************************** */
 int do_read_cmd(int args, char* argv[]) {
-    ARG_CHECK(args, 4);
+    ARG_CHECK(args, 3);
 
+    struct pictdb_file db_file;
+    int resolution = args > 3 ? resolution_atoi(argv[3]) : RES_ORIG;
 
+    int ret = resolution != -1 ? do_open(argv[1], "rb+", &db_file) : ERR_INVALID_ARGUMENT;
+    if (ret == 0) {
+        char* image = NULL;
+        uint32_t size = 0;
+        ret = do_read(argv[2], resolution, &image, &size, &db_file);
+        if (ret == 0) {
+            char* filename = create_name(argv[2], resolution);
+            ret = write_image_to_disk(filename, image, size);
+            free(filename);
+        }
+        free(image_address);
+    }
+    do_close(&db_file);
+
+    return ret;
 }
 
 /********************************************************************/ /**
@@ -366,4 +386,15 @@ char* create_name(const char* pict_id, int resolution)
         case RES_ORIG:
             CONCAT_STRING(10, "_orig.jpg");
     }
+}
+
+int write_image_to_disk(const char* filename, char* image, size_t size)
+{
+    FILE* new_image = fopen(filename, "wb");
+    if (new_image == NULL) {
+        return ERR_IO;
+    }
+    int ret = fwrite(image, size, 1, new_image) == 1 ? 0 : ERR_IO;
+    fclose(new_image);
+    return ret;
 }
