@@ -205,6 +205,10 @@ int help(int args, char* argv[])
            "          -small_res <X_RES> <Y_RES>: resolution for small images.\n"
            "                                  default value is %dx%d\n"
            "                                  maximum value is %dx%d\n"
+           "  read   <dbfilename> <pictID> [original|orig|thumbnail|thumb|small]:\n"
+           "      read an image from the pictDB and save it to a file.\n"
+           "      default resolution is \"original\".\n"
+           "  insert <dbfilename> <pictID> <filename>: insert a new image in the pictDB.\n"
            "  delete <dbfilename> <pictID>: delete picture pictID from pictDB.\n",
            FILE_DEFAULT, MAX_MAX_FILES, THUMB_DEFAULT, THUMB_DEFAULT, THUMB_MAX,
            THUMB_MAX, SMALL_DEFAULT, SMALL_DEFAULT, SMALL_MAX, SMALL_MAX);
