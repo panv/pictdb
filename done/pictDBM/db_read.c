@@ -1,7 +1,7 @@
 #include "pictDB.h"
 #include "image_content.h"
 
-int do_read(const char* pict_id, int resolution, const char** image_address,
+int do_read(const char* pict_id, int resolution, char** image_address,
         uint32_t* size, struct pictdb_file* db_file)
 {
     uint32_t idx = 0;

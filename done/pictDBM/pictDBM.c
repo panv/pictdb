@@ -33,7 +33,7 @@
         return ERR_RESOLUTIONS;
 // Used to concatenate a pict_id and a suffix
 #define CONCAT_STRING(size, suffix) \
-    if ((new_name = malloc(strlen(pict_id) + size) == NULL) return ERR_MEMORY; \
+    if ((new_name = malloc(strlen(pict_id) + size)) == NULL) return NULL; \
     strcpy(new_name, pict_id); \
     strcat(new_name, suffix); \
     return new_name;
@@ -279,11 +279,12 @@ int do_read_cmd(int args, char* argv[]) {
         uint32_t size = 0;
         ret = do_read(argv[2], resolution, &image, &size, &db_file);
         if (ret == 0) {
-            char* filename = create_name(argv[2], resolution);
-            ret = write_image_to_disk(filename, image, size);
+            char* filename = NULL;
+            ret = (filename = create_name(argv[2], resolution)) == NULL ? ERR_OUT_OF_MEMORY : 0;
+            ret = ret == 0 ? write_image_to_disk(filename, image, size) : ret;
             free(filename);
         }
-        free(image_address);
+        free(image);
     }
     do_close(&db_file);
 
@@ -385,6 +386,8 @@ char* create_name(const char* pict_id, int resolution)
             CONCAT_STRING(11, "_small.jpg");
         case RES_ORIG:
             CONCAT_STRING(10, "_orig.jpg");
+        default:
+            return NULL;
     }
 }
 
