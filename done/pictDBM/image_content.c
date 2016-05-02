@@ -100,7 +100,7 @@ int lazily_resize(int resolution, struct pictdb_file* db_file,
     long file_position = write_to_disk(db_file, output_buffer, output_size,
                                        1, 0, SEEK_END);
     // Once written, we can free the memory from the image
-    g_free(output_buffer);
+    free(output_buffer);
     if (file_position != -1) {
         // Update the metadata and write it to disk
         db_file->metadata[index].size[resolution] = output_size;
