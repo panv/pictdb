@@ -2,9 +2,19 @@
 #include "dedup.h"
 #include "image_content.h"
 
+#define RET_ERROR if (ret != 0) return ret;
+// fseek + error check
+#define SEEK(offset, whence) \
+    ret = fseek(db_file->fpdb, offset, whence) == 0 ? 0 : ERR_IO;
+// fwrite + error check
+#define WRITE(src, size) \
+    ret = fwrite(src, size, 1, db_file->fpdb) == 1 ? 0 : ERR_IO;
+
+
 int do_insert(const char* new_image, size_t size, const char* pict_id,
               struct pictdb_file* db_file)
 {
+    // Argument check
     if (new_image == NULL || pict_id == NULL || db_file == NULL
         || size == 0) {
         return ERR_INVALID_ARGUMENT;
@@ -16,50 +26,55 @@ int do_insert(const char* new_image, size_t size, const char* pict_id,
         return ERR_FULL_DATABASE;
     }
 
-    uint32_t idx_new = 0; //find index of first empty metadata
+    // Find index of first empty metadata
+    uint32_t idx_new = 0;
     while (db_file->metadata[idx_new].is_valid == NON_EMPTY) {
         ++idx_new;
     }
+
     struct pict_metadata* empty = &db_file->metadata[idx_new]; // convenience
 
+    // Update metadata with image information
     (void)SHA256((unsigned char*)new_image, size, empty->SHA);  //add checksum
     strncpy(empty->pict_id, pict_id, MAX_PIC_ID + 1); //+1 necessary?
     empty->size[RES_ORIG] = (uint32_t) size; //Pourquoi attention au changement de type?
     empty->is_valid = NON_EMPTY;
 
-    int dedup_err = do_name_and_content_dedup(db_file, idx_new); //dedup
-    if (dedup_err) {
-        return dedup_err;
-    } else if (empty->offset[RES_ORIG] == 0) {
-        int ret = fseek(db_file->fpdb, 0, SEEK_END) == 0 ? 0 : ERR_IO;
+    // Deduplication
+    int ret = do_name_and_content_dedup(db_file, idx_new);
+    RET_ERROR;
+    // Image does not already exist in the database, write it at the end
+    if (empty->offset[RES_ORIG] == 0) {
+        SEEK(0, SEEK_END);
         if (ret == 0) {
             empty->offset[RES_ORIG] = ftell(db_file->fpdb);
-            ret = fwrite(new_image, size, 1, db_file->fpdb) == 1 ? 0 : ERR_IO;
+            WRITE(new_image, size);
         }
-        if (ret != 0) {
-            return ret;
-        }
-    }
-    int found_res = get_resolution(&empty->res_orig[0], &empty->res_orig[1],
-                                   new_image, size);
-    if (found_res != 0) {
-        return found_res;
-    }
-    ++db_file->header.db_version;
-    ++db_file->header.num_files;
-    int ret = fseek(db_file->fpdb, 0, SEEK_SET) == 0 ? 0 : ERR_IO;
-    if (ret == 0) {
-        ret = fwrite(&db_file->header, sizeof(struct pictdb_header),
-                     1, db_file->fpdb) == 1 ? 0 : ERR_IO;
+        RET_ERROR;
     }
 
+    // Update metadata with image resolution
+    ret = get_resolution(&empty->res_orig[0], &empty->res_orig[1],
+                         new_image, size);
+    RET_ERROR;
+
+    // Update and write header
+    ++db_file->header.db_version;
+    ++db_file->header.num_files;
+    SEEK(0, SEEK_SET);
+    if (ret == 0) {
+        WRITE(&db_file->header, sizeof(struct pictdb_header));
+    }
+
+    // Write metadata
     if (ret == 0) {
         uint64_t meta_offset = sizeof(struct pictdb_header) +
                                idx_new * sizeof(struct pict_metadata);
-        ret = fseek(db_file->fpdb, meta_offset, SEEK_SET) == 0 ? 0 : ERR_IO;
+        SEEK(meta_offset, SEEK_SET);
         if (ret == 0) {
-            ret = fwrite(empty, sizeof(struct pict_metadata), 1, db_file->fpdb) == 1 ? 0 : ERR_IO;
+            WRITE(empty, sizeof(struct pict_metadata));
         }
     }
+
     return ret;
 }
