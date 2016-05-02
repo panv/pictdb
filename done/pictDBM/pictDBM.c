@@ -101,7 +101,8 @@ int read_image_from_disk(const char* filename, char** image_buffer,
 
 char* create_name(const char* pict_id, int resolution);
 
-int write_image_to_disk(const char* filename, char* image, size_t size);
+int write_image_to_disk(const char* filename, char* image_buffer,
+                        size_t image_size);
 
 
 /********************************************************************/ /**
@@ -278,19 +279,19 @@ int do_read_cmd(int args, char* argv[])
     int resolution = args > 3 ? resolution_atoi(argv[3]) : RES_ORIG;
 
     int ret = resolution != -1 ? do_open(argv[1], "rb+", &db_file) :
-                                 ERR_INVALID_ARGUMENT;
+              ERR_INVALID_ARGUMENT;
     if (ret == 0) {
-        char* image = NULL;
-        uint32_t size = 0;
-        ret = do_read(argv[2], resolution, &image, &size, &db_file);
+        char* image_buffer = NULL;
+        uint32_t image_size = 0;
+        ret = do_read(argv[2], resolution, &image_buffer, &image_size, &db_file);
         if (ret == 0) {
             char* filename = NULL;
             ret = (filename = create_name(argv[2],
                                           resolution)) == NULL ? ERR_OUT_OF_MEMORY : 0;
-            ret = ret == 0 ? write_image_to_disk(filename, image, size) : ret;
+            ret = ret == 0 ? write_image_to_disk(filename, image_buffer, image_size) : ret;
             free(filename);
         }
-        free(image);
+        free(image_buffer);
     }
     do_close(&db_file);
 
@@ -344,7 +345,7 @@ int parse_create_options(const char* option)
     return (strcmp(option, "-max_files") == 0) ? MAX_FILES :
            (strcmp(option, "-thumb_res") == 0) ? THUMB_RES :
            (strcmp(option, "-small_res") == 0) ? SMALL_RES :
-                                                 INVALID_OPTION;
+           INVALID_OPTION;
 }
 
 int check_argument_number(const int remaining, const int expected)
@@ -398,13 +399,14 @@ char* create_name(const char* pict_id, int resolution)
     }
 }
 
-int write_image_to_disk(const char* filename, char* image, size_t size)
+int write_image_to_disk(const char* filename, char* image_buffer,
+                        size_t image_size)
 {
     FILE* new_image = fopen(filename, "wb");
     if (new_image == NULL) {
         return ERR_IO;
     }
-    int ret = fwrite(image, size, 1, new_image) == 1 ? 0 : ERR_IO;
+    int ret = fwrite(image_buffer, image_size, 1, new_image) == 1 ? 0 : ERR_IO;
     fclose(new_image);
     return ret;
 }
