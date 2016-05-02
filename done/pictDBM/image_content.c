@@ -122,6 +122,22 @@ int lazily_resize(int resolution, struct pictdb_file* db_file,
     return ERR_IO;
 }
 
+int get_resolution(uint32_t* height, uint32_t* width, const char* image_buffer,
+                   size_t image_size)
+{
+    VipsObject* process = VIPS_OBJECT(vips_image_new());
+    VipsImage** workspace = (VipsImage**) vips_object_local_array(process, 1);
+    if (vips_jpegload_buffer((void*) image_buffer, image_size,
+                             &workspace[0], NULL)) {
+        return ERR_VIPS;
+    }
+    *height = workspace[0]->Ysize;
+    *width = workspace[0]->Xsize;
+    //g_free(workspace[0]);
+    g_object_unref(process);
+    return 0;
+}
+
 int valid_resolution(int resolution)
 {
     return (resolution == RES_THUMB || resolution == RES_SMALL
@@ -165,20 +181,4 @@ double shrink_value(VipsImage* image, uint16_t max_width, uint16_t max_height)
     const double h_shrink = (double)max_width / (double)image->Xsize;
     const double v_shrink = (double)max_height / (double)image->Ysize;
     return h_shrink > v_shrink ? v_shrink : h_shrink;
-}
-
-int get_resolution(uint32_t* height, uint32_t* width, const char* image_buffer,
-                   size_t image_size)
-{
-    VipsObject* process = VIPS_OBJECT(vips_image_new());
-    VipsImage** workspace = (VipsImage**) vips_object_local_array(process, 1);
-    if (vips_jpegload_buffer((void*) image_buffer, image_size,
-                             &workspace[0], NULL)) {
-        return ERR_VIPS;
-    }
-    *height = workspace[0]->Ysize;
-    *width = workspace[0]->Xsize;
-    //g_free(workspace[0]);
-    g_object_unref(process);
-    return 0;
 }
