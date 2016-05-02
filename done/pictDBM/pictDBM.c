@@ -13,7 +13,7 @@
 #include "image_content.h"
 
 // Constants
-#define NB_CMD        4   // Number of command line functions the database possesses
+#define NB_CMD        6   // Number of command line functions the database possesses
 #define FILE_DEFAULT  10  // Default max file number
 #define THUMB_DEFAULT 64  // Default thumb resolution
 #define THUMB_MAX     128 // Maximal thumb resolution
@@ -31,6 +31,13 @@
 #define RES_CHECK(x_res, y_res, max) \
     if (check_values(x_res, y_res, max) != 0) \
         return ERR_RESOLUTIONS;
+// Used to concatenate a pict_id and a suffix
+#define CONCAT_STRING(size, suffix) \
+    if ((new_name = calloc(strlen(pict_id) + size, sizeof(char))) == NULL) \
+        return NULL; \
+    strcpy(new_name, pict_id); \
+    strcat(new_name, suffix); \
+    return new_name;
 
 /**
  * @brief A pointer to a function returning an int.
@@ -66,12 +73,7 @@ enum options {
  * @return A non-zero int corresponding to the option,
  *         or 0 if the argument is not a valid option.
  */
-int parse_create_options(const char* option)
-{
-    return (strcmp(option, "-max_files") == 0) ? MAX_FILES :
-           (strcmp(option, "-thumb_res") == 0) ? THUMB_RES :
-           (strcmp(option, "-small_res") == 0) ? SMALL_RES : INVALID_OPTION;
-}
+int parse_create_options(const char* option);
 
 /**
  * @brief Checks if there is enough arguments remaining for an option.
@@ -80,10 +82,7 @@ int parse_create_options(const char* option)
  * @param expected  The number of expected arguments for the option.
  * @return 0 if there is enough arguments remaining, 1 otherwise.
  */
-int check_argument_number(const int remaining, const int expected)
-{
-    return (remaining < expected) ? 1 : 0;
-}
+int check_argument_number(const int remaining, const int expected);
 
 /**
  * @brief Checks whether the given width and height are within
@@ -94,11 +93,17 @@ int check_argument_number(const int remaining, const int expected)
  * @param max_value The maximum value.
  * @return 0 if the values are valid, 1 otherwise.
  */
-int check_values(const uint16_t x_res, const uint16_t y_res, const uint16_t max_value)
-{
-    return (x_res == 0 || y_res == 0 || x_res > max_value
-            || y_res > max_value) ? 1 : 0;
-}
+int check_values(const uint16_t x_res, const uint16_t y_res,
+                 const uint16_t max_value);
+
+int read_image_from_disk(const char* filename, char** image_buffer,
+                         size_t* image_size);
+
+char* create_name(const char* pict_id, int resolution);
+
+int write_image_to_disk(const char* filename, char* image_buffer,
+                        size_t image_size);
+
 
 /********************************************************************/ /**
  * Opens pictDB file and calls do_list command.
@@ -204,6 +209,10 @@ int help(int args, char* argv[])
            "          -small_res <X_RES> <Y_RES>: resolution for small images.\n"
            "                                  default value is %dx%d\n"
            "                                  maximum value is %dx%d\n"
+           "  read   <dbfilename> <pictID> [original|orig|thumbnail|thumb|small]:\n"
+           "      read an image from the pictDB and save it to a file.\n"
+           "      default resolution is \"original\".\n"
+           "  insert <dbfilename> <pictID> <filename>: insert a new image in the pictDB.\n"
            "  delete <dbfilename> <pictID>: delete picture pictID from pictDB.\n",
            FILE_DEFAULT, MAX_MAX_FILES, THUMB_DEFAULT, THUMB_DEFAULT, THUMB_MAX,
            THUMB_MAX, SMALL_DEFAULT, SMALL_DEFAULT, SMALL_MAX, SMALL_MAX);
@@ -231,6 +240,65 @@ int do_delete_cmd(int args, char* argv[])
 }
 
 /********************************************************************/ /**
+ * Inserts an image into a database.
+ ********************************************************************** */
+int do_insert_cmd(int args, char* argv[])
+{
+    ARG_CHECK(args, 4);
+
+    struct pictdb_file db_file;
+
+    int ret = do_open(argv[1], "rb+", &db_file);
+    if (ret == 0) {
+        ret = db_file.header.num_files < db_file.header.max_files ? 0 :
+              ERR_FULL_DATABASE;
+    }
+    if (ret == 0) {
+        char* image_buffer = NULL;
+        size_t image_size = 0;
+        ret = read_image_from_disk(argv[3], &image_buffer, &image_size);
+        if (ret == 0) {
+            puts("Insert");
+            ret = do_insert(image_buffer, image_size, argv[2], &db_file);
+        }
+        free(image_buffer);
+    }
+    do_close(&db_file);
+
+    return ret;
+}
+
+/********************************************************************/ /**
+ * Reads an image from a database and writes it to disk.
+ ********************************************************************** */
+int do_read_cmd(int args, char* argv[])
+{
+    ARG_CHECK(args, 3);
+
+    struct pictdb_file db_file;
+    int resolution = args > 3 ? resolution_atoi(argv[3]) : RES_ORIG;
+
+    int ret = resolution != -1 ? do_open(argv[1], "rb+", &db_file) :
+              ERR_INVALID_ARGUMENT;
+    if (ret == 0) {
+        char* image_buffer = NULL;
+        uint32_t image_size = 0;
+        ret = do_read(argv[2], resolution, &image_buffer, &image_size, &db_file);
+        if (ret == 0) {
+            char* filename = NULL;
+            ret = (filename = create_name(argv[2],
+                                          resolution)) == NULL ? ERR_OUT_OF_MEMORY : 0;
+            ret = ret == 0 ? write_image_to_disk(filename, image_buffer, image_size) : ret;
+            free(filename);
+        }
+        free(image_buffer);
+    }
+    do_close(&db_file);
+
+    return ret;
+}
+
+/********************************************************************/ /**
  * MAIN
  */
 int main(int argc, char* argv[])
@@ -242,7 +310,9 @@ int main(int argc, char* argv[])
         { "list", do_list_cmd },
         { "create", do_create_cmd },
         { "delete", do_delete_cmd },
-        { "help", help }
+        { "help", help },
+        { "read", do_read_cmd },
+        { "insert", do_insert_cmd }
     };
 
     if (argc < 2) {
@@ -267,5 +337,76 @@ int main(int argc, char* argv[])
         (void)help(0, NULL);
     }
 
+    return ret;
+}
+
+int parse_create_options(const char* option)
+{
+    return (strcmp(option, "-max_files") == 0) ? MAX_FILES :
+           (strcmp(option, "-thumb_res") == 0) ? THUMB_RES :
+           (strcmp(option, "-small_res") == 0) ? SMALL_RES :
+           INVALID_OPTION;
+}
+
+int check_argument_number(const int remaining, const int expected)
+{
+    return (remaining < expected) ? 1 : 0;
+}
+
+int check_values(const uint16_t x_res, const uint16_t y_res,
+                 const uint16_t max_value)
+{
+    return (x_res == 0 || y_res == 0 || x_res > max_value
+            || y_res > max_value) ? 1 : 0;
+}
+
+int read_image_from_disk(const char* filename, char** image_buffer,
+                         size_t* image_size)
+{
+    FILE* image = fopen(filename, "rb");
+    if (image == NULL) {
+        return ERR_IO;
+    }
+    if (fseek(image, 0, SEEK_END) == 0) {
+        *image_size = ftell(image);
+        if (fseek(image, 0, SEEK_SET) == 0) {
+            *image_buffer = malloc(*image_size);
+            if (*image_buffer != NULL) {
+                if (fread(*image_buffer, *image_size, 1, image) == 1) {
+                    fclose(image);
+                    return 0;
+                }
+            }
+        }
+    }
+    fclose(image);
+
+    return ERR_IO;
+}
+
+char* create_name(const char* pict_id, int resolution)
+{
+    char* new_name = NULL;
+    switch (resolution) {
+    case RES_THUMB:
+        CONCAT_STRING(11, "_thumb.jpg");
+    case RES_SMALL:
+        CONCAT_STRING(11, "_small.jpg");
+    case RES_ORIG:
+        CONCAT_STRING(10, "_orig.jpg");
+    default:
+        return NULL;
+    }
+}
+
+int write_image_to_disk(const char* filename, char* image_buffer,
+                        size_t image_size)
+{
+    FILE* new_image = fopen(filename, "wb");
+    if (new_image == NULL) {
+        return ERR_IO;
+    }
+    int ret = fwrite(image_buffer, image_size, 1, new_image) == 1 ? 0 : ERR_IO;
+    fclose(new_image);
     return ret;
 }

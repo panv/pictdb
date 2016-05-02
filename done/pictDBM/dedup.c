@@ -30,7 +30,7 @@ int do_name_and_content_dedup(struct pictdb_file* db_file, uint32_t index)
             if (strncmp(db_file->metadata[i].pict_id,
                         img_index->pict_id, MAX_PIC_ID) == 0) {
                 return ERR_DUPLICATE_ID;
-            } else if (!hashcmp(db_file->metadata[i].SHA, img_index->SHA)) {
+            } else if (hashcmp(db_file->metadata[i].SHA, img_index->SHA) == 0) {
                 // Two images with the same hash: deduplication
                 for (size_t res = 0; res < NB_RES; ++res) {
                     img_index->offset[res] = db_file->metadata[i].offset[res];

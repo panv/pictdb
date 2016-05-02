@@ -22,7 +22,7 @@ $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # ignore format, clean and test
-.PHONY: format clean test
+.PHONY: format clean test remake
 
 # remove executable and object files
 clean:
@@ -33,6 +33,10 @@ format:
 	astyle --style=linux --indent=spaces=4 --convert-tabs --suffix=none \
 	--add-brackets --unpad-paren --pad-oper --pad-header --align-pointer=type \
 	--max-code-length=80 --lineend=linux -n *.c *.h
+
+remake:
+	make clean
+	make
 
 # to do: implement testing
 test:

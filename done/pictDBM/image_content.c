@@ -34,15 +34,16 @@ long write_to_disk(struct pictdb_file* db_file, void* to_write,
 /**
  * @brief Resizes the given image according to width and height constraints.
  *
- * @param input_buffer The image to resize.
- * @param input_size   The size (in bytes) of the image to resize.
- * @param max_x        The maximum width of the new image.
- * @param max_y        The maximum height of the new image.
- * @param output_size  Pointer to the location of the size of the resized image.
- * @return The resized image.
+ * @param output_buffer Destination of the resized image.
+ * @param output_size   Pointer to the location of the size of the resized image.
+ * @param input_buffer  The image to resize.
+ * @param input_size    The size (in bytes) of the image to resize.
+ * @param max_x         The maximum width of the new image.
+ * @param max_y         The maximum height of the new image.
+ * @return 0 in case of success, 1 otherwise.
  */
-void* resize(const void* input_buffer, uint32_t input_size, uint16_t max_x,
-             uint16_t max_y, size_t* output_size);
+int resize(void** output_buffer, size_t* output_size, const void* input_buffer,
+           uint32_t input_size, uint16_t max_x, uint16_t max_y);
 
 /**
  * @brief Computes the ratio to use for resizing.
@@ -87,12 +88,11 @@ int lazily_resize(int resolution, struct pictdb_file* db_file,
 
     // Resize the image using VIPS
     size_t output_size = 0;
-    void* output_buffer = resize(image_in_bytes, size_orig,
-                                 db_file->header.res_resized[resolution * 2],
-                                 db_file->header.res_resized[resolution * 2 + 1],
-                                 &output_size);
-    if (output_buffer == NULL) {
-        g_free(output_buffer);
+    void* output_buffer = NULL;
+    if (resize(&output_buffer, &output_size,
+               image_in_bytes, size_orig,
+               db_file->header.res_resized[resolution * 2],
+               db_file->header.res_resized[resolution * 2 + 1]) != 0) {
         return ERR_VIPS;
     }
 
@@ -122,6 +122,23 @@ int lazily_resize(int resolution, struct pictdb_file* db_file,
     return ERR_IO;
 }
 
+int get_resolution(uint32_t* height, uint32_t* width, const char* image_buffer,
+                   size_t image_size)
+{
+    VipsObject* process = VIPS_OBJECT(vips_image_new());
+    VipsImage** workspace = (VipsImage**) vips_object_local_array(process, 1);
+    if (vips_jpegload_buffer((void*) image_buffer, image_size,
+                             &workspace[0], NULL)) {
+        g_object_unref(process);
+        return ERR_VIPS;
+    }
+    *height = workspace[0]->Ysize;
+    *width = workspace[0]->Xsize;
+    g_object_unref(process);
+    g_free(workspace[0]);
+    return 0;
+}
+
 int valid_resolution(int resolution)
 {
     return (resolution == RES_THUMB || resolution == RES_SMALL
@@ -139,24 +156,26 @@ long write_to_disk(struct pictdb_file* db_file, void* to_write,
     return -1;
 }
 
-void* resize(const void* input_buffer, uint32_t input_size, uint16_t max_x,
-             uint16_t max_y, size_t* output_size)
+int resize(void** output_buffer, size_t* output_size, const void* input_buffer,
+           uint32_t input_size, uint16_t max_x, uint16_t max_y)
 {
     VipsObject* process = VIPS_OBJECT(vips_image_new());
     VipsImage** workspace = (VipsImage**) vips_object_local_array(process, 2);
-    if (vips_jpegload_buffer((void *) input_buffer, input_size, &workspace[0], NULL) != 0) {
+    if (vips_jpegload_buffer((void*) input_buffer, input_size,
+                             &workspace[0], NULL) != 0) {
         g_object_unref(process);
-        return NULL;
+        return 1;
     }
+    int ret = 0;
     double ratio = shrink_value(workspace[0], max_x, max_y);
-    void* output_buffer;
     if (vips_resize(workspace[0], &workspace[1], ratio, NULL) ||
-        vips_jpegsave_buffer(workspace[1], &output_buffer, output_size, NULL)) {
-        g_object_unref(process);
-        return NULL;
+        vips_jpegsave_buffer(workspace[1], output_buffer, output_size, NULL)) {
+        ret = 1;
     }
     g_object_unref(process);
-    return output_buffer;
+    g_free(workspace[0]);
+    g_free(workspace[1]);
+    return ret;
 }
 
 double shrink_value(VipsImage* image, uint16_t max_width, uint16_t max_height)

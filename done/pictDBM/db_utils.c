@@ -70,6 +70,22 @@ void do_close(struct pictdb_file* db_file)
     }
 }
 
+int resolution_atoi(const char* resolution)
+{
+    if (resolution != NULL) {
+        if (strcmp(resolution, "thumb") == 0
+            || strcmp(resolution, "thumbnail") == 0) {
+            return RES_THUMB;
+        } else if (strcmp(resolution, "small") == 0) {
+            return RES_SMALL;
+        } else if (strcmp(resolution, "orig") == 0
+                   || strcmp(resolution, "original") == 0) {
+            return RES_ORIG;
+        }
+    }
+    return -1;
+}
+
 /********************************************************************//**
  * Human-readable SHA
  */
