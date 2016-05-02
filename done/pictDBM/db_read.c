@@ -15,15 +15,18 @@ int do_read(const char* pict_id, int resolution, char** image,
     }
 
     uint32_t idx = 0;
-    for (uint32_t i = 0; i < db_file->header.num_files; ++i) {
+    int ret = ERR_FILE_NOT_FOUND;
+    for (uint32_t i = 0; i < db_file->header.max_files && ret == ERR_FILE_NOT_FOUND; ++i) {
         if (db_file->metadata[i].is_valid == NON_EMPTY &&
-            !strncmp(pict_id, db_file->metadata[i].pict_id, MAX_PIC_ID)) {
+            strncmp(pict_id, db_file->metadata[i].pict_id, MAX_PIC_ID) == 0) {
             idx = i;
+            ret = 0;
         }
     }
-    if (strncmp(pict_id, db_file->metadata[idx].pict_id, MAX_PIC_ID)) {
+    if (ret != 0) {
         return ERR_FILE_NOT_FOUND;
     }
+
     struct pict_metadata* to_read = &db_file->metadata[idx];
     if (resolution != RES_ORIG && (to_read->offset[resolution] == 0 ||
                                    to_read->size[resolution] == 0)) {
