@@ -216,12 +216,12 @@ int resolution_atoi(const char* resolution);
  *
  * @param pict_id       The ID of the image.
  * @param resolution    The resolution of the image.
- * @param image_address The memory address of the image.
+ * @param image         The destination of the image.
  * @param size          The size of the image, in bytes.
  * @param db_file       The database.
  * @return 0 if the read was successful, an error code otherwise.
  */
-int do_read(const char* pict_id, int resolution, char** image_address,
+int do_read(const char* pict_id, int resolution, char** image,
             uint32_t* size, struct pictdb_file* db_file);
 
 /**
