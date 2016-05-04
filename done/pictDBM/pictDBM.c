@@ -22,15 +22,18 @@
 
 // Macro that checks the number of arguments of a command
 #define ARG_CHECK(args, min) \
-    if (args < min) return ERR_NOT_ENOUGH_ARGUMENTS;
+    if (args < min) return ERR_NOT_ENOUGH_ARGUMENTS
 // Macro that checks the number of arguments of a create option
 #define OPTION_ARG_CHECK(args, expected) \
     if (check_argument_number(args, expected) != 0) \
-        return ERR_NOT_ENOUGH_ARGUMENTS;
+        return ERR_NOT_ENOUGH_ARGUMENTS
 // Macro that checks that resolutions are valid
 #define RES_CHECK(x_res, y_res, max) \
     if (check_values(x_res, y_res, max) != 0) \
-        return ERR_RESOLUTIONS;
+        return ERR_RESOLUTIONS
+// Initializes a new empty database
+#define NEW_DATABASE \
+    struct pictdb_file db_file = {.fpdb = NULL, .metadata = NULL}
 
 /**
  * @brief A pointer to a function returning an int.
@@ -107,7 +110,7 @@ int do_list_cmd(int args, char* argv[])
 {
     ARG_CHECK(args, 2);
 
-    struct pictdb_file db_file;
+    NEW_DATABASE;
 
     int ret = do_open(argv[1], "rb", &db_file);
     if (ret == 0) {
@@ -176,7 +179,9 @@ int do_create_cmd(int args, char* argv[])
         .max_files = max_files,
         .res_resized = { x_thumb_res, y_thumb_res, x_small_res, y_small_res }
     };
-    struct pictdb_file db_file = {.header = db_header };
+    struct pictdb_file db_file = {
+        .fpdb = NULL, .header = db_header, .metadata = NULL
+    };
 
     int ret = do_create(filename, &db_file);
     if (ret == 0) {
@@ -224,7 +229,7 @@ int do_delete_cmd(int args, char* argv[])
 {
     ARG_CHECK(args, 3);
 
-    struct pictdb_file db_file;
+    NEW_DATABASE;
 
     int ret = do_open(argv[1], "rb+", &db_file);
     if (ret == 0) {
@@ -243,7 +248,7 @@ int do_insert_cmd(int args, char* argv[])
 {
     ARG_CHECK(args, 4);
 
-    struct pictdb_file db_file;
+    NEW_DATABASE;
 
     int ret = do_open(argv[1], "rb+", &db_file);
     if (ret == 0) {
@@ -272,7 +277,7 @@ int do_read_cmd(int args, char* argv[])
 {
     ARG_CHECK(args, 3);
 
-    struct pictdb_file db_file;
+    NEW_DATABASE;
     int resolution = args > 3 ? resolution_atoi(argv[3]) : RES_ORIG;
 
     int ret = resolution != -1 ? do_open(argv[1], "rb+", &db_file) :
