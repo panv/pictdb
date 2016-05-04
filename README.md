@@ -1,5 +1,7 @@
 # TODO
 
+- [ ] GROS BUG : essayer de read une image non encore resizée fait crasher le programme;
+      problème de free avec vips, probablement dans lazily resize.
 - [x] Réparer read
 - [x] Réparer get_resolution: le free (commenté) fait crasher le programme
 - [x] Réparer dedup: insérer la même image 2 fois insère 2 images au lieu de dédupliquer
