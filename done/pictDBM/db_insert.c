@@ -2,13 +2,13 @@
 #include "dedup.h"
 #include "image_content.h"
 
-#define RET_ERROR if (ret != 0) return ret;
+#define RET_ERROR if (ret != 0) return ret
 // fseek + error check
 #define SEEK(offset, whence) \
-    ret = fseek(db_file->fpdb, offset, whence) == 0 ? 0 : ERR_IO;
+    ret = fseek(db_file->fpdb, offset, whence) == 0 ? 0 : ERR_IO
 // fwrite + error check
 #define WRITE(src, size) \
-    ret = fwrite(src, size, 1, db_file->fpdb) == 1 ? 0 : ERR_IO;
+    ret = fwrite(src, size, 1, db_file->fpdb) == 1 ? 0 : ERR_IO
 
 
 int do_insert(const char* new_image, size_t size, const char* pict_id,
