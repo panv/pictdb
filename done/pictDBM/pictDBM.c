@@ -36,7 +36,8 @@
     struct pictdb_file db_file = {.fpdb = NULL, .metadata = NULL}
 
 /**
- * @brief A pointer to a function returning an int.
+ * @brief A pointer to a function returning an int and taking an int and an
+ *        array of pointers to char as parameters.
  */
 typedef int (*command)(int, char**);
 
@@ -92,13 +93,44 @@ int check_argument_number(const int remaining, const int expected);
 int check_values(const uint16_t x_res, const uint16_t y_res,
                  const uint16_t max_value);
 
+/**
+ * @brief Reads an image from disk and stores it to a buffer.
+ *
+ * @param filename     The name of the image file.
+ * @param image_buffer The destination of the image.
+ * @param image_size   The size of the image.
+ * @return 0 in case of success, a non zero error code otherwise.
+ */
 int read_image_from_disk(const char* filename, char** image_buffer,
                          size_t* image_size);
 
+/**
+ * @brief Creates the filename corresponding to the given resolution.
+ *
+ * @param pict_id    The ID of the image.
+ * @param resolution The resolution of the image.
+ * @return The new name, or NULL if an error occurred.
+ */
 char* create_name(const char* pict_id, int resolution);
 
+/**
+ * @brief Appends a suffix to the given ID.
+ *
+ * @param pict_id The ID of the image.
+ * @param suffix  The suffix to append to the ID.
+ * @param len     The length of the suffix, including the null terminating byte.
+ * @return The concatenated string, or NULL if an error occurred.
+ */
 char* append_suffix(const char* pict_id, const char* suffix, size_t len);
 
+/**
+ * @brief Writes the image contained in the given buffer to disk.
+ *
+ * @param filename     The name of the image file.
+ * @param image_buffer The image.
+ * @param image_size   The size of the image.
+ * @return 0 in case of success, a non zero error code otherwise.
+ */
 int write_image_to_disk(const char* filename, char* image_buffer,
                         size_t image_size);
 
@@ -132,6 +164,7 @@ int do_create_cmd(int args, char* argv[])
     args -= 2;
     argv += 2;
 
+    // Default values
     uint32_t max_files = FILE_DEFAULT;
     uint16_t x_thumb_res = THUMB_DEFAULT;
     uint16_t y_thumb_res = THUMB_DEFAULT;
@@ -175,6 +208,7 @@ int do_create_cmd(int args, char* argv[])
 
     puts("Create");
 
+    // Initialize header and database
     struct pictdb_header db_header = {
         .max_files = max_files,
         .res_resized = { x_thumb_res, y_thumb_res, x_small_res, y_small_res }
@@ -256,10 +290,12 @@ int do_insert_cmd(int args, char* argv[])
               ERR_FULL_DATABASE;
     }
     if (ret == 0) {
+        // Store the image read from disk into a buffer
         char* image_buffer = NULL;
         size_t image_size = 0;
         ret = read_image_from_disk(argv[3], &image_buffer, &image_size);
         if (ret == 0) {
+            // Inserts the image into the database
             puts("Insert");
             ret = do_insert(image_buffer, image_size, argv[2], &db_file);
         }
@@ -278,16 +314,21 @@ int do_read_cmd(int args, char* argv[])
     ARG_CHECK(args, 3);
 
     NEW_DATABASE;
+    // Default resolution is RES_ORIG if no optional argument is provided
     int resolution = args > 3 ? resolution_atoi(argv[3]) : RES_ORIG;
 
+    // Open the database only if the resolution is valid
     int ret = resolution != -1 ? do_open(argv[1], "rb+", &db_file) :
               ERR_INVALID_ARGUMENT;
     if (ret == 0) {
+        // Store the image read from the database into a buffer
         char* image_buffer = NULL;
         uint32_t image_size = 0;
         ret = do_read(argv[2], resolution, &image_buffer, &image_size, &db_file);
         if (ret == 0) {
             char* filename = NULL;
+            // Create filename by appending the suffix corresponding to
+            // the resolution to the pic ID and write the image to disk
             ret = (filename = create_name(argv[2],
                                           resolution)) == NULL ? ERR_OUT_OF_MEMORY : 0;
             ret = ret == 0 ? write_image_to_disk(filename, image_buffer, image_size) : ret;
@@ -400,7 +441,8 @@ char* create_name(const char* pict_id, int resolution)
     }
 }
 
-char* append_suffix(const char* pict_id, const char* suffix, size_t len) {
+char* append_suffix(const char* pict_id, const char* suffix, size_t len)
+{
     char* new_name = calloc(strlen(pict_id) + len, sizeof(char));
     if (new_name != NULL) {
         strcpy(new_name, pict_id);
