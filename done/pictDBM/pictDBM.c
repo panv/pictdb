@@ -24,8 +24,8 @@
 #define ARG_CHECK(args, min) \
     if (args < min) return ERR_NOT_ENOUGH_ARGUMENTS;
 // Macro that checks the number of arguments of a create option
-#define OPTION_ARG_CHECK(args, index, expected) \
-    if (check_argument_number(args - (index + 1), expected) != 0) \
+#define OPTION_ARG_CHECK(args, expected) \
+    if (check_argument_number(args, expected) != 0) \
         return ERR_NOT_ENOUGH_ARGUMENTS;
 // Macro that checks that resolutions are valid
 #define RES_CHECK(x_res, y_res, max) \
@@ -42,7 +42,7 @@
 /**
  * @brief A pointer to a function returning an int.
  */
-typedef int (*command)();
+typedef int (*command)(int, char**);
 
 /**
  * @brief Map from a command name to the function implementing it.
@@ -140,33 +140,35 @@ int do_create_cmd(int args, char* argv[])
     uint16_t x_small_res = SMALL_DEFAULT;
     uint16_t y_small_res = SMALL_DEFAULT;
 
-    // Use of int instead of size_t for the comparison with args
     // For each command line argument, checks if there are enough arguments
     // remaining, converts the arguments to integers and assigns them to the
     // variable, and then checks if the variable is valid.
-    for (int i = 0; i < args; ++i) {
-        switch (parse_create_options(argv[i])) {
+    while (args > 0) {
+        switch (parse_create_options(argv[0])) {
         case MAX_FILES:
-            OPTION_ARG_CHECK(args, i, 1);
-            max_files = atouint32(argv[i + 1]);
+            OPTION_ARG_CHECK(args, 2);
+            max_files = atouint32(argv[1]);
             if (max_files == 0 || max_files > MAX_MAX_FILES) {
                 return ERR_MAX_FILES;
             }
-            i += 1;
+            args -= 2;
+            argv += 2;
             break;
         case THUMB_RES:
-            OPTION_ARG_CHECK(args, i, 2);
-            x_thumb_res = atouint16(argv[i + 1]);
-            y_thumb_res = atouint16(argv[i + 2]);
+            OPTION_ARG_CHECK(args, 3);
+            x_thumb_res = atouint16(argv[1]);
+            y_thumb_res = atouint16(argv[2]);
             RES_CHECK(x_thumb_res, y_thumb_res, THUMB_MAX);
-            i += 2;
+            args -= 3;
+            argv += 3;
             break;
         case SMALL_RES:
-            OPTION_ARG_CHECK(args, i, 2);
-            x_small_res = atouint16(argv[i + 1]);
-            y_small_res = atouint16(argv[i + 2]);
+            OPTION_ARG_CHECK(args, 3);
+            x_small_res = atouint16(argv[1]);
+            y_small_res = atouint16(argv[2]);
             RES_CHECK(x_small_res, y_small_res, SMALL_MAX);
-            i += 2;
+            args -= 3;
+            argv += 3;
             break;
         case INVALID_OPTION:
             return ERR_INVALID_ARGUMENT;
