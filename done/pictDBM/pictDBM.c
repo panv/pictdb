@@ -31,13 +31,6 @@
 #define RES_CHECK(x_res, y_res, max) \
     if (check_values(x_res, y_res, max) != 0) \
         return ERR_RESOLUTIONS;
-// Used to concatenate a pict_id and a suffix
-#define CONCAT_STRING(size, suffix) \
-    if ((new_name = calloc(strlen(pict_id) + size, sizeof(char))) == NULL) \
-        return NULL; \
-    strcpy(new_name, pict_id); \
-    strcat(new_name, suffix); \
-    return new_name;
 
 /**
  * @brief A pointer to a function returning an int.
@@ -100,6 +93,8 @@ int read_image_from_disk(const char* filename, char** image_buffer,
                          size_t* image_size);
 
 char* create_name(const char* pict_id, int resolution);
+
+char* append_suffix(const char* pict_id, const char* suffix, size_t len);
 
 int write_image_to_disk(const char* filename, char* image_buffer,
                         size_t image_size);
@@ -388,17 +383,25 @@ int read_image_from_disk(const char* filename, char** image_buffer,
 
 char* create_name(const char* pict_id, int resolution)
 {
-    char* new_name = NULL;
     switch (resolution) {
     case RES_THUMB:
-        CONCAT_STRING(11, "_thumb.jpg");
+        return append_suffix(pict_id, "_thumb.jpg", 11);
     case RES_SMALL:
-        CONCAT_STRING(11, "_small.jpg");
+        return append_suffix(pict_id, "_small.jpg", 11);
     case RES_ORIG:
-        CONCAT_STRING(10, "_orig.jpg");
+        return append_suffix(pict_id, "_orig.jpg", 10);
     default:
         return NULL;
     }
+}
+
+char* append_suffix(const char* pict_id, const char* suffix, size_t len) {
+    char* new_name = calloc(strlen(pict_id) + len, sizeof(char));
+    if (new_name != NULL) {
+        strcpy(new_name, pict_id);
+        strcat(new_name, suffix);
+    }
+    return new_name;
 }
 
 int write_image_to_disk(const char* filename, char* image_buffer,
