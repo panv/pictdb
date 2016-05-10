@@ -8,13 +8,6 @@
 
 #include "dedup.h"
 
-/**
- * @brief Compares two hashes digests.
- *
- * @param h1, h2 The two hashes to compare.
- * @return 0 if h1 equals h2, 1 otherwise.
- */
-int hashcmp(unsigned char* h1, unsigned char* h2);
 
 int do_name_and_content_dedup(struct pictdb_file* db_file, uint32_t index)
 {
@@ -48,15 +41,5 @@ int do_name_and_content_dedup(struct pictdb_file* db_file, uint32_t index)
         img_index->offset[RES_ORIG] = 0;
     }
 
-    return 0;
-}
-
-int hashcmp(unsigned char* h1, unsigned char* h2)
-{
-    for (size_t i = 0; i < SHA256_DIGEST_LENGTH; ++i) {
-        if (h1[i] != h2[i]) {
-            return 1;
-        }
-    }
     return 0;
 }

@@ -86,6 +86,16 @@ int resolution_atoi(const char* resolution)
     return -1;
 }
 
+int hashcmp(unsigned char* h1, unsigned char* h2)
+{
+    for (size_t i = 0; i < SHA256_DIGEST_LENGTH; ++i) {
+        if (h1[i] != h2[i]) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 /********************************************************************//**
  * Human-readable SHA
  */
