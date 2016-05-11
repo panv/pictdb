@@ -47,6 +47,8 @@ int do_open(const char* filename, const char* mode,
                      db_file->header.max_files, db_file->fpdb);
     if (read_els != db_file->header.max_files) {
         fprintf(stderr, "Error : cannot read metadata from %s\n", filename);
+        free(db_file->metadata);
+        db_file->metadata = NULL;
         return ERR_IO;
     }
 
