@@ -211,6 +211,14 @@ int do_delete(struct pictdb_file* db_file, const char* pict_id);
 int resolution_atoi(const char* resolution);
 
 /**
+ * @brief Compares two hashes digests.
+ *
+ * @param h1, h2 The two hashes to compare.
+ * @return 0 if h1 equals h2, 1 otherwise.
+ */
+int hashcmp(unsigned char* h1, unsigned char* h2);
+
+/**
  * @brief Reads an image from a database, resizes it in the asked resolution
  *        if need be and saves it to memory.
  *

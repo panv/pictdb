@@ -9,7 +9,10 @@
 #include "pictDB.h"
 #include "image_content.h"
 
+
 /**
+ * Déjà commenté dans pictdb.h!!
+ *
  * @brief Reads the image with given id exporting it, in the requested
  * resolution, to a memory buffer.
  *
@@ -49,12 +52,12 @@ int do_read(const char* pict_id, int resolution, char** image_buffer,
             ret = 0;
         }
     }
-
     if (ret != 0) {
         return ERR_FILE_NOT_FOUND;
     }
 
     struct pict_metadata* to_read = &db_file->metadata[idx]; // Convenience
+
     // If the resolution is not original, and the asked one is not
     // in the database, generate it.
     if (resolution != RES_ORIG && (to_read->offset[resolution] == 0 ||
@@ -79,4 +82,3 @@ int do_read(const char* pict_id, int resolution, char** image_buffer,
     *image_size = to_read->size[resolution]; // Set size.
     return 0;
 }
-
