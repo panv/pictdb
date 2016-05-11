@@ -5,7 +5,7 @@
 - [x] Réparer read
 - [x] Réparer get_resolution: le free (commenté) fait crasher le programme
 - [x] Réparer dedup: insérer la même image 2 fois insère 2 images au lieu de dédupliquer
-- [ ] Vérifier les coordonnées x/y-width/height : l'affichage avec list donne l'impression que les
+- [x] Vérifier les coordonnées x/y-width/height : l'affichage avec list donne l'impression que les
   coordonnées sont inversées
 - [x] Dans dedup.c, si on trouve un hash identique à l'index i, on ne parcourt pas toute
   la base de donnée et donc on ne vérifie pas si on a un pict_id en double après i
