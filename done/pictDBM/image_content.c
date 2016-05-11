@@ -70,18 +70,21 @@ int lazily_resize(int resolution, struct pictdb_file* db_file,
         return ERR_INVALID_ARGUMENT;
     }
 
+    // Used often
+    struct pict_metadata* meta_index = &db_file->metadata[index];
+
     // If the image already exists in the asked resolution or the asked
     // resolution is the original resolution, do nothing.
     if (resolution == RES_ORIG
-        || db_file->metadata[index].size[resolution] != 0) {
+        || meta_index->size[resolution] != 0) {
         return 0;
     }
 
-    uint32_t size_orig = db_file->metadata[index].size[RES_ORIG]; // Used often
+    uint32_t size_orig = meta_index->size[RES_ORIG]; // Used often
 
     // Store the original image in an array
     char image_in_bytes[size_orig];
-    if (fseek(db_file->fpdb, db_file->metadata[index].offset[RES_ORIG], SEEK_SET)
+    if (fseek(db_file->fpdb, meta_index->offset[RES_ORIG], SEEK_SET)
         || fread(image_in_bytes, size_orig, 1, db_file->fpdb) != 1) {
         return ERR_IO;
     }
@@ -103,20 +106,24 @@ int lazily_resize(int resolution, struct pictdb_file* db_file,
     g_free(output_buffer);
     if (file_position != -1) {
         // Update the metadata and write it to disk
-        db_file->metadata[index].size[resolution] = output_size;
-        db_file->metadata[index].offset[resolution] = file_position;
+        meta_index->size[resolution] = output_size;
+        meta_index->offset[resolution] = file_position;
         file_position = write_to_disk(db_file, &db_file->metadata[index],
                                       sizeof(struct pict_metadata), 1,
                                       sizeof(struct pictdb_header)
                                       + sizeof(struct pict_metadata) * index,
                                       SEEK_SET);
+        // Update the metadata of the duplicate images
         for (size_t i = 0; i < db_file->header.max_files && file_position != -1; ++i) {
             if (i != index && db_file->metadata[i].is_valid == NON_EMPTY) {
-                if (hashcmp(db_file->metadata[i].SHA, db_file->metadata[index].SHA) == 0) {
+                if (hashcmp(db_file->metadata[i].SHA, meta_index->SHA) == 0) {
                     db_file->metadata[i].size[resolution] = output_size;
-                    db_file->metadata[i].offset[resolution] = db_file->metadata[index].offset[resolution];
-                    file_position = write_to_disk(db_file, &db_file->metadata[i], sizeof(struct pict_metadata),
-                                                  1, sizeof(struct pictdb_header) + i * sizeof(struct pict_metadata), SEEK_SET);
+                    db_file->metadata[i].offset[resolution] = meta_index->offset[resolution];
+                    file_position = write_to_disk(db_file, &db_file->metadata[i],
+                                                  sizeof(struct pict_metadata),
+                                                  1, sizeof(struct pictdb_header)
+                                                  + sizeof(struct pict_metadata) * i,
+                                                  SEEK_SET);
                 }
             }
         }
