@@ -15,3 +15,4 @@
 - [ ] Revoir la doc (rajouter des undocumented in doxygen dans les fichiers .c?)
 - [ ] Ajouter des tests automatiques?
 - [ ] Ajouter VIPS_INIT et vips_shutdown dans le main? (cf section tests dans donnée de la semaine 7)
+- [ ] Possible bonus? http://moodle.epfl.ch/mod/forum/discuss.php?d=6645
