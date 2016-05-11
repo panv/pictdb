@@ -9,11 +9,6 @@
 #include "pictDB.h"
 #include "image_content.h"
 
-#define ASSIGN_NEW_VALUE(oldvalue, newvalue) \
-    oldvalue = newvalue != 0 ? newvalue : oldvalue
-
-int content_dedup(struct pictdb_file* db_file, uint32_t index);
-
 
 /**
  * Déjà commenté dans pictdb.h!!
@@ -62,13 +57,6 @@ int do_read(const char* pict_id, int resolution, char** image_buffer,
     }
 
     struct pict_metadata* to_read = &db_file->metadata[idx]; // Convenience
-    if (content_dedup(db_file, idx) != 0) {
-        if (fseek(db_file->fpdb, sizeof(struct pictdb_header) +
-                  idx * sizeof(struct pict_metadata), SEEK_SET) ||
-            fwrite(to_read, sizeof(struct pict_metadata), 1, db_file->fpdb) != 1) {
-            return ERR_IO;
-        }
-    }
 
     // If the resolution is not original, and the asked one is not
     // in the database, generate it.
@@ -93,24 +81,4 @@ int do_read(const char* pict_id, int resolution, char** image_buffer,
     }
     *image_size = to_read->size[resolution]; // Set size.
     return 0;
-}
-
-int content_dedup(struct pictdb_file* db_file, uint32_t index)
-{
-    struct pict_metadata* img_index = &db_file->metadata[index];
-    int found = 0;
-    for (size_t i = 0; i < db_file->header.max_files; ++i) {
-        if (i != index && db_file->metadata[i].is_valid == NON_EMPTY) {
-            if (hashcmp(db_file->metadata[i].SHA, img_index->SHA) == 0) {
-                for (size_t res = 0; res < NB_RES; ++res) {
-                    ASSIGN_NEW_VALUE(img_index->offset[res],
-                                     db_file->metadata[i].offset[res]);
-                    ASSIGN_NEW_VALUE(img_index->size[res],
-                                     db_file->metadata[i].size[res]);
-                    found = found || (img_index->size[res] != 0);
-                }
-            }
-        }
-    }
-    return found;
 }
