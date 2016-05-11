@@ -54,7 +54,7 @@ int do_insert(const char* new_image, size_t size, const char* pict_id,
     }
 
     // Update metadata with image resolution
-    ret = get_resolution(&empty->res_orig[0], &empty->res_orig[1],
+    ret = get_resolution(&empty->res_orig[1], &empty->res_orig[0],
                          new_image, size);
     RET_ERROR;
 
