@@ -26,10 +26,25 @@ int valid_resolution(int resolution);
  * @param nmemb    The number of elements to be written.
  * @param offset   The offset required by fseek.
  * @param whence   The starting position of the write head.
- * @return -1 in case of error, the size of the file before writing the data otherwise.
+ * @return -1 in case of error, the offset of the written data in the database
+ *         file otherwise.
  */
 long write_to_disk(struct pictdb_file* db_file, void* to_write,
                    size_t size, size_t nmemb, long offset, int whence);
+
+/**
+ * @brief Updates the metadata at the given index with the new size and offset,
+ *        and writes it to disk.
+ *
+ * @param db_file    The database containing the metadata.
+ * @param index      The index of the metadata.
+ * @param resolution The resolution of the resized image.
+ * @param size       The size of the resized image.
+ * @param offset     The offset of the resized image.
+ * @return -1 in case of error, a non negative long otherwise.
+ */
+long update_metadata(struct pictdb_file* db_file, size_t index, int resolution,
+                     size_t size, size_t offset);
 
 /**
  * @brief Resizes the given image according to width and height constraints.
@@ -106,24 +121,14 @@ int lazily_resize(int resolution, struct pictdb_file* db_file,
     g_free(output_buffer);
     if (file_position != -1) {
         // Update the metadata and write it to disk
-        meta_index->size[resolution] = output_size;
-        meta_index->offset[resolution] = file_position;
-        file_position = write_to_disk(db_file, &db_file->metadata[index],
-                                      sizeof(struct pict_metadata), 1,
-                                      sizeof(struct pictdb_header)
-                                      + sizeof(struct pict_metadata) * index,
-                                      SEEK_SET);
-        // Update the metadata of the duplicate images
+        file_position = update_metadata(db_file, index, resolution,
+                                        output_size, file_position);
+        // Update the metadata of the duplicate images, if there is any
         for (size_t i = 0; i < db_file->header.max_files && file_position != -1; ++i) {
             if (i != index && db_file->metadata[i].is_valid == NON_EMPTY) {
                 if (hashcmp(db_file->metadata[i].SHA, meta_index->SHA) == 0) {
-                    db_file->metadata[i].size[resolution] = output_size;
-                    db_file->metadata[i].offset[resolution] = meta_index->offset[resolution];
-                    file_position = write_to_disk(db_file, &db_file->metadata[i],
-                                                  sizeof(struct pict_metadata),
-                                                  1, sizeof(struct pictdb_header)
-                                                  + sizeof(struct pict_metadata) * i,
-                                                  SEEK_SET);
+                    file_position = update_metadata(db_file, i, output_size,
+                                                    meta_index->offset[resolution]);
                 }
             }
         }
@@ -171,6 +176,15 @@ long write_to_disk(struct pictdb_file* db_file, void* to_write,
         return (write_success == nmemb) ? file_position : -1;
     }
     return -1;
+}
+
+long update_metadata(struct pictdb_file* db_file, size_t index, int resolution,
+                     size_t size, size_t offset) {
+    db_file->metadata[index].size[resolution] = size;
+    db_file->metadata[index].offset[resolution] = offset;
+    return write_to_disk(db_file, &db_file->metadata[index],
+                         sizeof(struct pict_metadata), 1, sizof(pictdb_header)
+                         + sizeof(struct pict_metadata) * index, SEEK_SET);
 }
 
 int resize(void** output_buffer, size_t* output_size, const void* input_buffer,
