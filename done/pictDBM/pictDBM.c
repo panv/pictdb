@@ -324,6 +324,7 @@ int do_read_cmd(int args, char* argv[])
         // Store the image read from the database into a buffer
         char* image_buffer = NULL;
         uint32_t image_size = 0;
+        puts("Read");
         ret = do_read(argv[2], resolution, &image_buffer, &image_size, &db_file);
         if (ret == 0) {
             char* filename = NULL;
