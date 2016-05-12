@@ -1,5 +1,6 @@
 # TODO
 
+- [ ] Vérifier les conversions de types size_t -> uint32 dans image_content notamment
 - [x] GROS BUG : essayer de read une image non encore resizée fait crasher le programme;
       problème de free avec vips, probablement dans lazily resize.
 - [x] Réparer read
