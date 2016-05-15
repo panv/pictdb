@@ -36,8 +36,9 @@ def resizeAll(allpics):
     print("Resized all pictures to all resolutions correctly")
 
 def addAlreadyPresentId():
-    assert insert_cmd(str(random.randint(0, len(allpics) - 1)), random.choice(allpics)) != 0
-    print("Inserting already present id returns error")
+    for i in range(0, random.randint(0, len(allpics))):
+        assert insert_cmd(str(random.randint(0, len(allpics) - 1)), random.choice(allpics)) != 0
+    print("Inserting a random number of already present id returns error")
 
 def addAlreadyPresentimage(pics):
     l = len(pics)
