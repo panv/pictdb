@@ -127,7 +127,7 @@ int lazily_resize(int resolution, struct pictdb_file* db_file,
         for (size_t i = 0; i < db_file->header.max_files && file_position != -1; ++i) {
             if (i != index && db_file->metadata[i].is_valid == NON_EMPTY) {
                 if (hashcmp(db_file->metadata[i].SHA, meta_index->SHA) == 0) {
-                    file_position = update_metadata(db_file, i, output_size,
+                    file_position = update_metadata(db_file, i, resolution, output_size,
                                                     meta_index->offset[resolution]);
                 }
             }
@@ -183,7 +183,7 @@ long update_metadata(struct pictdb_file* db_file, size_t index, int resolution,
     db_file->metadata[index].size[resolution] = size;
     db_file->metadata[index].offset[resolution] = offset;
     return write_to_disk(db_file, &db_file->metadata[index],
-                         sizeof(struct pict_metadata), 1, sizof(pictdb_header)
+                         sizeof(struct pict_metadata), 1, sizeof(struct pictdb_header)
                          + sizeof(struct pict_metadata) * index, SEEK_SET);
 }
 
