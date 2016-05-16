@@ -10,23 +10,6 @@
 #include "image_content.h"
 
 
-/**
- * Déjà commenté dans pictdb.h!!
- *
- * @brief Reads the image with given id exporting it, in the requested
- * resolution, to a memory buffer.
- *
- * @param pict_id The id of the image to read.
- * @param resolution The resolution (defined in pictDBM.c) to use
- * when exporting.
- * @param image_buffer Pointer to memory location where to export the
- * image.
- * @param image_size The size (in bytes) of the image destination buffer,
- * established and affected by this function.
- * @param db_file The database file to read from.
- *
- * @return An error code coded in error.h.
- */
 int do_read(const char* pict_id, int resolution, char** image_buffer,
             uint32_t* image_size, struct pictdb_file* db_file)
 {
