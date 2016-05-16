@@ -347,6 +347,9 @@ int do_read_cmd(int args, char* argv[])
  */
 int main(int argc, char* argv[])
 {
+    if (VIPS_INIT(argv[0])) {
+        vips_error_exit("Unable to start VIPS");
+    }
     int ret = 0;
 
     // Map from function name to its pointer
@@ -381,6 +384,7 @@ int main(int argc, char* argv[])
         (void)help(0, NULL);
     }
 
+    vips_shutdown();
     return ret;
 }
 
