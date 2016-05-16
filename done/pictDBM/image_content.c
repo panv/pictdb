@@ -119,6 +119,10 @@ int lazily_resize(int resolution, struct pictdb_file* db_file,
     // Once written, we can free the memory from the image
     g_free(output_buffer);
     if (file_position != -1) {
+        if (output_size >> 32 > 0) {
+            fprintf(stderr, "Trying to fit a 64 bit integer into a 32 bit variable\n");
+            return ERR_INVALID_ARGUMENT;
+        }
         // Update the metadata and write it to disk
         file_position = update_metadata(db_file, index, resolution,
                                         output_size, file_position);
@@ -127,7 +131,8 @@ int lazily_resize(int resolution, struct pictdb_file* db_file,
             if (i != index && db_file->metadata[i].is_valid == NON_EMPTY) {
                 if (hashcmp(db_file->metadata[i].SHA, meta_index->SHA) == 0) {
                     file_position = update_metadata(db_file, i, resolution,
-                            output_size, meta_index->offset[resolution]);
+                                                    output_size,
+                                                    meta_index->offset[resolution]);
                 }
             }
         }
@@ -177,7 +182,8 @@ long write_to_disk(struct pictdb_file* db_file, void* to_write,
 }
 
 long update_metadata(struct pictdb_file* db_file, size_t index, int resolution,
-                     size_t size, size_t offset) {
+                     size_t size, size_t offset)
+{
     db_file->metadata[index].size[resolution] = size;
     db_file->metadata[index].offset[resolution] = offset;
     return write_to_disk(db_file, &db_file->metadata[index],
