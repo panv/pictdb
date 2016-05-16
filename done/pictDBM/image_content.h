@@ -7,6 +7,7 @@
  */
 
 #include "pictDB.h"
+#include <vips/vips.h>
 
 /**
  * @brief Resizes an image to a new resolution.
