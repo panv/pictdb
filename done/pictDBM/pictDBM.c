@@ -8,9 +8,7 @@
  * @date 2 Nov 2015
  */
 
-#ifndef PICTDBPRJ_PICTDB_H
 #include "pictDB.h"
-#endif
 #include "pictDBM_tools.h"
 #include "image_content.h"
 
