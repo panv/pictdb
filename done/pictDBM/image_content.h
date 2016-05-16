@@ -6,7 +6,9 @@
  * @author Nicolas Phan Van
  */
 
+#ifndef PICTDBPRJ_PICTDB_H
 #include "pictDB.h"
+#endif
 #include <vips/vips.h>
 
 /**

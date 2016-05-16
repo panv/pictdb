@@ -5,10 +5,10 @@
  * @author Vincenzo Bazzucchi
  * @author Nicolas Phan Van
  */
-
+#ifndef PICTDBPRJ_PICTDB_H
 #include "pictDB.h"
+#endif
 #include "image_content.h"
-
 
 /**
  * Déjà commenté dans pictdb.h!!

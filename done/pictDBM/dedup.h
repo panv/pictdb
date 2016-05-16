@@ -6,7 +6,9 @@
  * @author Nicolas Phan Van
  */
 
+#ifndef PICTDBPRJ_PICTDB_H
 #include "pictDB.h"
+#endif
 
 /**
  * @brief Deduplicates the image at the given index.

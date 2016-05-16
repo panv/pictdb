@@ -1,6 +1,9 @@
-#include "pictDB.h"
+
 #include "dedup.h"
 #include "image_content.h"
+#ifndef PICTDBPRJ_PICTDB_H
+#include "pictDB.h"
+#endif
 
 #define RET_ERROR if (ret != 0) return ret
 // fseek + error check
