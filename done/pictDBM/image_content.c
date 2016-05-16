@@ -7,7 +7,6 @@
  */
 
 #include "image_content.h"
-#include <vips/vips.h>
 
 /**
  * @brief Checks whether the given resolution is within the valid range.
