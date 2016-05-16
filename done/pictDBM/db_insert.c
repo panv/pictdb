@@ -36,8 +36,13 @@ int do_insert(const char* new_image, size_t size, const char* pict_id,
     struct pict_metadata* empty = &db_file->metadata[idx_new];
 
     // Update metadata with image information
-    (void)SHA256((unsigned char*)new_image, size, empty->SHA); // Add checksum
+    (void)SHA256((unsigned char*)new_image, size, empty->SHA);  // Add checksum
     strncpy(empty->pict_id, pict_id, MAX_PIC_ID + 1);
+    if (size >> 32 > 0) {
+        fprintf(stderr,
+                "Trying to fit a 64 bit integer into a 32 bit variable\n");
+        return ERR_INVALID_ARGUMENT;
+    }
     empty->size[RES_ORIG] = (uint32_t) size;
     empty->is_valid = NON_EMPTY;
 
