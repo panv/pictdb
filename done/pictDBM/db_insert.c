@@ -1,3 +1,11 @@
+/**
+ * @file db_insert.c
+ * @brief Insertion of a picture into a database.
+ *
+ * @author Vincenzo Bazzucchi
+ * @author Nicolas Phan Van
+ */
+
 #include "pictDB.h"
 #include "dedup.h"
 #include "image_content.h"
