@@ -157,7 +157,6 @@ int get_resolution(uint32_t* height, uint32_t* width, const char* image_buffer,
     *height = workspace[0]->Ysize;
     *width = workspace[0]->Xsize;
     g_object_unref(process);
-    //g_free(workspace[0]);
     return 0;
 }
 
@@ -204,8 +203,6 @@ int resize(void** output_buffer, size_t* output_size, const void* input_buffer,
         ret = 1;
     }
     g_object_unref(process);
-    //g_free(workspace[0]);
-    //g_free(workspace[1]);
     return ret;
 }
 
