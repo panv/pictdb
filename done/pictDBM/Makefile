@@ -7,7 +7,7 @@ LDLIBS += -lssl -lcrypto -lm $$(pkg-config vips --libs)
 # binary executable
 TARGET = pictDBM
 # C source files
-SRCS = $(filter-out vipstest.c, $(wildcard *.c))
+SRCS = $(wildcard *.c)
 # C object files, uses suffix replacement within a macro
 # https://www.cs.swarthmore.edu/~newhall/unixhelp/howto_makefiles.html
 OBJS = $(SRCS:.c=.o)
@@ -26,7 +26,7 @@ $(TARGET): $(OBJS)
 
 # remove executable and object files
 clean:
-	$(RM) $(TARGET) *.o
+	$(RM) $(OBJS)
 
 # format with astyle
 format:
@@ -36,10 +36,11 @@ format:
 
 remake:
 	make clean
+	$(RM) $(TARGET)
 	make
 
 # to do: implement testing
-test:
-	$(CC) $(CFLAGS) -o vipstest vipstest.c db_utils.c db_list.c error.c \
-	db_create.c db_delete.c image_content.c $(LDLIBS)
-	./vipstest testDB02.pictdb_dynamic pic1
+#test:
+#	$(CC) $(CFLAGS) -o vipstest tests/vipstest.c db_utils.c db_list.c error.c \
+#	db_create.c db_delete.c image_content.c $(LDLIBS)
+#	./vipstest testDB02.pictdb_dynamic pic1
