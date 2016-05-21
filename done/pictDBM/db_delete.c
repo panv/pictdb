@@ -21,6 +21,7 @@
 int index_of_image(const char* pict_id, const struct pict_metadata* images,
                    const uint32_t db_size, uint32_t* index);
 
+
 int do_delete(struct pictdb_file* db_file, const char* pict_id)
 {
     if (db_file == NULL || pict_id == NULL) {

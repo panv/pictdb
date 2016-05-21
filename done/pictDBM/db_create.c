@@ -8,6 +8,7 @@
 
 #include "pictDB.h"
 
+
 int do_create(const char* filename, struct pictdb_file* db_file)
 {
     // Error checks

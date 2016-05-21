@@ -8,6 +8,7 @@
 
 #include "pictDB.h"
 
+
 int do_open(const char* filename, const char* mode,
             struct pictdb_file* db_file)
 {
