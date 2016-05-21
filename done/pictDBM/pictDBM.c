@@ -146,7 +146,7 @@ int do_list_cmd(int args, char* argv[])
 
     int ret = do_open(argv[1], "rb", &db_file);
     if (ret == 0) {
-        do_list(&db_file);
+        do_list(&db_file, STDOUT);
     }
     do_close(&db_file);
 
