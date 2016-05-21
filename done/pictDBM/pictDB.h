@@ -161,12 +161,16 @@ void print_header(const struct pictdb_header* header);
 void print_metadata(const struct pict_metadata* metadata);
 
 /**
- * @brief Displays (on stdout) pictDB metadata.
+ * @brief In command line mode, displays (on stdout) a database header and its
+ *        metadata; in webserver mode, returns the representation of the database
+ *        as a string.
  *
  * @param db_file In memory structure with header and metadata.
  * @param mode    Mode of the display (command line or webserver).
+ * @return The representation of the database in webserver mode, or NULL in
+ *         command line mode. Returns an error message if the mode is not valid.
  */
-void do_list(const struct pictdb_file* db_file, enum do_list_mode mode);
+const char* do_list(const struct pictdb_file* db_file, enum do_list_mode mode);
 
 /**
  * @brief Creates the database called db_filename. Writes the header and the
