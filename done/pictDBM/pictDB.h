@@ -153,7 +153,6 @@ struct pictdb_file {
  */
 void print_header(const struct pictdb_header* header);
 
-
 /**
  * @brief Prints picture metadata informations.
  *
@@ -161,14 +160,13 @@ void print_header(const struct pictdb_header* header);
  */
 void print_metadata(const struct pict_metadata* metadata);
 
-
 /**
  * @brief Displays (on stdout) pictDB metadata.
  *
  * @param db_file In memory structure with header and metadata.
+ * @param mode    Mode of the display (command line or webserver).
  */
-void do_list(const struct pictdb_file* db_file);
-
+void do_list(const struct pictdb_file* db_file, enum do_list_mode mode);
 
 /**
  * @brief Creates the database called db_filename. Writes the header and the
