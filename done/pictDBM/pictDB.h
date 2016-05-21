@@ -51,6 +51,14 @@ extern "C" {
 
 
 /**
+ * @enum do_list_mode
+ * @brief Specifies the list mode (command line or webserver).
+ */
+enum do_list_mode {
+    STDOUT, JSON
+};
+
+/**
  * @brief The header of the database, containing
  *        the pictDB configuration information.
  */
