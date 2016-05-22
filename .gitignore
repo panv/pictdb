@@ -1,6 +1,8 @@
 # Binary files
 /done/pictDBM/pictDBM
+/done/pictDBM/pictDB_server
 *.o
+/done/pictDBM/libmongoose/libmongoose.so
 
 # Test files
 testDB*
