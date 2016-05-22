@@ -3,19 +3,27 @@ CC = gcc
 # flags
 CFLAGS += -std=c99 -Wall -Wextra --pedantic -g $$(pkg-config vips --cflags)
 # libraries
-LDLIBS += -lssl -lcrypto -lm $$(pkg-config vips --libs)
-# binary executable
+LDLIBS += -lssl -lcrypto -lm $$(pkg-config vips --libs) -ljson-c -lmongoose
+LDFLAGS += -L /libmongoose
+# binary executables
 TARGET = pictDBM
+WEBTGT = pictDB_server
 # C source files
-SRCS = $(wildcard *.c)
-# C object files, uses suffix replacement within a macro
-# https://www.cs.swarthmore.edu/~newhall/unixhelp/howto_makefiles.html
-OBJS = $(SRCS:.c=.o)
+CMDSRCS = $(filter-out pictDB_server.c, $(wildcard *.c))
+WEBSRCS = $(filter-out pictDBM.c, $(wildcard *.c))
+# C object files
+CMDOBJS = $(CMDSRCS:.c=.o)
+WEBOBJS = $(WEBSRCS:.c=.o)
 
 all: $(TARGET)
 
-$(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS) $(LDLIBS)
+$(TARGET): $(CMDOBJS)
+	$(CC) $(CFLAGS) -o $(TARGET) $(CMDOBJS) $(LDLIBS)
+
+pictDB_server: $(WEBTGT)
+
+$(WEBTGT): $(WEBOBJS)
+	$(CC) $(CFLAGS) -o $(WEBTGT) $(WEBOBJS) $(LDLIBS) $(LDFLAGS)
 
 # build .o's from .c's
 .c.o:
@@ -24,9 +32,9 @@ $(TARGET): $(OBJS)
 # ignore format, clean and test
 .PHONY: format clean test remake
 
-# remove executable and object files
+# remove object files
 clean:
-	$(RM) $(OBJS)
+	$(RM) *.o
 
 # format with astyle
 format:
