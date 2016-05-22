@@ -28,10 +28,10 @@ void do_list_cmd_line(const struct pictdb_file* db_file);
  * @param db_file The database to stringify.
  * @return The string representing the database.
  */
-const char* do_list_web(const struct pictdb_file* db_file);
+char* do_list_web(const struct pictdb_file* db_file);
 
 
-const char* do_list(const struct pictdb_file* db_file, enum do_list_mode mode)
+char* do_list(const struct pictdb_file* db_file, enum do_list_mode mode)
 {
     switch(mode) {
     case STDOUT:
@@ -63,7 +63,7 @@ void do_list_cmd_line(const struct pictdb_file* db_file)
     }
 }
 
-const char* do_list_web(const struct pictdb_file* db_file)
+char* do_list_web(const struct pictdb_file* db_file)
 {
     // JSON array that will contain the pict_id
     struct json_object* pictid_array = json_object_new_array();
@@ -78,7 +78,12 @@ const char* do_list_web(const struct pictdb_file* db_file)
     struct json_object* wrapper = json_object_new_object();
     json_object_object_add(wrapper, "Pictures", pictid_array);
     // Convert the wrapper to string
-    const char* ret = json_object_to_json_string(wrapper);
+    const char* s = json_object_to_json_string(wrapper);
+    // Copy the string to extend its scope beyond the GC of the JSON object
+    char* ret = calloc(strlen(s) + 1, sizeof(char));
+    if (ret != NULL) {
+        strcpy(ret, s);
+    }
     // Free the wrapper - does it free the array too??
     json_object_put(wrapper);
     return ret;

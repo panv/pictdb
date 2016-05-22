@@ -16,7 +16,7 @@ static int s_sig_received = 0;           // Signal
 
 static void handle_list_call(struct mg_connection* nc, struct http_message* hm)
 {
-    
+    // ne pas oublier de free le pointeur retourné par do_list!!!
 }
 
 static void signal_handler(int sig_num)
