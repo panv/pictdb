@@ -12,11 +12,26 @@
 static const char* s_http_port = "8000"; // Port
 static struct mg_serve_http_opts s_http_server_opts;
 static int s_sig_received = 0;           // Signal
+static struct pictdb_file* db_file;
 
+
+static int init_dbfile(int argc, const char* filename)
+{
+    db_file = malloc(sizeof(struct pictdb_file));
+    db_file->fpdb = NULL;
+    db_file->metadata = NULL;
+    return argc < 2 ? ERR_NOT_ENOUGH_ARGUMENTS : do_open(filename, "rb+", db_file);
+}
 
 static void handle_list_call(struct mg_connection* nc, struct http_message* hm)
 {
-    // ne pas oublier de free le pointeur retourné par do_list!!!
+    char* json_list = do_list(db_file, JSON);
+    size_t msg_length = strlen(json_list);
+    mg_printf(nc, "HTTP/1.1 200 OK\r\n"
+                  "Content-Type: application/json\r\n"
+                  "Content-Length: %zu\r\n\r\n%s", msg_length, json_list);
+    nc->flags |= MG_F_SEND_AND_CLOSE;
+    free(json_list);
 }
 
 static void signal_handler(int sig_num)
@@ -32,7 +47,7 @@ static void ev_handler(struct mg_connection* nc, int ev, void* ev_data)
     switch(ev) {
     case MG_EV_HTTP_REQUEST:
         if (mg_vcmp(&hm->uri, "/pictDB/list") == 0) {
-            handle_list_call(nc, hm);
+            handle_list_call(nc);
         } else {
             mg_serve_http(nc, hm, s_http_server_opts); // Serve static content
         }
@@ -47,11 +62,10 @@ int main(int argc, char* argv[])
     int ret = 0;
     
     // Initialize and open database if there is enough arguments
-    struct pictdb_file db_file = {.fpdb = NULL, .metadata = NULL};
-    ret = argc < 2 ? ERR_NOT_ENOUGH_ARGUMENTS : do_open(argv[1], "rb+", &db_file);
+    ret = init_dbfile(argc, argv[1]);
     
     if (ret == 0) {
-        print_header(&db_file.header);
+        print_header(&db_file->header);
         
         struct mg_mgr mgr;
         struct mg_connection* nc;
@@ -70,7 +84,8 @@ int main(int argc, char* argv[])
         s_http_server_opts.enable_directory_listing = "yes";
         
         // Listening loop
-        printf("Starting web server on port %s\n", s_http_port);
+        printf("Starting web server on port %s\n, serving %s\n", s_http_port,
+               s_http_server_opts.document_root);
         while (!s_sig_received) {
             mg_mgr_poll(&mgr, 1000); // 1000000?
         }
@@ -79,7 +94,8 @@ int main(int argc, char* argv[])
         mg_mgr_free(&mgr);
     }
     
-    do_close(&db_file);
+    do_close(db_file);
+    free(db_file);
     
     // Print error message if there was an error
     if (ret) {
