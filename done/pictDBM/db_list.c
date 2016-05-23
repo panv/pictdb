@@ -33,7 +33,7 @@ char* do_list_web(const struct pictdb_file* db_file);
 
 char* do_list(const struct pictdb_file* db_file, enum do_list_mode mode)
 {
-    switch(mode) {
+    switch (mode) {
     case STDOUT:
         do_list_cmd_line(db_file);
         return NULL;
@@ -70,7 +70,8 @@ char* do_list_web(const struct pictdb_file* db_file)
     // Add each valid image pict_id to the array
     for (uint32_t i = 0; i < db_file->header.max_files; ++i) {
         if (db_file->metadata[i].is_valid == NON_EMPTY) {
-            struct json_object* pictid = json_object_new_string(db_file->metadata[i].pict_id);
+            struct json_object* pictid = json_object_new_string(
+                                             db_file->metadata[i].pict_id);
             json_object_array_add(pictid_array, pictid);
         }
     }
