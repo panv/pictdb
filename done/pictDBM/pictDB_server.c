@@ -9,6 +9,8 @@
 #include "pictDB.h"
 #include "mongoose.h"
 
+#define MAX_QUERY_PARAM 5
+
 static const char* s_http_port = "8000"; // Port
 static struct mg_serve_http_opts s_http_server_opts;
 static int s_sig_received = 0;           // Signal
@@ -23,7 +25,7 @@ static int init_dbfile(int argc, const char* filename)
     return argc < 2 ? ERR_NOT_ENOUGH_ARGUMENTS : do_open(filename, "rb+", db_file);
 }
 
-static void handle_list_call(struct mg_connection* nc, struct http_message* hm)
+static void handle_list_call(struct mg_connection* nc)
 {
     char* json_list = do_list(db_file, JSON);
     size_t msg_length = strlen(json_list);
@@ -34,13 +36,27 @@ static void handle_list_call(struct mg_connection* nc, struct http_message* hm)
     free(json_list);
 }
 
+static void split(char* result[], char* tmp, const char* src,
+                  const char* delim, size_t len)
+{
+    strncpy(tmp, src, len);
+    tmp[len] = '\0';
+
+    size_t i = 0;
+    while ((tokens = strtok(tmp, delim)) != NULL) {
+        result[i] = tmp;
+        ++i;
+        tmp = NULL;
+    }
+}
+
 static void signal_handler(int sig_num)
 {
     signal(sig_num, signal_handler);
     s_sig_received = sig_num;
 }
 
-static void ev_handler(struct mg_connection* nc, int ev, void* ev_data)
+static void db_event_handler(struct mg_connection* nc, int ev, void* ev_data)
 {
     struct http_message* hm = (struct http_message*) ev_data;
     
@@ -74,7 +90,7 @@ int main(int argc, char* argv[])
         signal(SIGINT, signal_handler);  // Init new signal handler
         
         mg_mgr_init(&mgr, NULL); // Initialize event manager
-        nc = mg_bind(&mgr, s_http_port, ev_handler);
+        nc = mg_bind(&mgr, s_http_port, db_event_handler);
         
         // Set up HTTP server parameters
         mg_set_protocol_http_websocket(nc);
