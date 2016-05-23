@@ -20,9 +20,12 @@ static struct pictdb_file* db_file;
 static int init_dbfile(int argc, const char* filename)
 {
     db_file = malloc(sizeof(struct pictdb_file));
-    db_file->fpdb = NULL;
-    db_file->metadata = NULL;
-    return argc < 2 ? ERR_NOT_ENOUGH_ARGUMENTS : do_open(filename, "rb+", db_file);
+    if (db_file != NULL) {
+        db_file->fpdb = NULL;
+        db_file->metadata = NULL;
+        return argc < 2 ? ERR_NOT_ENOUGH_ARGUMENTS : do_open(filename, "rb+", db_file);
+    }
+    return ERR_OUT_OF_MEMORY;
 }
 
 static void handle_list_call(struct mg_connection* nc)
@@ -52,6 +55,58 @@ static void split(char* result[], char* tmp, const char* src,
     }
 }
 
+static void handle_read_call(struct mg_connection* nc, struct http_message* hm)
+{
+    char* result[MAX_QUERY_PARAM];
+    size_t max_length = (MAX_PIC_ID + 1) * MAX_QUERY_PARAM;
+    char* tmp = calloc(max_length, sizeof(char));
+    if (tmp == NULL) {
+        mg_error(nc, ERR_OUT_OF_MEMORY);
+        return;
+    }
+    tmp[max_length] = '\0';
+
+    split(result, tmp, hm->query_string.p, "&=", hm->query_string.len);
+
+    int resolution = -1;
+    char* pict_id = NULL;
+    size_t i = 0;
+    while (i < MAX_QUERY_PARAM && result[i] != NULL) {
+        if (strcmp(result[i], "res") == 0) {
+            resolution = resolution_atoi(result[i + 1]);
+            i += 2;
+        } else if (strcmp(result[i], "pict_id") == 0) {
+            pict_id = result[i + 1];
+            i += 2;
+        } else {
+            ++i;
+        }
+    }
+
+    if (resolution != -1 && pict_id != NULL) {
+        char* image_buffer = NULL;
+        uint32_t image_size = 0;
+        int err_check = do_read(pict_id, resolution, &image_buffer,
+                                &image_size, db_file);
+        if (err_check != 0) {
+            mg_error(nc, err_check);
+        } else {
+            mg_printf(nc,
+                      "HTTP/1.1 200 OK\r\n"
+                      "Content-Type: image/jpeg\r\n",
+                      "Content-Length: %" PRIu32 "\r\n\r\n",
+                      image_size);
+            mg_send(nc, image_buffer, image_size); // checker ce truc?
+            nc->flags |= MG_F_SEND_AND_CLOSE;
+        }
+        free(image_buffer);
+    } else {
+        mg_error(nc, ERR_INVALID_ARGUMENT);
+    }
+
+    free(tmp);
+}
+
 static void mg_error(struct mg_connection* nc, int error)
 {
     mg_printf(nc,
@@ -75,6 +130,8 @@ static void db_event_handler(struct mg_connection* nc, int ev, void* ev_data)
     case MG_EV_HTTP_REQUEST:
         if (mg_vcmp(&hm->uri, "/pictDB/list") == 0) {
             handle_list_call(nc);
+        } else if (mg_vcmp(&hm->uri, "/pictDB/read") == 0) {
+            handle_read_call(nc, hm);
         } else {
             mg_serve_http(nc, hm, s_http_server_opts); // Serve static content
         }
@@ -86,6 +143,10 @@ static void db_event_handler(struct mg_connection* nc, int ev, void* ev_data)
 
 int main(int argc, char* argv[])
 {
+    if (VIPS_INIT(argv[0])) {
+        vips_error_exit("Unable to start VIPS");
+    }
+
     int ret = 0;
 
     // Initialize and open database if there is enough arguments
@@ -129,6 +190,8 @@ int main(int argc, char* argv[])
         fprintf(stderr, "ERROR: %s\n", ERROR_MESSAGES[ret]);
         // (void)help(0, NULL);
     }
+
+    vips_shutdown();
 
     return ret;
 }
