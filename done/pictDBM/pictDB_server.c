@@ -8,6 +8,7 @@
 
 #include "pictDB.h"
 #include "mongoose.h"
+#include <vips/vips.h>
 
 #define MAX_QUERY_PARAM 5
 
@@ -15,6 +16,15 @@ static const char* s_http_port = "8000"; // Port
 static struct mg_serve_http_opts s_http_server_opts;
 static int s_sig_received = 0;           // Signal
 static struct pictdb_file* db_file;
+
+static int init_dbfile(int argc, const char* filename);
+static void handle_list_call(struct mg_connection* nc);
+static void split(char* result[], char* tmp, const char* src,
+                  const char* delim, size_t len);
+static void handle_read_call(struct mg_connection* nc, struct http_message* hm);
+static void mg_error(struct mg_connection* nc, int error);
+static void signal_handler(int sig_num);
+static void db_event_handler(struct mg_connection* nc, int ev, void* ev_data);
 
 
 static int init_dbfile(int argc, const char* filename)
@@ -45,10 +55,10 @@ static void split(char* result[], char* tmp, const char* src,
                   const char* delim, size_t len)
 {
     strncpy(tmp, src, len);
-    tmp[len] = '\0';
+    tmp[len] = '\0'; // tester si la dernière string est bien terminée par \0
 
     size_t i = 0;
-    while ((tokens = strtok(tmp, delim)) != NULL) {
+    while ((tmp = strtok(tmp, delim)) != NULL) {
         result[i] = tmp;
         ++i;
         tmp = NULL;

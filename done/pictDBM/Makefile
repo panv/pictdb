@@ -4,13 +4,13 @@ CC = gcc
 CFLAGS += -std=c99 -Wall -Wextra --pedantic -g $$(pkg-config vips --cflags)
 # libraries
 LDLIBS += -lssl -lcrypto -lm $$(pkg-config vips --libs) -ljson-c -lmongoose
-LDFLAGS += -L /libmongoose
+LDFLAGS += -L ./libmongoose -I ./libmongoose
 # binary executables
 TARGET = pictDBM
 WEBTGT = pictDB_server
 # C source files
-CMDSRCS = $(filter-out pictDB_server.c, $(wildcard *.c))
-WEBSRCS = $(filter-out pictDBM.c, $(wildcard *.c))
+CMDSRCS = $(filter-out pictDB_server.c db_gcollect.c, $(wildcard *.c))
+WEBSRCS = $(filter-out pictDBM.c db_gcollect.c, $(wildcard *.c))
 # C object files
 CMDOBJS = $(CMDSRCS:.c=.o)
 WEBOBJS = $(WEBSRCS:.c=.o)
@@ -27,7 +27,7 @@ $(WEBTGT): $(WEBOBJS)
 
 # build .o's from .c's
 .c.o:
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@ $(LDFLAGS)
 
 # ignore format, clean and test
 .PHONY: format clean test remake
