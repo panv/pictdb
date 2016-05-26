@@ -31,12 +31,16 @@ $(WEBTGT): $(WEBOBJS)
 .c.o:
 	$(CC) $(CFLAGS) -c $< -o $@ $(LDFLAGS)
 
-# ignore format, clean and test
-.PHONY: format clean test remake
+# ignore format, clean, remake...
+.PHONY: format clean test remake superclean remake_server
 
 # remove object files
 clean:
 	$(RM) *.o
+
+# remove object files and binaries
+superclean: clean
+	$(RM) $(WEBTGT) $(TARGET)
 
 # format with astyle
 format:
@@ -44,10 +48,9 @@ format:
 	--add-brackets --unpad-paren --pad-oper --pad-header --align-pointer=type \
 	--max-code-length=80 --lineend=linux -n *.c *.h
 
-remake:
-	make clean
-	$(RM) $(TARGET)
-	make
+remake: superclean all
+
+remake_server: superclean pictDB_server
 
 # to do: implement testing
 #test:
