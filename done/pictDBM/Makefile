@@ -18,11 +18,13 @@ WEBOBJS = $(WEBSRCS:.c=.o)
 all: $(TARGET)
 
 $(TARGET): $(CMDOBJS)
-	$(CC) $(CFLAGS) -o $(TARGET) $(CMDOBJS) $(LDLIBS)
+	$(MAKE) -C ./libmongoose
+	$(CC) $(CFLAGS) -o $(TARGET) $(CMDOBJS) $(LDLIBS) $(LDFLAGS)
 
 pictDB_server: $(WEBTGT)
 
 $(WEBTGT): $(WEBOBJS)
+	$(MAKE) -C ./libmongoose
 	$(CC) $(CFLAGS) -o $(WEBTGT) $(WEBOBJS) $(LDLIBS) $(LDFLAGS)
 
 # build .o's from .c's
