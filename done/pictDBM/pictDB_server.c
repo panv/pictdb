@@ -19,7 +19,7 @@ static const char* s_http_port = "8000"; // Listening port
 static struct mg_serve_http_opts s_http_server_opts;
 static int s_sig_received = 0;           // Signal
 
-static int init_dbfile(int argc, const char* filename);
+/*static int init_dbfile(int argc, const char* filename);
 static void handle_list_call(struct mg_connection* nc);
 static void split(char* result[], char* tmp, const char* src,
                   const char* delim, size_t len);
@@ -27,7 +27,7 @@ static void handle_read_call(struct mg_connection* nc, struct http_message* hm);
 static void mg_error(struct mg_connection* nc, int error);
 static void signal_handler(int sig_num);
 static void db_event_handler(struct mg_connection* nc, int ev, void* ev_data);
-
+*/
 
 static int init_dbfile(int argc, const char* filename)
 {
@@ -38,6 +38,15 @@ static int init_dbfile(int argc, const char* filename)
         return argc < 2 ? ERR_NOT_ENOUGH_ARGUMENTS : do_open(filename, "rb+", db_file);
     }
     return ERR_OUT_OF_MEMORY;
+}
+
+static void mg_error(struct mg_connection* nc, int error)
+{
+    mg_printf(nc,
+              "HTTP/1.1 500\r\n"
+              "Content-Length: %d\r\n\r\n%s",
+              0, ERROR_MESSAGES[error]);
+    nc->flags |= MG_F_SEND_AND_CLOSE;
 }
 
 static void handle_list_call(struct mg_connection* nc)
@@ -73,13 +82,16 @@ static void split(char* result[], char* tmp, const char* src,
 static void handle_read_call(struct mg_connection* nc, struct http_message* hm)
 {
     char* result[MAX_QUERY_PARAM];
+    for (size_t i = 0; i < MAX_QUERY_PARAM; ++i) {
+        result[i] = NULL;
+    }
     size_t max_length = (MAX_PIC_ID + 1) * MAX_QUERY_PARAM;
     char* tmp = calloc(max_length, sizeof(char));
     if (tmp == NULL) {
         mg_error(nc, ERR_OUT_OF_MEMORY);
         return;
     }
-    tmp[max_length] = '\0';
+    tmp[max_length - 1] = '\0';
 
     split(result, tmp, hm->query_string.p, "&=", hm->query_string.len);
 
@@ -122,13 +134,48 @@ static void handle_read_call(struct mg_connection* nc, struct http_message* hm)
     free(tmp);
 }
 
-static void mg_error(struct mg_connection* nc, int error)
+static void handle_insert_call(struct mg_connection* nc,
+                               struct http_message* hm)
 {
-    mg_printf(nc,
-              "HTTP/1.1 500\r\n"
-              "Content-Length: %d\r\n\r\n%s",
-              0, ERROR_MESSAGES[error]);
-    nc->flags |= MG_F_SEND_AND_CLOSE;
+    int err_check = db_file->header.num_files < db_file->header.max_files ? 0 :
+                    ERR_FULL_DATABASE;
+
+    if (err_check == 0) {
+        char var_name[100];
+        char file_name[MAX_PIC_ID];
+        const char* chunk;
+        size_t chunk_len = 0;
+        size_t n1 = 0;
+        size_t n2 = 0;
+
+        while ((n2 = mg_parse_multipart(hm->body.p + n1,
+                                        hm->body.len - n1,
+                                        var_name, sizeof(var_name),
+                                        file_name, sizeof(file_name),
+                                        &chunk, &chunk_len)) > 0) {
+            printf("var: %s, file_name: %s, size: %d, chunk: [%.*s]\n",
+                   var_name, file_name, (int) chunk_len,
+                   (int) chunk_len, chunk);
+            n1 += n2;
+        }
+
+        err_check = do_insert(chunk, chunk_len, file_name, db_file);
+
+        // free des trucs??
+
+        // Success
+        if (err_check == 0) {
+            mg_printf(nc,
+                      "HTTP/1.1 302 Found\r\n"
+                      "Location: http://localhost:%s/index.html\r\n",
+                      s_http_port);
+            nc->flags |= MG_F_SEND_AND_CLOSE;
+        }
+    }
+
+    if (err_check != 0) {
+        mg_error(nc, err_check);
+    }
 }
 
 static void signal_handler(int sig_num)
@@ -147,6 +194,8 @@ static void db_event_handler(struct mg_connection* nc, int ev, void* ev_data)
             handle_list_call(nc);
         } else if (mg_vcmp(&hm->uri, "/pictDB/read") == 0) {
             handle_read_call(nc, hm);
+        } else if (mg_vcmp(&hm->uri, "/pictDB/insert") == 0) {
+            handle_insert_call(nc, hm);
         } else {
             mg_serve_http(nc, hm, s_http_server_opts); // Serve static content
         }
@@ -188,7 +237,7 @@ int main(int argc, char* argv[])
         s_http_server_opts.enable_directory_listing = "yes";
 
         // Listening loop
-        printf("Starting web server on port %s,\n serving %s\n", s_http_port,
+        printf("Starting web server on port %s,\nserving %s\n", s_http_port,
                s_http_server_opts.document_root);
         while (!s_sig_received) {
             mg_mgr_poll(&mgr, 1000);
