@@ -100,7 +100,7 @@ static void split(char* result[], char* tmp, const char* src,
     }
 }
 
-static void parse_uri(char* result[], int* resolution, char* pict_id)
+static void parse_uri(char* result[], int* resolution, char** pict_id)
 {
     size_t i = 0;
     while (i < MAX_QUERY_PARAM && result[i] != NULL) {
@@ -119,7 +119,7 @@ static void parse_uri(char* result[], int* resolution, char* pict_id)
 static void handle_read_call(struct mg_connection* nc, struct http_message* hm)
 {
     char** result = init_result_array();
-    char* tmp = init_tmp;
+    char* tmp = init_tmp();
     if (result == NULL || tmp == NULL) {
         free(result);
         free(tmp);
@@ -131,7 +131,7 @@ static void handle_read_call(struct mg_connection* nc, struct http_message* hm)
 
     int resolution = -1;
     char* pict_id = NULL;
-    parse_uri(result, &resolution, pict_id);
+    parse_uri(result, &resolution, &pict_id);
     /*
     size_t i = 0;
     while (i < MAX_QUERY_PARAM && result[i] != NULL) {
@@ -215,10 +215,11 @@ static void handle_insert_call(struct mg_connection* nc,
     }
 }
 
-static void handle_delete_call(struct mg_connection* nc, struct http_message* hm)
+static void handle_delete_call(struct mg_connection* nc,
+                               struct http_message* hm)
 {
     char** result = init_result_array();
-    char* tmp = init_tmp;
+    char* tmp = init_tmp();
     if (result == NULL || tmp == NULL) {
         free(result);
         free(tmp);
@@ -230,7 +231,7 @@ static void handle_delete_call(struct mg_connection* nc, struct http_message* hm
 
     int err_check = -1;
     char* pict_id = NULL;
-    parse_uri(result, &err_check, pict_id);
+    parse_uri(result, &err_check, &pict_id);
 
     if (pict_id != NULL) {
         err_check = do_delete(db_file, pict_id);
