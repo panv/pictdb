@@ -178,6 +178,11 @@ static void handle_insert_call(struct mg_connection* nc,
     }
 }
 
+static void handle_delete_call(struct mg_connection* nc, struct http_message* hm)
+{
+    
+}
+
 static void signal_handler(int sig_num)
 {
     signal(sig_num, signal_handler);
@@ -196,6 +201,8 @@ static void db_event_handler(struct mg_connection* nc, int ev, void* ev_data)
             handle_read_call(nc, hm);
         } else if (mg_vcmp(&hm->uri, "/pictDB/insert") == 0) {
             handle_insert_call(nc, hm);
+        } else if (mg_vcmp(&hm->uri, "/pictDB/delete") == 0) {
+            handle_delete_call(nc, hm);
         } else {
             mg_serve_http(nc, hm, s_http_server_opts); // Serve static content
         }
