@@ -65,6 +65,27 @@ static void handle_list_call(struct mg_connection* nc)
     free(json_list);
 }
 
+static char** init_result_array()
+{
+    char** result = calloc(MAX_QUERY_PARAM, sizeof(char*));
+    if (result != NULL) {
+        for (size_t i = 0; i < MAX_QUERY_PARAM; ++i) {
+            result[i] = NULL;
+        }
+    }
+    return result;
+}
+
+static char* init_tmp()
+{
+    size_t max_length = (MAX_PIC_ID + 1) * MAX_QUERY_PARAM;
+    char* tmp = calloc(max_length, sizeof(char));
+    if (tmp != NULL) {
+        tmp[max_length - 1] = '\0';
+    }
+    return tmp;
+}
+
 static void split(char* result[], char* tmp, const char* src,
                   const char* delim, size_t len)
 {
@@ -79,24 +100,39 @@ static void split(char* result[], char* tmp, const char* src,
     }
 }
 
+static void parse_uri(char* result[], int* resolution, char* pict_id)
+{
+    size_t i = 0;
+    while (i < MAX_QUERY_PARAM && result[i] != NULL) {
+        if (strcmp(result[i], "res") == 0) {
+            *resolution = resolution_atoi(result[i + 1]);
+            i += 2;
+        } else if (strcmp(result[i], "pict_id") == 0) {
+            *pict_id = result[i + 1];
+            i += 2;
+        } else {
+            ++i;
+        }
+    }
+}
+
 static void handle_read_call(struct mg_connection* nc, struct http_message* hm)
 {
-    char* result[MAX_QUERY_PARAM];
-    for (size_t i = 0; i < MAX_QUERY_PARAM; ++i) {
-        result[i] = NULL;
-    }
-    size_t max_length = (MAX_PIC_ID + 1) * MAX_QUERY_PARAM;
-    char* tmp = calloc(max_length, sizeof(char));
-    if (tmp == NULL) {
+    char** result = init_result_array();
+    char* tmp = init_tmp;
+    if (result == NULL || tmp == NULL) {
+        free(result);
+        free(tmp);
         mg_error(nc, ERR_OUT_OF_MEMORY);
         return;
     }
-    tmp[max_length - 1] = '\0';
 
     split(result, tmp, hm->query_string.p, "&=", hm->query_string.len);
 
     int resolution = -1;
     char* pict_id = NULL;
+    parse_uri(result, &resolution, pict_id);
+    /*
     size_t i = 0;
     while (i < MAX_QUERY_PARAM && result[i] != NULL) {
         if (strcmp(result[i], "res") == 0) {
@@ -108,7 +144,7 @@ static void handle_read_call(struct mg_connection* nc, struct http_message* hm)
         } else {
             ++i;
         }
-    }
+    }*/
 
     if (resolution != -1 && pict_id != NULL) {
         char* image_buffer = NULL;
@@ -131,6 +167,7 @@ static void handle_read_call(struct mg_connection* nc, struct http_message* hm)
         mg_error(nc, ERR_INVALID_ARGUMENT);
     }
 
+    free(result);
     free(tmp);
 }
 
@@ -180,7 +217,38 @@ static void handle_insert_call(struct mg_connection* nc,
 
 static void handle_delete_call(struct mg_connection* nc, struct http_message* hm)
 {
-    
+    char** result = init_result_array();
+    char* tmp = init_tmp;
+    if (result == NULL || tmp == NULL) {
+        free(result);
+        free(tmp);
+        mg_error(nc, ERR_OUT_OF_MEMORY);
+        return;
+    }
+
+    split(result, tmp, hm->query_string.p, "&=", hm->query_string.len);
+
+    int err_check = -1;
+    char* pict_id = NULL;
+    parse_uri(result, &err_check, pict_id);
+
+    if (pict_id != NULL) {
+        err_check = do_delete(db_file, pict_id);
+        if (err_check == 0) {
+            mg_printf(nc,
+                      "HTTP/1.1 302 Found\r\n"
+                      "Location: http://localhost:%s/index.html\r\n",
+                      s_http_port);
+            nc->flags |= MG_F_SEND_AND_CLOSE;
+        }
+    }
+
+    if (err_check != 0) {
+        mg_error(nc, err_check);
+    }
+
+    free(result);
+    free(tmp);
 }
 
 static void signal_handler(int sig_num)
