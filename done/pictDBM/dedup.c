@@ -38,6 +38,10 @@ int do_name_and_content_dedup(struct pictdb_file* db_file, uint32_t index)
 
     // No duplicates found
     if (found == 0) {
+        for (size_t res = 0; res < RES_ORIG; ++res) {
+            img_index->offset[res] = 0;
+            img_index->size[res] = 0;
+        }
         img_index->offset[RES_ORIG] = 0;
     }
 
