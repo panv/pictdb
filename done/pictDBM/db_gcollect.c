@@ -21,7 +21,8 @@
  *
  * @return 0 if no error occurred, an int coded in error.h in case of error.
  */
-int do_gbcollect(struct pictdb_file* db_file, const char * dbname, const char * tmp_name)
+int do_gbcollect(struct pictdb_file* db_file, const char* dbname,
+                 const char* tmp_name)
 {
     // Check arguments.
     if (db_file == NULL || db_name == NULL || tmp_name == NULL) {
@@ -29,7 +30,8 @@ int do_gbcollect(struct pictdb_file* db_file, const char * dbname, const char * 
     }
 
     // Should I consider that each GC increments the db_version by 1?
-    uint32_t old_version = db_file->header.db_version; //Save old version + 1 after GC, before write
+    uint32_t old_version =
+        db_file->header.db_version; //Save old version + 1 after GC, before write
 
     FILE* f_temp = fopen(tmp_name, "wb"); // Open tmp file and check pointer.
     if (f_temp == NULL) {
@@ -45,7 +47,8 @@ int do_gbcollect(struct pictdb_file* db_file, const char * dbname, const char * 
     };
     strcpy(h_temp.db_name, db_file->header.db_name);
     // REMPLACER LIGNE SUIVANTE PAR FOR LOOP
-    memcpy(h_temp.res_resized, db_file->header.res_resized, (2 * (NB_RES  - 1)) * sizeof(uint16_t));
+    memcpy(h_temp.res_resized, db_file->header.res_resized,
+           (2 * (NB_RES  - 1)) * sizeof(uint16_t));
 
     // Initialize new file.
     struct pictdb_file temp = {f_temp, h_temp, NULL};

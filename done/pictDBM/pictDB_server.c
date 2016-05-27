@@ -53,6 +53,7 @@ static void handle_list_call(struct mg_connection* nc)
 {
     char* json_list = do_list(db_file, JSON);
     if (json_list == NULL) {
+        // appeler mg-error?
         return;
     }
     size_t msg_length = strlen(json_list);
@@ -132,19 +133,6 @@ static void handle_read_call(struct mg_connection* nc, struct http_message* hm)
     int resolution = -1;
     char* pict_id = NULL;
     parse_uri(result, &resolution, &pict_id);
-    /*
-    size_t i = 0;
-    while (i < MAX_QUERY_PARAM && result[i] != NULL) {
-        if (strcmp(result[i], "res") == 0) {
-            resolution = resolution_atoi(result[i + 1]);
-            i += 2;
-        } else if (strcmp(result[i], "pict_id") == 0) {
-            pict_id = result[i + 1];
-            i += 2;
-        } else {
-            ++i;
-        }
-    }*/
 
     if (resolution != -1 && pict_id != NULL) {
         char* image_buffer = NULL;
@@ -179,7 +167,7 @@ static void handle_insert_call(struct mg_connection* nc,
 
     if (err_check == 0) {
         char var_name[100];
-        char file_name[MAX_PIC_ID];
+        char file_name[MAX_PIC_ID + 1];
         const char* chunk;
         size_t chunk_len = 0;
         size_t n1 = 0;
@@ -190,9 +178,8 @@ static void handle_insert_call(struct mg_connection* nc,
                                         var_name, sizeof(var_name),
                                         file_name, sizeof(file_name),
                                         &chunk, &chunk_len)) > 0) {
-            printf("var: %s, file_name: %s, size: %d, chunk: [%.*s]\n",
-                   var_name, file_name, (int) chunk_len,
-                   (int) chunk_len, chunk);
+            printf("var: %s, file_name: %s, size: %zu, chunk: [%.*s]\n",
+                   var_name, file_name, chunk_len, (int) chunk_len, chunk);
             n1 += n2;
         }
 
@@ -306,19 +293,23 @@ int main(int argc, char* argv[])
         mg_mgr_init(&mgr, NULL);
         nc = mg_bind(&mgr, s_http_port, db_event_handler);
 
-        // Set up HTTP server parameters
-        mg_set_protocol_http_websocket(nc);
-        s_http_server_opts.document_root = ".";      // Serve current directory
-        // s_http_server_opts.dav_document_root = ".";  // Allow access via WebDav pas sur
-        s_http_server_opts.enable_directory_listing = "yes";
+        if (nc != NULL) {
+            // Set up HTTP server parameters
+            mg_set_protocol_http_websocket(nc);
+            s_http_server_opts.document_root = ".";      // Serve current directory
+            // s_http_server_opts.dav_document_root = ".";  // Allow access via WebDav pas sur
+            s_http_server_opts.enable_directory_listing = "yes";
 
-        // Listening loop
-        printf("Starting web server on port %s,\nserving %s\n", s_http_port,
-               s_http_server_opts.document_root);
-        while (!s_sig_received) {
-            mg_mgr_poll(&mgr, 1000);
+            // Listening loop
+            printf("Starting web server on port %s,\nserving %s\n", s_http_port,
+                   s_http_server_opts.document_root);
+            while (!s_sig_received) {
+                mg_mgr_poll(&mgr, 1000);
+            }
+            printf("Exiting on signal %d\n", s_sig_received);
+        } else {
+            fprintf(stderr, "Unable to create web server on port %s\n", s_http_port);
         }
-        printf("Exiting on signal %d\n", s_sig_received);
 
         mg_mgr_free(&mgr);
     }
