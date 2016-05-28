@@ -3,8 +3,8 @@ CC = gcc
 # flags
 CFLAGS += -std=c99 -Wall -Wextra --pedantic -g $$(pkg-config vips --cflags)
 # libraries
-LDLIBS += -lssl -lcrypto -lm $$(pkg-config vips --libs) -ljson-c -lmongoose
-LDFLAGS += -L ./libmongoose -I ./libmongoose
+LDLIBS += -lssl -lcrypto -lm $$(pkg-config vips --libs) -ljson-c
+LDFLAGS += -L ./libmongoose
 # binary executables
 TARGET = pictDBM
 WEBTGT = pictDB_server
@@ -18,18 +18,19 @@ WEBOBJS = $(WEBSRCS:.c=.o)
 all: $(TARGET)
 
 $(TARGET): $(CMDOBJS)
-	$(MAKE) -C ./libmongoose
-	$(CC) $(CFLAGS) -o $(TARGET) $(CMDOBJS) $(LDLIBS) $(LDFLAGS)
+	$(CC) $(CFLAGS) -o $(TARGET) $(CMDOBJS) $(LDLIBS)
 
 pictDB_server: $(WEBTGT)
 
+$(WEBTGT): LDLIBS += -lmongoose
 $(WEBTGT): $(WEBOBJS)
 	$(MAKE) -C ./libmongoose
 	$(CC) $(CFLAGS) -o $(WEBTGT) $(WEBOBJS) $(LDLIBS) $(LDFLAGS)
 
 # build .o's from .c's
+$(WEBOBJS): CFLAGS += -I ./libmongoose
 .c.o:
-	$(CC) $(CFLAGS) -c $< -o $@ $(LDFLAGS)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 # ignore format, clean, remake...
 .PHONY: format clean test remake superclean remake_server
