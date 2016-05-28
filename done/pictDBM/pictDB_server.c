@@ -14,22 +14,78 @@
 
 // Image database - defined as a global variable to facilitate its use
 // in the different call handlers
-static struct pictdb_file* db_file;
-static const char* s_http_port = "8000"; // Listening port
-static struct mg_serve_http_opts s_http_server_opts;
-static int s_sig_received = 0;           // Signal
+struct pictdb_file* db_file;
+const char* s_http_port = "8000"; // Listening port
+struct mg_serve_http_opts s_http_server_opts;
+int s_sig_received = 0;           // Signal
 
-/*static int init_dbfile(int argc, const char* filename);
-static void handle_list_call(struct mg_connection* nc);
-static void split(char* result[], char* tmp, const char* src,
+/**
+ * @brief Initializes an empty pictdb_file.
+ *
+ * @param argc The number of command line arguments passed to the program.
+ * Used for checking if the dbfile has been passed to the server.
+ * @param filename The filename of the database file.
+ */
+int init_dbfile(int argc, const char* filename);
+
+/**
+ * @brief Serves a list request.
+ *
+ * @param nc The Network Connection used to communicate.
+ */
+void handle_list_call(struct mg_connection* nc);
+
+/**
+ * @brief Splits the uri into the arguments to pass to the database
+ * functions
+ *
+ * @param result Array used to write, as different strings, the splitted arguments.
+ * @param tmp Temporary array used for processing.
+ * @param src The original URI string.
+ * @param delim Array of the delimiters used for splitting.
+ * @param len The length of the source array (src).
+ */
+void split(char* result[], char* tmp, const char* src,
                   const char* delim, size_t len);
-static void handle_read_call(struct mg_connection* nc, struct http_message* hm);
-static void mg_error(struct mg_connection* nc, int error);
-static void signal_handler(int sig_num);
-static void db_event_handler(struct mg_connection* nc, int ev, void* ev_data);
-*/
 
-static int init_dbfile(int argc, const char* filename)
+/**
+ * @brief Serves a read request.
+ *
+ * @param nc The Network Connection used to communicate.
+ * @param hm The HTTP message containing information about the image to read.
+ */
+void handle_read_call(struct mg_connection* nc, struct http_message* hm);
+
+/**
+ * @brief Initializes an array of strings for the query.
+ */
+char** init_result_array();
+
+/**
+ * @brief Sends error messages to clients.
+ *
+ * @param nc The Network Connection used to communicate.
+ * @param int The error code as defined in error.h
+ */
+void mg_error(struct mg_connection* nc, int error);
+
+/**
+ * @brief Stores the signal identifier.
+ *
+ * @sig_num The code of received signal.
+ */
+void signal_handler(int sig_num);
+
+/**
+ * @brief Calls the event handler corresponding to the received event.
+ *
+ * @param nc The Network Connection used to communicate.
+ * @param ev The event code.
+ * @param ev_data Information about the event.
+ */
+void db_event_handler(struct mg_connection* nc, int ev, void* ev_data);
+
+int init_dbfile(int argc, const char* filename)
 {
     db_file = malloc(sizeof(struct pictdb_file));
     if (db_file != NULL) {
@@ -40,7 +96,8 @@ static int init_dbfile(int argc, const char* filename)
     return ERR_OUT_OF_MEMORY;
 }
 
-static void mg_error(struct mg_connection* nc, int error)
+
+void mg_error(struct mg_connection* nc, int error)
 {
     mg_printf(nc,
               "HTTP/1.1 500\r\n"
@@ -49,7 +106,7 @@ static void mg_error(struct mg_connection* nc, int error)
     nc->flags |= MG_F_SEND_AND_CLOSE;
 }
 
-static void handle_list_call(struct mg_connection* nc)
+void handle_list_call(struct mg_connection* nc)
 {
     char* json_list = do_list(db_file, JSON);
     if (json_list == NULL) {
@@ -66,7 +123,8 @@ static void handle_list_call(struct mg_connection* nc)
     free(json_list);
 }
 
-static char** init_result_array()
+
+char** init_result_array()
 {
     char** result = calloc(MAX_QUERY_PARAM, sizeof(char*));
     if (result != NULL) {
@@ -77,7 +135,7 @@ static char** init_result_array()
     return result;
 }
 
-static char* init_tmp()
+char* init_tmp()
 {
     size_t max_length = (MAX_PIC_ID + 1) * MAX_QUERY_PARAM;
     char* tmp = calloc(max_length, sizeof(char));
@@ -87,7 +145,7 @@ static char* init_tmp()
     return tmp;
 }
 
-static void split(char* result[], char* tmp, const char* src,
+void split(char* result[], char* tmp, const char* src,
                   const char* delim, size_t len)
 {
     strncpy(tmp, src, len);
@@ -101,7 +159,7 @@ static void split(char* result[], char* tmp, const char* src,
     }
 }
 
-static void parse_uri(char* result[], int* resolution, char** pict_id)
+void parse_uri(char* result[], int* resolution, char** pict_id)
 {
     size_t i = 0;
     while (i < MAX_QUERY_PARAM && result[i] != NULL) {
@@ -117,7 +175,7 @@ static void parse_uri(char* result[], int* resolution, char** pict_id)
     }
 }
 
-static void handle_read_call(struct mg_connection* nc, struct http_message* hm)
+void handle_read_call(struct mg_connection* nc, struct http_message* hm)
 {
     char** result = init_result_array();
     char* tmp = init_tmp();
@@ -159,7 +217,7 @@ static void handle_read_call(struct mg_connection* nc, struct http_message* hm)
     free(tmp);
 }
 
-static void handle_insert_call(struct mg_connection* nc,
+void handle_insert_call(struct mg_connection* nc,
                                struct http_message* hm)
 {
     int err_check = db_file->header.num_files < db_file->header.max_files ? 0 :
@@ -202,7 +260,7 @@ static void handle_insert_call(struct mg_connection* nc,
     }
 }
 
-static void handle_delete_call(struct mg_connection* nc,
+void handle_delete_call(struct mg_connection* nc,
                                struct http_message* hm)
 {
     char** result = init_result_array();
@@ -239,13 +297,13 @@ static void handle_delete_call(struct mg_connection* nc,
     free(tmp);
 }
 
-static void signal_handler(int sig_num)
+void signal_handler(int sig_num)
 {
     signal(sig_num, signal_handler);
     s_sig_received = sig_num;
 }
 
-static void db_event_handler(struct mg_connection* nc, int ev, void* ev_data)
+void db_event_handler(struct mg_connection* nc, int ev, void* ev_data)
 {
     struct http_message* hm = (struct http_message*) ev_data;
 
@@ -260,7 +318,7 @@ static void db_event_handler(struct mg_connection* nc, int ev, void* ev_data)
         } else if (mg_vcmp(&hm->uri, "/pictDB/delete") == 0) {
             handle_delete_call(nc, hm);
         } else {
-            mg_serve_http(nc, hm, s_http_server_opts); // Serve static content
+            mg_serve_http(nc, hm, s_http_server_opts); // Serve content
         }
         break;
     default:
