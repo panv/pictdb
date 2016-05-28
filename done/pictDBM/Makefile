@@ -1,16 +1,20 @@
 # C compiler
 CC = gcc
-# flags
+
+# Compilation flags
 CFLAGS += -std=c99 -Wall -Wextra --pedantic -g $$(pkg-config vips --cflags)
-# libraries
+
+# Linking libraries and flags
 LDLIBS += -lssl -lcrypto -lm $$(pkg-config vips --libs) -ljson-c
-LDFLAGS += -L ./libmongoose
+
 # binary executables
 TARGET = pictDBM
 WEBTGT = pictDB_server
+
 # C source files
 CMDSRCS = $(filter-out pictDB_server.c db_gcollect.c, $(wildcard *.c))
 WEBSRCS = $(filter-out pictDBM.c db_gcollect.c, $(wildcard *.c))
+
 # C object files
 CMDOBJS = $(CMDSRCS:.c=.o)
 WEBOBJS = $(WEBSRCS:.c=.o)
@@ -23,9 +27,11 @@ $(TARGET): $(CMDOBJS)
 pictDB_server: $(WEBTGT)
 
 $(WEBTGT): LDLIBS += -lmongoose
+$(WEBTGT): LDFLAGS += -lmongoose
+$(WEBTGT): LDFLAGS += -L ./libmongoose
 $(WEBTGT): $(WEBOBJS)
-	$(MAKE) -C ./libmongoose
-	$(CC) $(CFLAGS) -o $(WEBTGT) $(WEBOBJS) $(LDLIBS) $(LDFLAGS)
+	$(MAKE) -C ./libmongoose #Build mongoose
+	$(CC) $(CFLAGS) -o $(WEBTGT) $(WEBOBJS) $(LDLIBS) $(LDFLAGS) #Build our executable
 
 # build .o's from .c's
 $(WEBOBJS): CFLAGS += -I ./libmongoose
