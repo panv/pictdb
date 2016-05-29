@@ -3,7 +3,6 @@
 /done/pictDBM/pictDB_server
 *.o
 *.so
-/done/pictDBM/libmongoose/libmongoose.so
 
 # Test files
 testDB*
