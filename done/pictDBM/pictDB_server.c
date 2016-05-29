@@ -110,7 +110,7 @@ void handle_list_call(struct mg_connection* nc)
 {
     char* json_list = do_list(db_file, JSON);
     if (json_list == NULL) {
-        // appeler mg-error?
+        mg_error(nc, ERR_IO);
         return;
     }
     size_t msg_length = strlen(json_list);
@@ -205,7 +205,7 @@ void handle_read_call(struct mg_connection* nc, struct http_message* hm)
                       "Content-Type: image/jpeg\r\n"
                       "Content-Length: %" PRIu32 "\r\n\r\n",
                       image_size);
-            mg_send(nc, image_buffer, image_size); // checker ce truc?
+            mg_send(nc, image_buffer, image_size);
             nc->flags |= MG_F_SEND_AND_CLOSE;
         }
         free(image_buffer);
@@ -242,8 +242,6 @@ void handle_insert_call(struct mg_connection* nc,
         }
 
         err_check = do_insert(chunk, chunk_len, file_name, db_file);
-
-        // free des trucs??
 
         // Success
         if (err_check == 0) {
