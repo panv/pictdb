@@ -11,6 +11,7 @@ LDLIBS += -lssl -lcrypto -lm $$(pkg-config vips --libs) -ljson-c
 TARGET = pictDBM
 WEBTGT = pictDB_server
 
+MONGOOSEPATH = ../../provided/week10/libmongoose
 # C source files
 CMDSRCS = $(filter-out pictDB_server.c db_gcollect.c, $(wildcard *.c))
 WEBSRCS = $(filter-out pictDBM.c db_gcollect.c db_create.c, $(wildcard *.c))
@@ -19,18 +20,21 @@ WEBSRCS = $(filter-out pictDBM.c db_gcollect.c db_create.c, $(wildcard *.c))
 CMDOBJS = $(CMDSRCS:.c=.o)
 WEBOBJS = $(WEBSRCS:.c=.o)
 
-all: $(TARGET)
+all: $(TARGET) $(WEBTGT)
 
 $(TARGET): $(CMDOBJS)
 	$(CC) $(CFLAGS) -o $(TARGET) $(CMDOBJS) $(LDLIBS)
 
-pictDB_server: $(WEBTGT)
+pictDB_server: $(WEBTGT) # Create server executable.
+
+cli: $(TARGET) # Create command line executable.
 
 $(WEBTGT): LDLIBS += -lmongoose
 $(WEBTGT): LDFLAGS += -lmongoose
-$(WEBTGT): LDFLAGS += -L ./libmongoose
+$(WEBTGT): LDFLAGS += -L $(MONGOOSEPATH)
+#$(WEBTGT): LDFLAGS += -L ./libmongoose
 $(WEBTGT): $(WEBOBJS)
-	$(MAKE) -C ./libmongoose #Build mongoose
+	$(MAKE) -C $(MONGOOSEPATH) #Build mongoose
 	$(CC) $(CFLAGS) -o $(WEBTGT) $(WEBOBJS) $(LDLIBS) $(LDFLAGS) #Build our executable
 
 # build .o's from .c's
@@ -40,6 +44,7 @@ $(WEBOBJS): CFLAGS += -I ./libmongoose
 
 # ignore format, clean, remake...
 .PHONY: format clean test remake superclean remake_server
+
 
 # remove object files
 clean:

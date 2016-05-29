@@ -7,7 +7,7 @@
  */
 
 #include "pictDB.h"
-#include "mongoose.h"
+#include "../../provided/week10/libmongoose/mongoose.h"
 #include <vips/vips.h>
 
 #define MAX_QUERY_PARAM 5
