@@ -13,7 +13,7 @@ WEBTGT = pictDB_server
 
 # C source files
 CMDSRCS = $(filter-out pictDB_server.c db_gcollect.c, $(wildcard *.c))
-WEBSRCS = $(filter-out pictDBM.c db_gcollect.c, $(wildcard *.c))
+WEBSRCS = $(filter-out pictDBM.c db_gcollect.c db_create.c, $(wildcard *.c))
 
 # C object files
 CMDOBJS = $(CMDSRCS:.c=.o)
