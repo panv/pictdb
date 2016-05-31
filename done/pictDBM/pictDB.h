@@ -229,6 +229,36 @@ int resolution_atoi(const char* resolution);
 int hashcmp(unsigned char* h1, unsigned char* h2);
 
 /**
+ * @brief Initializes an empty array of strings to be used in the split method.
+ *
+ * @param size The size of the array.
+ * @return The array, or NULL if there was an error.
+ */
+char** init_result_array(size_t size);
+
+/**
+ * @brief Initializes the temporary string used in the split method.
+ *
+ * @param length The length of the string.
+ * @return The string, or NULL if there was an error.
+ */
+char* init_tmp(size_t length);
+
+/**
+ * @brief Splits the src string with the chars of delim as separators and stores the resulting tokens into result.
+ *
+ * @param result Array used to write, as different strings, the splitted arguments.
+ * @param tmp Temporary array used for processing.
+ * @param src The original string.
+ * @param delim Array of the delimiters used for splitting.
+ * @param len The length of the source array (src).
+ * @param array_len The size of result.
+ * @return The number of tokens src was split into.
+ */
+int split(char* result[], char* tmp, const char* src,
+          const char* delim, size_t len, size_t array_len);
+
+/**
  * @brief Reads an image from a database, resizes it in the asked resolution
  *        if need be and saves it to memory.
  *

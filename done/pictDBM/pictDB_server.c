@@ -37,38 +37,12 @@ int init_dbfile(int argc, const char* filename);
 void handle_list_call(struct mg_connection* nc);
 
 /**
- * @brief Splits the uri into the arguments to pass to the database functions.
- *
- * @param result Array used to write, as different strings, the splitted arguments.
- * @param tmp Temporary array used for processing.
- * @param src The original URI string.
- * @param delim Array of the delimiters used for splitting.
- * @param len The length of the source array (src).
- */
-void split(char* result[], char* tmp, const char* src,
-           const char* delim, size_t len);
-
-/**
  * @brief Serves a read request.
  *
  * @param nc The Network Connection used to communicate.
  * @param hm The HTTP message containing information about the image to read.
  */
 void handle_read_call(struct mg_connection* nc, struct http_message* hm);
-
-/**
- * @brief Initializes an array of strings for the query.
- *
- * @return The array, or NULL if there was an error.
- */
-char** init_result_array();
-
-/**
- * @brief Initializes the temporary string used in the split method.
- *
- * @return The string, or NULL if there was an error.
- */
-char* init_tmp();
 
 /**
  * @brief Serves an insert request.
@@ -159,41 +133,6 @@ void handle_list_call(struct mg_connection* nc)
     free(json_list);
 }
 
-char** init_result_array()
-{
-    char** result = calloc(MAX_QUERY_PARAM, sizeof(char*));
-    if (result != NULL) {
-        for (size_t i = 0; i < MAX_QUERY_PARAM; ++i) {
-            result[i] = NULL;
-        }
-    }
-    return result;
-}
-
-char* init_tmp()
-{
-    size_t max_length = (MAX_PIC_ID + 1) * MAX_QUERY_PARAM;
-    char* tmp = calloc(max_length, sizeof(char));
-    if (tmp != NULL) {
-        tmp[max_length - 1] = '\0';
-    }
-    return tmp;
-}
-
-void split(char* result[], char* tmp, const char* src,
-           const char* delim, size_t len)
-{
-    strncpy(tmp, src, len);
-    tmp[len] = '\0';
-
-    size_t i = 0;
-    while (i < MAX_QUERY_PARAM && (tmp = strtok(tmp, delim)) != NULL) {
-        result[i] = tmp;
-        ++i;
-        tmp = NULL;
-    }
-}
-
 void parse_uri(char* result[], int* resolution, char** pict_id)
 {
     size_t i = 0;
@@ -212,8 +151,8 @@ void parse_uri(char* result[], int* resolution, char** pict_id)
 
 void handle_read_call(struct mg_connection* nc, struct http_message* hm)
 {
-    char** result = init_result_array();
-    char* tmp = init_tmp();
+    char** result = init_result_array(MAX_QUERY_PARAM);
+    char* tmp = init_tmp((MAX_PIC_ID + 1) * MAX_QUERY_PARAM);
     if (result == NULL || tmp == NULL) {
         free(result);
         free(tmp);
@@ -221,7 +160,8 @@ void handle_read_call(struct mg_connection* nc, struct http_message* hm)
         return;
     }
 
-    split(result, tmp, hm->query_string.p, "&=", hm->query_string.len);
+    split(result, tmp, hm->query_string.p, "&=", hm->query_string.len,
+          MAX_QUERY_PARAM);
 
     int resolution = -1;
     char* pict_id = NULL;
@@ -296,8 +236,8 @@ void handle_insert_call(struct mg_connection* nc,
 void handle_delete_call(struct mg_connection* nc,
                         struct http_message* hm)
 {
-    char** result = init_result_array();
-    char* tmp = init_tmp();
+    char** result = init_result_array(MAX_QUERY_PARAM);
+    char* tmp = init_tmp((MAX_PIC_ID + 1) * MAX_QUERY_PARAM);
     if (result == NULL || tmp == NULL) {
         free(result);
         free(tmp);
@@ -305,7 +245,8 @@ void handle_delete_call(struct mg_connection* nc,
         return;
     }
 
-    split(result, tmp, hm->query_string.p, "&=", hm->query_string.len);
+    split(result, tmp, hm->query_string.p, "&=", hm->query_string.len,
+          MAX_QUERY_PARAM);
 
     int err_check = -1;
     char* pict_id = NULL;

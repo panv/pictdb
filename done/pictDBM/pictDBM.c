@@ -142,6 +142,10 @@ char* append_suffix(const char* pict_id, const char* suffix, size_t len);
 int write_image_to_disk(const char* filename, char* image_buffer,
                         size_t image_size);
 
+int parse_cmd_line(int argc, char* argv[], command_mapping commands[]);
+
+char* read_line();
+
 
 /********************************************************************/ /**
  * Opens pictDB file and calls do_list command.
@@ -368,57 +372,14 @@ int close_interpretor(int args, char* argv[])
 {
     ARG_CHECK(args, 1);
 
-    puts("Exiting command line interpretor");
-    interpretor_state = OFF;
+    if (interpretor_state == OFF) {
+        puts("Command line interpretor not running");
+    } else {
+        puts("Exiting command line interpretor");
+        interpretor_state = OFF;
+    }
 
     return 0;
-}
-
-int parse_cmd_line(int argc, char* argv[], command_mapping commands[])
-{
-    int found = 0;
-    int ret = 0;
-
-    for (size_t i = 0; i < NB_CMD && found == 0; ++i) {
-        if (strcmp(argv[0], commands[i].command_name) == 0) {
-            ret = commands[i].cmd(argc, argv);
-            found = 1;
-        }
-    }
-
-    // Checks if the command was found
-    return (found != 0) ? ret : ERR_INVALID_COMMAND;
-}
-
-char* read_line()
-{
-    int size_read = 0;
-    char* line = calloc(MAX_INPUT_LENGTH + 1, sizeof(char));
-
-    do {
-        printf("pictDBM: ");
-        fflush(stdout);
-        fgets(line, MAX_INPUT_LENGTH, stdin); // checker si NULL
-        size_read = strlen(line) - 1;
-        if (size_read >= 0 && line[size_read] == '\n') {
-            line[size_read] = '\0';
-        }
-    } while (!feof(stdin) && !ferror(stdin) &&
-             (size_read < 1 || line[size_read] != '\0'));
-
-    return line;
-}
-
-int split(char* interp_argv[], char* tmp, const char* src, const char* delim)
-{
-    strcpy(tmp, src);
-    int i = 0;
-    while (i < MAX_PARAMS && (tmp = strtok(tmp, delim)) != NULL) {
-        interp_argv[i] = tmp;
-        ++i;
-        tmp = NULL;
-    }
-    return i;
 }
 
 /********************************************************************/ /**
@@ -455,10 +416,15 @@ int main(int argc, char* argv[])
 
     while (ret == 0 && interpretor_state == ON) {
         char* line = read_line();
-        char* tmp = calloc(MAX_INPUT_LENGTH + 1, sizeof(char)); // checker cette merde
-        char** interp_argv = calloc(MAX_PARAMS, sizeof(char*)); // check
-        int interp_args = split(interp_argv, tmp, line, " ");
-        ret = parse_cmd_line(interp_args, interp_argv, commands);
+        size_t len = strlen(line) + 1;
+        char* tmp = init_tmp(len); // checker cette merde
+        char** interp_argv = init_result_array(MAX_PARAMS); // check
+        if (tmp != NULL && interp_argv != NULL) {
+            int interp_args = split(interp_argv, tmp, line, " ", len, MAX_PARAMS);
+            ret = parse_cmd_line(interp_args, interp_argv, commands);
+        } else {
+            ret = ERR_OUT_OF_MEMORY;
+        }
         free(tmp);
         free(line);
         free(interp_argv);
@@ -471,6 +437,41 @@ int main(int argc, char* argv[])
 
     vips_shutdown();
     return ret;
+}
+
+int parse_cmd_line(int argc, char* argv[], command_mapping commands[])
+{
+    int found = 0;
+    int ret = 0;
+
+    for (size_t i = 0; i < NB_CMD && found == 0; ++i) {
+        if (strcmp(argv[0], commands[i].command_name) == 0) {
+            ret = commands[i].cmd(argc, argv);
+            found = 1;
+        }
+    }
+
+    // Checks if the command was found
+    return (found != 0) ? ret : ERR_INVALID_COMMAND;
+}
+
+char* read_line()
+{
+    int size_read = 0;
+    char* line = calloc(MAX_INPUT_LENGTH, sizeof(char));
+
+    do {
+        printf("pictDBM: ");
+        fflush(stdout);
+        fgets(line, MAX_INPUT_LENGTH, stdin); // checker si NULL
+        size_read = strlen(line) - 1;
+        if (size_read >= 0 && line[size_read] == '\n') {
+            line[size_read] = '\0';
+        }
+    } while (!feof(stdin) && !ferror(stdin) &&
+             (size_read < 1 || line[size_read] != '\0'));
+
+    return line;
 }
 
 int parse_create_options(const char* option)

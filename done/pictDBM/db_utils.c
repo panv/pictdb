@@ -99,6 +99,41 @@ int hashcmp(unsigned char* h1, unsigned char* h2)
     return 0;
 }
 
+char** init_result_array(size_t size)
+{
+    char** result = calloc(size, sizeof(char*));
+    if (result != NULL) {
+        for (size_t i = 0; i < size; ++i) {
+            result[i] = NULL;
+        }
+    }
+    return result;
+}
+
+char* init_tmp(size_t length)
+{
+    char* tmp = calloc(length, sizeof(char));
+    if (tmp != NULL) {
+        tmp[length - 1] = '\0';
+    }
+    return tmp;
+}
+
+int split(char* result[], char* tmp, const char* src,
+          const char* delim, size_t len, size_t array_len)
+{
+    strncpy(tmp, src, len);
+    tmp[len] = '\0';
+
+    size_t i = 0;
+    while (i < array_len && (tmp = strtok(tmp, delim)) != NULL) {
+        result[i] = tmp;
+        ++i;
+        tmp = NULL;
+    }
+    return i;
+}
+
 /********************************************************************//**
  * Human-readable SHA
  */
