@@ -21,8 +21,8 @@
  *
  * @return 0 if no error occurred, an int coded in error.h in case of error.
  */
-int do_gbcollect(struct pictdb_file* db_file, const char* dbname,
-                 const char* tmp_name)
+int do_gbcollect(struct pictdb_file* db_file, const char* db_name,
+             const char* tmp_name)
 {
     // Check arguments.
     if (db_file == NULL || db_name == NULL || tmp_name == NULL) {
@@ -52,7 +52,7 @@ int do_gbcollect(struct pictdb_file* db_file, const char* dbname,
 
     // Initialize new file.
     struct pictdb_file temp = {f_temp, h_temp, NULL};
-    int ret = do_create(dbname, &temp);
+    int ret = do_create(db_name, &temp);
     RET_ERROR;
 
 
@@ -78,10 +78,10 @@ int do_gbcollect(struct pictdb_file* db_file, const char* dbname,
 
     // Remove old db and move new one.
     do_close(db_file); //Close old db before deleting it.
-    ret = remove(dbname);
+    ret = remove(db_name);
     RET_ERROR;
     do_close(&temp); // Should I close? If yes, should it be opened again?
-    ret = rename(tmp_name, dbname);
+    ret = rename(tmp_name, db_name);
     RET_ERROR;
 
     return 0;
