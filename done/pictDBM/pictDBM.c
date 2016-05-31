@@ -13,12 +13,14 @@
 #include "image_content.h"
 
 // Constants
-#define NB_CMD        7   // Number of command line functions the database possesses
+#define NB_CMD        9   // Number of command line functions the database possesses
 #define FILE_DEFAULT  10  // Default max file number
 #define THUMB_DEFAULT 64  // Default thumb resolution
 #define THUMB_MAX     128 // Maximal thumb resolution
 #define SMALL_DEFAULT 256 // Default small resolution
 #define SMALL_MAX     512 // Maximal small resolution
+#define MAX_PARAMS    20  // Maximal number of command line arguments for the interpretor
+#define MAX_INPUT_LENGTH 300
 
 // Macro that checks the number of arguments of a command
 #define ARG_CHECK(args, min) \
@@ -62,6 +64,12 @@ typedef struct {
 enum options {
     INVALID_OPTION, MAX_FILES, THUMB_RES, SMALL_RES
 };
+
+enum interpretor_states {
+    ON, OFF
+};
+
+int interpretor_state;
 
 /**
  * @brief Parses the command line options of do_create_cmd.
@@ -364,6 +372,77 @@ int do_gc_cmd(int args, char* argv[])
     return ret;
 }
 
+int launch_interpretor(int args, char* argv[])
+{
+    ARG_CHECK(args, 1);
+
+    if (interpretor_state == ON) {
+        puts("Command line interpretor already running");
+    } else {
+        puts("Starting command line interpretor");
+        interpretor_state = ON;
+    }
+
+    return 0;
+}
+
+int close_interpretor(int args, char* argv[])
+{
+    ARG_CHECK(args, 1);
+
+    puts("Exiting command line interpretor");
+    interpretor_state = OFF;
+
+    return 0;
+}
+
+int parse_cmd_line(int argc, char* argv[], command_mapping commands[])
+{
+    int found = 0;
+    int ret = 0;
+
+    for (size_t i = 0; i < NB_CMD && found == 0; ++i) {
+        if (strcmp(argv[0], commands[i].command_name) == 0) {
+            ret = commands[i].cmd(argc, argv);
+            found = 1;
+        }
+    }
+
+    // Checks if the command was found
+    return (found != 0) ? ret : ERR_INVALID_COMMAND;
+}
+
+char* read_line()
+{
+    int size_read = 0;
+    char* line = calloc(MAX_INPUT_LENGTH + 1, sizeof(char));
+
+    do {
+        printf("pictDBM: ");
+        fflush(stdout);
+        fgets(line, MAX_INPUT_LENGTH, stdin); // checker si NULL
+        size_read = strlen(line) - 1;
+        if (size_read >= 0 && line[size_read] == '\n') {
+            line[size_read] = '\0';
+        }
+    } while (!feof(stdin) && !ferror(stdin) &&
+             (size_read < 1 || line[size_read] != '\0'));
+
+    return line;
+}
+
+int split(char* interp_argv[], char* tmp, const char* src, const char* delim)
+{
+    strcpy(tmp, src);
+    int i = 0;
+    while (i < MAX_PARAMS && (tmp = strtok(tmp, delim)) != NULL) {
+        interp_argv[i] = tmp;
+        ++i;
+        tmp = NULL;
+    }
+    return i;
+}
+
 /********************************************************************/ /**
  * MAIN
  */
@@ -372,6 +451,7 @@ int main(int argc, char* argv[])
     if (VIPS_INIT(argv[0])) {
         vips_error_exit("Unable to start VIPS");
     }
+
     int ret = 0;
 
     // Map from function name to its pointer
@@ -382,7 +462,9 @@ int main(int argc, char* argv[])
         { "help", help },
         { "read", do_read_cmd },
         { "insert", do_insert_cmd },
-        { "gc", do_gc_cmd }
+        { "gc", do_gc_cmd },
+        { "interpretor", launch_interpretor },
+        { "quit", close_interpretor }
     };
 
     if (argc < 2) {
@@ -390,16 +472,19 @@ int main(int argc, char* argv[])
     } else {
         --argc;
         ++argv; // skips command call name
+        interpretor_state = OFF;
+        ret = parse_cmd_line(argc, argv, commands);
+    }
 
-        int found = 0;
-        for (size_t i = 0; i < NB_CMD && found == 0; ++i) {
-            if (strcmp(argv[0], commands[i].command_name) == 0) {
-                ret = commands[i].cmd(argc, argv);
-                found = 1;
-            }
-        }
-        // Command not found
-        ret = (found != 0) ? ret : ERR_INVALID_COMMAND;
+    while (ret == 0 && interpretor_state == ON) {
+        char* line = read_line();
+        char* tmp = calloc(MAX_INPUT_LENGTH + 1, sizeof(char)); // checker cette merde
+        char** interp_argv = calloc(MAX_PARAMS, sizeof(char*)); // check
+        int interp_args = split(interp_argv, tmp, line, " ");
+        ret = parse_cmd_line(interp_args, interp_argv, commands);
+        free(tmp);
+        free(line);
+        free(interp_argv);
     }
 
     if (ret) {

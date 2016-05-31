@@ -7,7 +7,7 @@
  */
 
 #include "pictDB.h"
-#include "../../provided/week10/libmongoose/mongoose.h"
+#include "mongoose.h"
 #include <vips/vips.h>
 
 #define MAX_QUERY_PARAM 5
@@ -23,8 +23,9 @@ int s_sig_received = 0;           // Signal
  * @brief Initializes an empty pictdb_file.
  *
  * @param argc The number of command line arguments passed to the program.
- * Used for checking if the dbfile has been passed to the server.
+ *             Used for checking if the dbfile has been passed to the server.
  * @param filename The filename of the database file.
+ * @return 0 if the deletion was successful, an error code otherwise.
  */
 int init_dbfile(int argc, const char* filename);
 
@@ -36,8 +37,7 @@ int init_dbfile(int argc, const char* filename);
 void handle_list_call(struct mg_connection* nc);
 
 /**
- * @brief Splits the uri into the arguments to pass to the database
- * functions
+ * @brief Splits the uri into the arguments to pass to the database functions.
  *
  * @param result Array used to write, as different strings, the splitted arguments.
  * @param tmp Temporary array used for processing.
@@ -46,7 +46,7 @@ void handle_list_call(struct mg_connection* nc);
  * @param len The length of the source array (src).
  */
 void split(char* result[], char* tmp, const char* src,
-                  const char* delim, size_t len);
+           const char* delim, size_t len);
 
 /**
  * @brief Serves a read request.
@@ -58,8 +58,44 @@ void handle_read_call(struct mg_connection* nc, struct http_message* hm);
 
 /**
  * @brief Initializes an array of strings for the query.
+ *
+ * @return The array, or NULL if there was an error.
  */
 char** init_result_array();
+
+/**
+ * @brief Initializes the temporary string used in the split method.
+ *
+ * @return The string, or NULL if there was an error.
+ */
+char* init_tmp();
+
+/**
+ * @brief Serves an insert request.
+ *
+ * @param nc The Network Connection used to communicate.
+ * @param hm The HTTP message containing information about the image to read.
+ */
+void handle_insert_call(struct mg_connection* nc,
+                        struct http_message* hm);
+
+/**
+ * @brief Serves a delete request.
+ *
+ * @param nc The Network Connection used to communicate.
+ * @param hm The HTTP message containing information about the image to read.
+ */
+void handle_delete_call(struct mg_connection* nc,
+                        struct http_message* hm);
+
+/**
+ * @brief Parses the array containing the uri split results.
+ *
+ * @param result     The array containing the result of the split method.
+ * @param resolution The pointer to stock the value of the 'res' uri tag to.
+ * @param pict_id    The pointer to stock the picture id to.
+ */
+void parse_uri(char* result[], int* resolution, char** pict_id);
 
 /**
  * @brief Sends error messages to clients.
@@ -72,7 +108,7 @@ void mg_error(struct mg_connection* nc, int error);
 /**
  * @brief Stores the signal identifier.
  *
- * @sig_num The code of received signal.
+ * @param sig_num The code of the received signal.
  */
 void signal_handler(int sig_num);
 
@@ -85,6 +121,7 @@ void signal_handler(int sig_num);
  */
 void db_event_handler(struct mg_connection* nc, int ev, void* ev_data);
 
+
 int init_dbfile(int argc, const char* filename)
 {
     db_file = malloc(sizeof(struct pictdb_file));
@@ -95,7 +132,6 @@ int init_dbfile(int argc, const char* filename)
     }
     return ERR_OUT_OF_MEMORY;
 }
-
 
 void mg_error(struct mg_connection* nc, int error)
 {
@@ -123,7 +159,6 @@ void handle_list_call(struct mg_connection* nc)
     free(json_list);
 }
 
-
 char** init_result_array()
 {
     char** result = calloc(MAX_QUERY_PARAM, sizeof(char*));
@@ -146,10 +181,10 @@ char* init_tmp()
 }
 
 void split(char* result[], char* tmp, const char* src,
-                  const char* delim, size_t len)
+           const char* delim, size_t len)
 {
     strncpy(tmp, src, len);
-    tmp[len] = '\0'; // tester si la dernière string est bien terminée par \0
+    tmp[len] = '\0';
 
     size_t i = 0;
     while (i < MAX_QUERY_PARAM && (tmp = strtok(tmp, delim)) != NULL) {
@@ -218,7 +253,7 @@ void handle_read_call(struct mg_connection* nc, struct http_message* hm)
 }
 
 void handle_insert_call(struct mg_connection* nc,
-                               struct http_message* hm)
+                        struct http_message* hm)
 {
     int err_check = db_file->header.num_files < db_file->header.max_files ? 0 :
                     ERR_FULL_DATABASE;
@@ -259,7 +294,7 @@ void handle_insert_call(struct mg_connection* nc,
 }
 
 void handle_delete_call(struct mg_connection* nc,
-                               struct http_message* hm)
+                        struct http_message* hm)
 {
     char** result = init_result_array();
     char* tmp = init_tmp();
@@ -316,7 +351,7 @@ void db_event_handler(struct mg_connection* nc, int ev, void* ev_data)
         } else if (mg_vcmp(&hm->uri, "/pictDB/delete") == 0) {
             handle_delete_call(nc, hm);
         } else {
-            mg_serve_http(nc, hm, s_http_server_opts); // Serve content
+            mg_serve_http(nc, hm, s_http_server_opts); // Serve static content
         }
         break;
     default:
@@ -352,8 +387,7 @@ int main(int argc, char* argv[])
         if (nc != NULL) {
             // Set up HTTP server parameters
             mg_set_protocol_http_websocket(nc);
-            s_http_server_opts.document_root = ".";      // Serve current directory
-            // s_http_server_opts.dav_document_root = ".";  // Allow access via WebDav pas sur
+            s_http_server_opts.document_root = "."; // Serve current directory
             s_http_server_opts.enable_directory_listing = "yes";
 
             // Listening loop

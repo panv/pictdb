@@ -7,11 +7,13 @@ CFLAGS += -std=c99 -Wall -Wextra --pedantic -g $$(pkg-config vips --cflags)
 # Linking libraries and flags
 LDLIBS += -lssl -lcrypto -lm $$(pkg-config vips --libs) -ljson-c
 
-# binary executables
+# Binary executables
 TARGET = pictDBM
 WEBTGT = pictDB_server
 
+# Path to mongoose directory
 MONGOOSEPATH = ../../provided/week10/libmongoose
+
 # C source files
 CMDSRCS = $(filter-out pictDB_server.c, $(wildcard *.c))
 WEBSRCS = $(filter-out pictDBM.c db_gcollect.c db_create.c, $(wildcard *.c))
@@ -22,45 +24,46 @@ WEBOBJS = $(WEBSRCS:.c=.o)
 
 all: $(TARGET) $(WEBTGT)
 
+# Create command line executable
+cli: $(TARGET)
+
+# Create server executable
+pictDB_server: $(WEBTGT)
+
 $(TARGET): $(CMDOBJS)
 	$(CC) $(CFLAGS) -o $(TARGET) $(CMDOBJS) $(LDLIBS)
 
-pictDB_server: $(WEBTGT) # Create server executable.
-
-cli: $(TARGET) # Create command line executable.
-
 $(WEBTGT): LDLIBS += -lmongoose
-$(WEBTGT): LDFLAGS += -lmongoose
 $(WEBTGT): LDFLAGS += -L $(MONGOOSEPATH)
-#$(WEBTGT): LDFLAGS += -L ./libmongoose
 $(WEBTGT): $(WEBOBJS)
-	$(MAKE) -C $(MONGOOSEPATH) #Build mongoose
-	$(CC) $(CFLAGS) -o $(WEBTGT) $(WEBOBJS) $(LDLIBS) $(LDFLAGS) #Build our executable
+# Build mongoose
+	$(MAKE) -C $(MONGOOSEPATH)
+# Build our executable
+	$(CC) $(CFLAGS) -o $(WEBTGT) $(WEBOBJS) $(LDLIBS) $(LDFLAGS)
 
-# build .o's from .c's
-$(WEBOBJS): CFLAGS += -I ./libmongoose
+# Build .o's from .c's
+$(WEBOBJS): CFLAGS += -I $(MONGOOSEPATH)
 .c.o:
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# ignore format, clean, remake...
+# Ignore format, clean, remake...
 .PHONY: format clean test remake superclean remake_server
 
-
-# remove object files
+# Remove object files
 clean:
 	$(RM) *.o
 
-# remove object files and binaries
+# Remove object files and binaries
 superclean: clean
 	$(RM) $(WEBTGT) $(TARGET)
 
-# format with astyle
+# Format with astyle
 format:
 	astyle --style=linux --indent=spaces=4 --convert-tabs --suffix=none \
 	--add-brackets --unpad-paren --pad-oper --pad-header --align-pointer=type \
 	--max-code-length=80 --lineend=linux -n *.c *.h
 
-remake: superclean all
+remake: superclean cli
 
 remake_server: superclean pictDB_server
 
