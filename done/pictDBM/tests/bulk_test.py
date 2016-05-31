@@ -68,5 +68,6 @@ resize_all(allpics)
 add_already_present_id(allpics)
 add_already_present_image(allpics)
 to_delete = random.sample([str(i) for i in range(len(allpics))], random.randint(1, len(allpics)))
+print("Deleting " + str(len(to_delete)))
 delete_all(db, to_delete)
 

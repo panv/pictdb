@@ -13,7 +13,7 @@
 #include "image_content.h"
 
 // Constants
-#define NB_CMD        8   // Number of command line functions the database possesses
+#define NB_CMD        9   // Number of command line functions the database possesses
 #define FILE_DEFAULT  10  // Default max file number
 #define THUMB_DEFAULT 64  // Default thumb resolution
 #define THUMB_MAX     128 // Maximal thumb resolution
@@ -261,7 +261,8 @@ int help(int args, char* argv[])
            "      read an image from the pictDB and save it to a file.\n"
            "      default resolution is \"original\".\n"
            "  insert <dbfilename> <pictID> <filename>: insert a new image in the pictDB.\n"
-           "  delete <dbfilename> <pictID>: delete picture pictID from pictDB.\n",
+           "  delete <dbfilename> <pictID>: delete picture pictID from pictDB.\n"
+           "  gc <dbfilename> <temporarypath>: performs garbage collecting on pictDB. Requres a temporary filename for copying the pictDB.\n",
            FILE_DEFAULT, MAX_MAX_FILES, THUMB_DEFAULT, THUMB_DEFAULT, THUMB_MAX,
            THUMB_MAX, SMALL_DEFAULT, SMALL_DEFAULT, SMALL_MAX, SMALL_MAX);
 
@@ -354,6 +355,27 @@ int do_read_cmd(int args, char* argv[])
     return ret;
 }
 
+int do_gc_cmd(int args, char* argv[])
+{
+    ARG_CHECK(args, 3);
+    NEW_DATABASE;
+    int ret = do_open(argv[1], "rb+", &db_file);
+    if (ret != 0 || argv[2] == NULL) {
+        ret = ERR_IO;
+    }
+    if (ret == 0) {
+        // Prepare filepaths for use
+        size_t tmp_length = strlen(argv[2]);
+        argv[2][tmp_length] = '\0';
+        size_t db_length = strlen(argv[1]);
+        argv[1][db_length] = '\0';
+
+        ret = do_gbcollect(&db_file, argv[1], argv[2]);
+    }
+    do_close(&db_file);
+    return ret;
+}
+
 int launch_interpretor(int args, char* argv[])
 {
     ARG_CHECK(args, 1);
@@ -401,6 +423,7 @@ int main(int argc, char* argv[])
         { "help", help },
         { "read", do_read_cmd },
         { "insert", do_insert_cmd },
+        { "gc", do_gc_cmd },
         { "interpretor", launch_interpretor },
         { "quit", close_interpretor }
     };

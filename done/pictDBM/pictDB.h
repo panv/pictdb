@@ -27,6 +27,7 @@
 #include <string.h>      // for strcmp, strncpy, strlen
 #include <stdlib.h>      // for calloc and malloc
 #include <inttypes.h>    // For printing types int stdint
+//#include "db_gcollect.c" // For garbage collecting
 
 #define CAT_TXT "EPFL PictDB binary"
 
@@ -283,6 +284,9 @@ int do_read(const char* pict_id, int resolution, char** image_buffer,
  */
 int do_insert(const char* new_image, size_t size, const char* pict_id,
               struct pictdb_file* db_file);
+
+int do_gbcollect(struct pictdb_file* db_file, const char* db_name,
+             const char* tmp_name);
 
 #ifdef __cplusplus
 }
