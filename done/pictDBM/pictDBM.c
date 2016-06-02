@@ -245,7 +245,7 @@ int help(int args, char* argv[])
 {
     printf("pictDBM [COMMAND] [ARGUMENTS]\n"
            "  help: displays this help.\n"
-           "  list <dbfilename>: list pictDB content.\n"
+           "  list   <dbfilename>: list pictDB content.\n"
            "  create <dbfilename> [options]: create a new pictDB.\n"
            "      options are:\n"
            "          -max_files <MAX_FILES>: maximum number of files.\n"
@@ -262,7 +262,10 @@ int help(int args, char* argv[])
            "      default resolution is \"original\".\n"
            "  insert <dbfilename> <pictID> <filename>: insert a new image in the pictDB.\n"
            "  delete <dbfilename> <pictID>: delete picture pictID from pictDB.\n"
-           "  gc <dbfilename> <temporarypath>: performs garbage collecting on pictDB. Requres a temporary filename for copying the pictDB.\n",
+           "  gc <dbfilename> <temporarypath>: perform garbage collecting on pictDB.\n"
+           "      requires a temporary filename for copying the pictDB.\n"
+           "  interpretor: launch command line interpretor.\n"
+           "  quit: exit interpretor.\n",
            FILE_DEFAULT, MAX_MAX_FILES, THUMB_DEFAULT, THUMB_DEFAULT, THUMB_MAX,
            THUMB_MAX, SMALL_DEFAULT, SMALL_DEFAULT, SMALL_MAX, SMALL_MAX);
 
@@ -358,7 +361,9 @@ int do_read_cmd(int args, char* argv[])
 int do_gc_cmd(int args, char* argv[])
 {
     ARG_CHECK(args, 3);
+
     NEW_DATABASE;
+
     int ret = do_open(argv[1], "rb+", &db_file);
     if (ret != 0 || argv[2] == NULL) {
         ret = ERR_IO;
@@ -440,8 +445,8 @@ int main(int argc, char* argv[])
     while (ret == 0 && interpretor_state == ON) {
         char* line = read_line();
         size_t len = strlen(line) + 1;
-        char* tmp = init_tmp(len); // checker cette merde
-        char** interp_argv = init_result_array(MAX_PARAMS); // check
+        char* tmp = init_tmp(len);
+        char** interp_argv = init_result_array(MAX_PARAMS);
         if (tmp != NULL && interp_argv != NULL) {
             int interp_args = split(interp_argv, tmp, line, " ", len, MAX_PARAMS);
             ret = parse_cmd_line(interp_args, interp_argv, commands);
