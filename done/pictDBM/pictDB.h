@@ -285,6 +285,17 @@ int do_read(const char* pict_id, int resolution, char** image_buffer,
 int do_insert(const char* new_image, size_t size, const char* pict_id,
               struct pictdb_file* db_file);
 
+/**
+ * @brief Cleans the database file by eliminating the holes created when
+ *        deleting pictures. This is done by creating a new db and
+ *        reinserting all the images.
+ *
+ * @param db_file The database file to be cleaned.
+ * @param dbname The filename of the database to be cleaned.
+ * @param tmp_name The filename of the temporary database.
+ *
+ * @return 0 if no error occurred, an int coded in error.h in case of error.
+ */
 int do_gbcollect(struct pictdb_file* db_file, const char* db_name,
                  const char* tmp_name);
 

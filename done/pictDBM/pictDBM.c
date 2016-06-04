@@ -366,7 +366,7 @@ int do_gc_cmd(int args, char* argv[])
 
     int ret = do_open(argv[1], "rb+", &db_file);
     if (ret == 0) {
-        puts("Garbage collect");
+        puts("Garbage collecting");
         ret = do_gbcollect(&db_file, argv[1], argv[2]);
     }
     do_close(&db_file);

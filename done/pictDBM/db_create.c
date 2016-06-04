@@ -20,7 +20,7 @@ int do_create(const char* filename, struct pictdb_file* db_file)
     }
 
     // Open stream and check for errors
-    db_file->fpdb = fopen(filename, "wb");
+    db_file->fpdb = fopen(filename, "wb+");
     if (db_file->fpdb == NULL) {
         fprintf(stderr, "Error : cannot open file %s\n", filename);
         return ERR_IO;
@@ -38,6 +38,7 @@ int do_create(const char* filename, struct pictdb_file* db_file)
                                sizeof(struct pict_metadata));
     // Check for allocation error
     if (db_file->metadata == NULL) {
+        remove(filename);
         return ERR_OUT_OF_MEMORY;
     }
 
@@ -52,6 +53,7 @@ int do_create(const char* filename, struct pictdb_file* db_file)
                 db_file->header.db_name);
         free(db_file->metadata);
         db_file->metadata = NULL;
+        remove(filename);
         return ERR_IO;
     }
 

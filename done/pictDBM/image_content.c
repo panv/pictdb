@@ -136,14 +136,14 @@ int lazily_resize(int resolution, struct pictdb_file* db_file,
                 }
             }
         }
-        /*if (file_position != -1) {
-            // Update the header and write it to disk
-            ++db_file->header.db_version;
-            file_position = write_to_disk(db_file, &db_file->header,
-                                          sizeof(struct pictdb_header), 1,
-                                          0, SEEK_SET);
+        if (file_position != -1) {
+            /*    // Update the header and write it to disk
+                ++db_file->header.db_version;
+                file_position = write_to_disk(db_file, &db_file->header,
+                                              sizeof(struct pictdb_header), 1,
+                                              0, SEEK_SET);*/
             return file_position == -1 ? ERR_IO : 0;
-        }*/
+        }
     }
     return ERR_IO;
 }
