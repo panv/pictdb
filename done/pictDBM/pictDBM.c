@@ -146,6 +146,8 @@ int parse_cmd_line(int argc, char* argv[], command_mapping commands[]);
 
 char* read_line();
 
+int interpretor_loop(command_mapping commands[]);
+
 
 /********************************************************************/ /**
  * Opens pictDB file and calls do_list command.
@@ -436,19 +438,7 @@ int main(int argc, char* argv[])
     }
 
     while (ret == 0 && interpretor_state == ON) {
-        char* line = read_line();
-        size_t len = strlen(line) + 1;
-        char* tmp = init_tmp(len);
-        char** interp_argv = init_result_array(MAX_PARAMS);
-        if (tmp != NULL && interp_argv != NULL) {
-            int interp_args = split(interp_argv, tmp, line, " ", len, MAX_PARAMS);
-            ret = parse_cmd_line(interp_args, interp_argv, commands);
-        } else {
-            ret = ERR_OUT_OF_MEMORY;
-        }
-        free(tmp);
-        free(line);
-        free(interp_argv);
+        ret = interpretor_loop(commands);
     }
 
     if (ret) {
@@ -457,6 +447,28 @@ int main(int argc, char* argv[])
     }
 
     vips_shutdown();
+    return ret;
+}
+
+int interpretor_loop(command_mapping commands[])
+{
+    int ret = 0;
+    char* line = read_line();
+    size_t len = strlen(line) + 1;
+    char* tmp = init_tmp(len);
+    char** interp_argv = init_result_array(MAX_PARAMS);
+
+    if (tmp != NULL && interp_argv != NULL) {
+        int interp_args = split(interp_argv, tmp, line, " ", len, MAX_PARAMS);
+        ret = parse_cmd_line(interp_args, interp_argv, commands);
+    } else {
+        ret = ERR_OUT_OF_MEMORY;
+    }
+
+    free(tmp);
+    free(line);
+    free(interp_argv);
+
     return ret;
 }
 
