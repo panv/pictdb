@@ -1,6 +1,7 @@
 # TODO
 
-- [ ] Vérifier les conversions de types size_t -> uint32 dans image_content notamment
+- [ ] Gérer le n° de version de la database dans le garbage collecting (réécrire le header à la fin)
+- [x] Vérifier les conversions de types size_t -> uint32 dans image_content notamment
 - [x] GROS BUG : essayer de read une image non encore resizée fait crasher le programme;
       problème de free avec vips, probablement dans lazily resize.
 - [x] Réparer read
@@ -15,5 +16,5 @@
 - [x] Utiliser des pointeurs pour les struct pict_db?
 - [ ] Revoir la doc (rajouter des undocumented in doxygen dans les fichiers .c?)
 - [ ] Ajouter des tests automatiques?
-- [ ] Ajouter VIPS_INIT et vips_shutdown dans le main? (cf section tests dans donnée de la semaine 7)
+- [x] Ajouter VIPS_INIT et vips_shutdown dans le main? (cf section tests dans donnée de la semaine 7)
 - [x] Possible bonus? http://moodle.epfl.ch/mod/forum/discuss.php?d=6645 (déjà fait, voir point 7)
