@@ -1,6 +1,7 @@
 /**
  * @file db_gcollect.c
  * @brief Implements garbage collection.
+ *
  * This feature is implemented using already defined functions.
  *
  * @author Vincenzo Bazzucchi
@@ -8,7 +9,8 @@
  */
 
 #include "pictDB.h"
-#include "image_content.h" // For lazily resize.
+#include "image_content.h" // For lazily resize
+
 #define RET_ERROR if (ret != 0) return ret
 
 /**
@@ -22,67 +24,52 @@
  * @return 0 if no error occurred, an int coded in error.h in case of error.
  */
 int do_gbcollect(struct pictdb_file* db_file, const char* db_name,
-             const char* tmp_name)
+                 const char* tmp_name)
 {
-    // Check arguments.
+    // Check arguments
     if (db_file == NULL || db_name == NULL || tmp_name == NULL) {
         return ERR_INVALID_ARGUMENT;
     }
-
-    // Should I consider that each GC increments the db_version by 1?
-    uint32_t old_version =
-        db_file->header.db_version; //Save old version + 1 after GC, before write
-
-    FILE* f_temp = fopen(tmp_name, "wb"); // Open tmp file and check pointer.
-    if (f_temp == NULL) {
-        fprintf(stderr, "Impossible to open %s\n", tmp_name);
-        return ERR_IO;
+    if (strlen(db_name) == 0 || strlen(db_name) > MAX_DB_NAME) {
+        return ERR_INVALID_FILENAME;
+    }
+    if (strlen(tmp_name) == 0 || strlen(tmp_name) > MAX_DB_NAME) {
+        return ERR_INVALID_FILENAME;
     }
 
-    // Create new header
-    struct pictdb_header h_temp = {
-        .max_files = db_file->header.max_files,
-        .unused_32 = db_file->header.unused_32,
-        .unused_64 = db_file->header.unused_64
+    // Initialize new file
+    struct pictdb_file temp = {
+        .fpdb = NULL, .header = db_file->header, .metadata = NULL
     };
-    strcpy(h_temp.db_name, db_file->header.db_name);
-    // REMPLACER LIGNE SUIVANTE PAR FOR LOOP
-    memcpy(h_temp.res_resized, db_file->header.res_resized,
-           (2 * (NB_RES  - 1)) * sizeof(uint16_t));
-
-    // Initialize new file.
-    struct pictdb_file temp = {f_temp, h_temp, NULL};
-    int ret = do_create(db_name, &temp);
+    int ret = do_create(tmp_name, &temp);
     RET_ERROR;
 
+    struct pict_metadata* pics = db_file->metadata; // Will be used often
 
-    struct pict_metadata* pics = db_file->metadata; // Will be used often.
-
-    for (uint32_t i = 0; i < db_file->header.num_files; ++i) {
+    for (size_t i = 0; i < db_file->header.max_files; ++i) {
         char* image = NULL;
         uint32_t size = 0;
-        // Read image from old db and save it to the new one.
-        ret = do_read(pics[i].pict_id, RES_ORIG, &image, &size, db_file);
-        RET_ERROR;
-        ret = do_insert(image, size, pics[i].pict_id, &temp);
-        RET_ERROR;
-        // Resize the images that are resized in the old db.
-        for (int r = 0; r < RES_ORIG; ++r) {
-            if (pics[i].size[r] == 0) {
-                ret = lazily_resize(r, &temp, i);
-                RET_ERROR;
+        // Read image from old db and save it to the new one
+        if (pics[i].is_valid == NON_EMPTY) {
+            ret = do_read(pics[i].pict_id, RES_ORIG, &image, &size, db_file);
+            ret = ret == 0 ? do_insert(image, size, pics[i].pict_id, &temp) : ret;
+            // Resize the images that are resized in the old db.
+            for (int r = 0; ret == 0 && r < RES_ORIG; ++r) {
+                if (pics[i].size[r] != 0 && pics[i].offset[r] != 0) {
+                    ret = lazily_resize(r, &temp, i);
+                }
             }
+            free(image);
         }
+        RET_ERROR;
     }
-    temp.header.db_version = old_version + 1; // Assign correct version of db.
 
-    // Remove old db and move new one.
-    do_close(db_file); //Close old db before deleting it.
+    // Remove old db and move new one
+    do_close(db_file); // Close old db before deleting it
     ret = remove(db_name);
-    RET_ERROR;
     do_close(&temp); // Should I close? If yes, should it be opened again?
-    ret = rename(tmp_name, db_name);
-    RET_ERROR;
+    ret = ret != -1 ? rename(tmp_name, db_name) : ret;
+    ret = ret == -1 ? ERR_IO : ret;
 
-    return 0;
+    return ret;
 }

@@ -365,19 +365,12 @@ int do_gc_cmd(int args, char* argv[])
     NEW_DATABASE;
 
     int ret = do_open(argv[1], "rb+", &db_file);
-    if (ret != 0 || argv[2] == NULL) {
-        ret = ERR_IO;
-    }
     if (ret == 0) {
-        // Prepare filepaths for use
-        size_t tmp_length = strlen(argv[2]);
-        argv[2][tmp_length] = '\0';
-        size_t db_length = strlen(argv[1]);
-        argv[1][db_length] = '\0';
-
+        puts("Garbage collect");
         ret = do_gbcollect(&db_file, argv[1], argv[2]);
     }
     do_close(&db_file);
+
     return ret;
 }
 
