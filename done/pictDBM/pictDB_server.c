@@ -143,6 +143,11 @@ void parse_uri(char* result[], int* resolution, char** pict_id)
         } else if (strcmp(result[i], "pict_id") == 0) {
             char* id = calloc(strlen(result[i + 1]) + 1, sizeof(char));
             int decoded = mg_url_decode(result[i + 1], strlen(result[i + 1]), id, MAX_PIC_ID, 0);
+            if (decoded == -1) {
+                free(id);
+                *pict_id = NULL;
+                return;
+            }
             *pict_id = id;
             i += 2;
         } else {
