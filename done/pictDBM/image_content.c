@@ -80,7 +80,7 @@ int lazily_resize(int resolution, struct pictdb_file* db_file,
     }
     if (db_file->header.num_files == 0
         || db_file->metadata[index].is_valid == EMPTY) {
-        fprintf(stderr, "Error : image not contained in the database");
+        fprintf(stderr, "Error : image not contained in the database\n");
         return ERR_INVALID_ARGUMENT;
     }
 
@@ -120,7 +120,7 @@ int lazily_resize(int resolution, struct pictdb_file* db_file,
     g_free(output_buffer);
     if (file_position != -1) {
         if (output_size >> 32 > 0) {
-            fprintf(stderr, "Trying to fit a 64 bit integer into a 32 bit variable\n");
+            fprintf(stderr, "Error : trying to fit a 64 bit integer into a 32 bit variable\n");
             return ERR_INVALID_ARGUMENT;
         }
         // Update the metadata and write it to disk
