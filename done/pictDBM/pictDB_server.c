@@ -112,7 +112,7 @@ void mg_error(struct mg_connection* nc, int error)
     mg_printf(nc,
               "HTTP/1.1 500\r\n"
               "Content-Length: %d\r\n\r\n%s",
-              0, ERROR_MESSAGES[error]);
+              25, ERROR_MESSAGES[error]);
     nc->flags |= MG_F_SEND_AND_CLOSE;
 }
 
@@ -141,7 +141,9 @@ void parse_uri(char* result[], int* resolution, char** pict_id)
             *resolution = resolution_atoi(result[i + 1]);
             i += 2;
         } else if (strcmp(result[i], "pict_id") == 0) {
-            *pict_id = result[i + 1];
+            char* id = calloc(strlen(result[i + 1]) + 1, sizeof(char));
+            int decoded = mg_url_decode(result[i + 1], strlen(result[i + 1]), id, MAX_PIC_ID, 0);
+            *pict_id = id;
             i += 2;
         } else {
             ++i;
@@ -172,6 +174,7 @@ void handle_read_call(struct mg_connection* nc, struct http_message* hm)
         uint32_t image_size = 0;
         int err_check = do_read(pict_id, resolution, &image_buffer,
                                 &image_size, db_file);
+        free(pict_id);
         if (err_check != 0) {
             mg_error(nc, err_check);
         } else {
