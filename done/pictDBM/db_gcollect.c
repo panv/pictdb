@@ -57,7 +57,7 @@ int do_gbcollect(struct pictdb_file* db_file, const char* db_name,
             // Resize the images that are resized in the old db.
             for (int r = 0; ret == 0 && r < RES_ORIG; ++r) {
                 if (pics[i].size[r] != 0 && pics[i].offset[r] != 0) {
-                    ret = lazily_resize(r, &temp, i);
+                    ret = lazily_resize(r, &temp, temp.header.num_files - 1);
                 }
             }
             free(image);
