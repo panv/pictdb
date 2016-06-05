@@ -11,6 +11,8 @@
 #include "pictDB.h"
 #include "image_content.h" // For lazily resize
 
+int update_header(struct pictdb_file* temp, struct pictdb_header* orig_header);
+
 
 int do_gbcollect(struct pictdb_file* db_file, const char* db_name,
                  const char* tmp_name)
@@ -54,6 +56,8 @@ int do_gbcollect(struct pictdb_file* db_file, const char* db_name,
         }
     }
 
+    ret = update_header(&temp, &db_file->header);
+
     do_close(db_file); // Close old db before deleting it
     do_close(&temp);
 
@@ -67,4 +71,17 @@ int do_gbcollect(struct pictdb_file* db_file, const char* db_name,
     }
 
     return ret;
+}
+
+int update_header(struct pictdb_file* temp, struct pictdb_header* orig_header)
+{
+    temp->header.db_version = orig_header->db_version;
+    strcpy(temp->header.db_name, orig_header->db_name);
+
+    int ret = fseek(temp->fpdb, 0, SEEK_SET);
+    if (ret == 0) {
+        ret = fwrite(&temp->header, sizeof(struct pictdb_header), 1, temp->fpdb);
+        return ret == 1 ? 0 : ERR_IO;
+    }
+    return ERR_IO;
 }
