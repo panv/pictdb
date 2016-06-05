@@ -9,6 +9,7 @@
 #include "pictDB.h"
 #include "mongoose.h"
 #include <vips/vips.h>
+#include "html_msg.h"
 
 #define MAX_QUERY_PARAM 5
 
@@ -109,10 +110,13 @@ int init_dbfile(int argc, const char* filename)
 
 void mg_error(struct mg_connection* nc, int error)
 {
+    size_t total = strlen(error_start) + strlen(error_end) + strlen(
+                       ERROR_MESSAGES[error]) + 3;
     mg_printf(nc,
               "HTTP/1.1 500\r\n"
-              "Content-Length: %d\r\n\r\n%s",
-              25, ERROR_MESSAGES[error]);
+              "Content-Type: text/html\r\n"
+              "Content-Length: %zu\r\n\r\n%s%s%s",
+              total, error_start, ERROR_MESSAGES[error], error_end);
     nc->flags |= MG_F_SEND_AND_CLOSE;
 }
 
@@ -142,7 +146,8 @@ void parse_uri(char* result[], int* resolution, char** pict_id)
             i += 2;
         } else if (strcmp(result[i], "pict_id") == 0) {
             char* id = calloc(strlen(result[i + 1]) + 1, sizeof(char));
-            int decoded = mg_url_decode(result[i + 1], strlen(result[i + 1]), id, MAX_PIC_ID, 0);
+            int decoded = mg_url_decode(result[i + 1], strlen(result[i + 1]), id,
+                                        MAX_PIC_ID, 0);
             if (decoded == -1) {
                 free(id);
                 *pict_id = NULL;
