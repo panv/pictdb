@@ -38,6 +38,7 @@ int do_create(const char* filename, struct pictdb_file* db_file)
                                sizeof(struct pict_metadata));
     // Check for allocation error
     if (db_file->metadata == NULL) {
+        do_close(db_file);
         remove(filename);
         return ERR_OUT_OF_MEMORY;
     }
@@ -51,8 +52,7 @@ int do_create(const char* filename, struct pictdb_file* db_file)
     if (header_ctrl != 1 || metadata_ctrl != db_file->header.max_files) {
         fprintf(stderr, "Error : cannot create database %s\n",
                 db_file->header.db_name);
-        free(db_file->metadata);
-        db_file->metadata = NULL;
+        do_close(db_file);
         remove(filename);
         return ERR_IO;
     }
@@ -60,4 +60,3 @@ int do_create(const char* filename, struct pictdb_file* db_file)
     printf("%zu item(s) written\n", header_ctrl + metadata_ctrl);
     return 0;
 }
-

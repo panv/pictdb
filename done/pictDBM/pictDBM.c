@@ -13,14 +13,14 @@
 #include "image_content.h"
 
 // Constants
-#define NB_CMD        9   // Number of command line functions the database possesses
-#define FILE_DEFAULT  10  // Default max file number
-#define THUMB_DEFAULT 64  // Default thumb resolution
-#define THUMB_MAX     128 // Maximal thumb resolution
-#define SMALL_DEFAULT 256 // Default small resolution
-#define SMALL_MAX     512 // Maximal small resolution
-#define MAX_PARAMS    20  // Maximal number of command line arguments for the interpretor
-#define MAX_INPUT_LENGTH 300
+#define NB_CMD        9      // Number of command line functions the database possesses
+#define FILE_DEFAULT  10     // Default max file number
+#define THUMB_DEFAULT 64     // Default thumb resolution
+#define THUMB_MAX     128    // Maximal thumb resolution
+#define SMALL_DEFAULT 256    // Default small resolution
+#define SMALL_MAX     512    // Maximal small resolution
+#define MAX_PARAMS    20     // Maximal number of command line arguments for the interpretor
+#define MAX_INPUT_LENGTH 300 // Maximal number of chars parsed by the interpretor
 
 // Macro that checks the number of arguments of a command
 #define ARG_CHECK(args, min) \
@@ -65,11 +65,15 @@ enum options {
     INVALID_OPTION, MAX_FILES, THUMB_RES, SMALL_RES
 };
 
+/**
+ * @enum interpretor_states
+ * @brief Specifies the possible states of the interpretor, running or not.
+ */
 enum interpretor_states {
     ON, OFF
 };
 
-int interpretor_state;
+int interpretor_state; // The state of the interpretor
 
 /**
  * @brief Parses the command line options of do_create_cmd.
@@ -142,10 +146,32 @@ char* append_suffix(const char* pict_id, const char* suffix, size_t len);
 int write_image_to_disk(const char* filename, char* image_buffer,
                         size_t image_size);
 
+/**
+ * @brief Compares the first element of argv to each command mapping of commands
+ *        to call the appropriate do_something_cmd method.
+ *
+ * @param argc     The size of argv.
+ * @param argv     The array containing the command line arguments.
+ * @param commands The map from command line argument to function.
+ * @return The return value of the called function, or ERR_INVALID_COMMAND if no
+ *         mapping was found.
+ */
 int parse_cmd_line(int argc, char* argv[], command_mapping commands[]);
 
+/**
+ * @brief Gets a line from the user.
+ *
+ * @return The line read.
+ */
 char* read_line();
 
+/**
+ * @brief Parses the input from the user if the interpretor is running and
+ *        calls the appropriate function.
+ *
+ * @param commands The map from command line argument to function.
+ * @return The return value of the called function, or an error.
+ */
 int interpretor_loop(command_mapping commands[]);
 
 
@@ -264,7 +290,7 @@ int help(int args, char* argv[])
            "      default resolution is \"original\".\n"
            "  insert <dbfilename> <pictID> <filename>: insert a new image in the pictDB.\n"
            "  delete <dbfilename> <pictID>: delete picture pictID from pictDB.\n"
-           "  gc <dbfilename> <temporarypath>: perform garbage collecting on pictDB.\n"
+           "  gc <dbfilename> <temporarypath>: performs garbage collecting on pictDB.\n"
            "      requires a temporary filename for copying the pictDB.\n"
            "  interpretor: launch command line interpretor.\n"
            "  quit: exit interpretor.\n",

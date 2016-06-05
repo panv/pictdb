@@ -27,7 +27,6 @@
 #include <string.h>      // for strcmp, strncpy, strlen
 #include <stdlib.h>      // for calloc and malloc
 #include <inttypes.h>    // For printing types int stdint
-//#include "db_gcollect.c" // For garbage collecting
 
 #define CAT_TXT "EPFL PictDB binary"
 
@@ -246,13 +245,14 @@ char** init_result_array(size_t size);
 char* init_tmp(size_t length);
 
 /**
- * @brief Splits the src string with the chars of delim as separators and stores the resulting tokens into result.
+ * @brief Splits the src string with the chars of delim as separators and stores
+ *        the resulting tokens into result.
  *
- * @param result Array used to write, as different strings, the splitted arguments.
- * @param tmp Temporary array used for processing.
- * @param src The original string.
- * @param delim Array of the delimiters used for splitting.
- * @param len The length of the source array (src).
+ * @param result    Array containing the resulting tokens of the split.
+ * @param tmp       Temporary array used for processing.
+ * @param src       The original string.
+ * @param delim     Contains the separator characters used for splitting.
+ * @param len       The length of the original string (src).
  * @param array_len The size of result.
  * @return The number of tokens src was split into.
  */
@@ -290,10 +290,9 @@ int do_insert(const char* new_image, size_t size, const char* pict_id,
  *        deleting pictures. This is done by creating a new db and
  *        reinserting all the images.
  *
- * @param db_file The database file to be cleaned.
- * @param dbname The filename of the database to be cleaned.
+ * @param db_file  The database file to be cleaned.
+ * @param dbname   The filename of the database to be cleaned.
  * @param tmp_name The filename of the temporary database.
- *
  * @return 0 if no error occurred, an int coded in error.h in case of error.
  */
 int do_gbcollect(struct pictdb_file* db_file, const char* db_name,
