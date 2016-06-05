@@ -12,7 +12,7 @@ TARGET = pictDBM
 WEBTGT = pictDB_server
 
 # Path to mongoose directory
-MONGOOSEPATH = ./libmongoose6.2
+MONGOOSEPATH = ./libmongoose
 
 # C source files
 CMDSRCS = $(filter-out pictDB_server.c, $(wildcard *.c))
@@ -72,3 +72,4 @@ remake_server: superclean pictDB_server
 #	$(CC) $(CFLAGS) -o vipstest tests/vipstest.c db_utils.c db_list.c error.c \
 #	db_create.c db_delete.c image_content.c $(LDLIBS)
 #	./vipstest testDB02.pictdb_dynamic pic1
+
