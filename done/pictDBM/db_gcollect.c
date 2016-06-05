@@ -11,6 +11,13 @@
 #include "pictDB.h"
 #include "image_content.h" // For lazily resize
 
+/**
+ * @brief Updates the header of the new database with the info of the new one.
+ *
+ * @param temp        The new database.
+ * @param orig_header The header of the original database.
+ * @return 0 if the operation was successful, an error code otherwise.
+ */
 int update_header(struct pictdb_file* temp, struct pictdb_header* orig_header);
 
 
@@ -28,7 +35,7 @@ int do_gbcollect(struct pictdb_file* db_file, const char* db_name,
         return ERR_INVALID_FILENAME;
     }
 
-    // Initialize new file
+    // Initialize new database
     struct pictdb_file temp = {
         .fpdb = NULL, .header = db_file->header, .metadata = NULL
     };
@@ -42,7 +49,7 @@ int do_gbcollect(struct pictdb_file* db_file, const char* db_name,
     for (size_t i = 0; ret == 0 && i < db_file->header.max_files; ++i) {
         char* image = NULL;
         uint32_t size = 0;
-        // Read image from old db and save it to the new one
+        // Read valid image from old db and insert it to the new one
         if (pics[i].is_valid == NON_EMPTY) {
             ret = do_read(pics[i].pict_id, RES_ORIG, &image, &size, db_file);
             ret = ret == 0 ? do_insert(image, size, pics[i].pict_id, &temp) : ret;
@@ -56,7 +63,8 @@ int do_gbcollect(struct pictdb_file* db_file, const char* db_name,
         }
     }
 
-    ret = update_header(&temp, &db_file->header);
+    // Update the header
+    ret = ret == 0 ? update_header(&temp, &db_file->header) : ret;
 
     do_close(db_file); // Close old db before deleting it
     do_close(&temp);
@@ -73,7 +81,8 @@ int do_gbcollect(struct pictdb_file* db_file, const char* db_name,
     return ret;
 }
 
-int update_header(struct pictdb_file* temp, struct pictdb_header* orig_header)
+int update_header(struct pictdb_file* temp,
+                  const struct pictdb_header* orig_header)
 {
     temp->header.db_version = orig_header->db_version;
     strcpy(temp->header.db_name, orig_header->db_name);
