@@ -12,7 +12,7 @@ TARGET = pictDBM
 WEBTGT = pictDB_server
 
 # Path to mongoose directory
-MONGOOSEPATH = ./libmongoose
+MONGOOSEPATH = ./libmongoose6.2
 
 # C source files
 CMDSRCS = $(filter-out pictDB_server.c, $(wildcard *.c))
