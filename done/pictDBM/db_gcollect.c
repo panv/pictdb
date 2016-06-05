@@ -18,7 +18,8 @@
  * @param orig_header The header of the original database.
  * @return 0 if the operation was successful, an error code otherwise.
  */
-int update_header(struct pictdb_file* temp, struct pictdb_header* orig_header);
+int update_header(struct pictdb_file* temp,
+                  const struct pictdb_header* orig_header);
 
 
 int do_gbcollect(struct pictdb_file* db_file, const char* db_name,
