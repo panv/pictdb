@@ -1,0 +1,3 @@
+group number,pictDB.h,pictDBM.c,db_create.c,db_gbcollect.c:general,db_gbcollect.c:fonction do_gbcollect,Makefile,bonus/malus garbage collector,total gc,final webserver,final command line
+,2,3.5,0.5,5,10,2,3,26,76,133
+team-c-la-vie,1.5,3.5,0.5,4,9.75,1.75,0.5,21.5,73.25,127.5

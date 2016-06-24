@@ -1,0 +1,2 @@
+group number,nb tests passes,pictDB.h,pictDBM.c,db_create.c,db_gbcollect.c:general,db_gbcollect.c:fonction do_gbcollect,Makefile,bonus/malus garbage collector,revision webserver,revision command line,extension 1,extension 2,extension 3,extension 4
+7020,4,1.0,3.5,0.5,4.0,10.0,2,0,1,0.5,3,0,0,0

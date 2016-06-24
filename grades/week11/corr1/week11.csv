@@ -1,0 +1,2 @@
+group number,nb tests passes,db_list.c,pictDB.h,pictDB_server.c:handle_list_call,pictDB_server.c:handle_read_call,pictDB_server.c:handle_insert_call,pictDB_server.c:handle_delete_call,pictDB_server.c:event_handler,pictDB_server.c:server_startup,pictDB_server.c:server_shutdown,pictDB_server.c:main(),pictDB_server.c:reste (fonctions/variables genérales; erreurs),pictDB_server.c:modularisation,Makefile,astyle,bonus/malus
+7020,3,8.5,4,4,15,10,5,5,3,3,5,2,3,2,1,0

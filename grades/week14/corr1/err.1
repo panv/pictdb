@@ -1,0 +1,24 @@
+pictDBM.c: In function ‘help’:
+pictDBM.c:271:14: warning: unused parameter ‘args’ [-Wunused-parameter]
+ int help(int args, char* argv[])
+              ^
+pictDBM.c:271:26: warning: unused parameter ‘argv’ [-Wunused-parameter]
+ int help(int args, char* argv[])
+                          ^
+pictDBM.c: In function ‘launch_interpretor’:
+pictDBM.c:404:40: warning: unused parameter ‘argv’ [-Wunused-parameter]
+ int launch_interpretor(int args, char* argv[])
+                                        ^
+pictDBM.c: In function ‘close_interpretor’:
+pictDBM.c:418:39: warning: unused parameter ‘argv’ [-Wunused-parameter]
+ int close_interpretor(int args, char* argv[])
+                                       ^
+pictDB_server.c: In function ‘parse_uri’:
+pictDB_server.c:147:13: warning: implicit declaration of function ‘mg_url_decode’ [-Wimplicit-function-declaration]
+             int decoded = mg_url_decode(result[i + 1], strlen(result[i + 1]), id,
+             ^
+make: Circular pictDB_server <- pictDB_server dependency dropped.
+pictDB_server.o: In function `parse_uri':
+/home/jbouron/Documents/EPFL/BA6/Assistanat/Projet/pps-student-bouron/grading/week14/grp-7020/pictDB_server.c:147: undefined reference to `mg_url_decode'
+collect2: error: ld returned 1 exit status
+make: *** [pictDB_server] Error 1

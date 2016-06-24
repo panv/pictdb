@@ -1,0 +1,18 @@
+gcc -std=c99 -Wall -Wextra --pedantic -g $(pkg-config vips --cflags) -I ./libmongoose -c db_list.c -o db_list.o
+gcc -std=c99 -Wall -Wextra --pedantic -g $(pkg-config vips --cflags) -I ./libmongoose -c db_read.c -o db_read.o
+gcc -std=c99 -Wall -Wextra --pedantic -g $(pkg-config vips --cflags) -I ./libmongoose -c db_utils.c -o db_utils.o
+gcc -std=c99 -Wall -Wextra --pedantic -g $(pkg-config vips --cflags) -I ./libmongoose -c error.c -o error.o
+gcc -std=c99 -Wall -Wextra --pedantic -g $(pkg-config vips --cflags) -I ./libmongoose -c db_insert.c -o db_insert.o
+gcc -std=c99 -Wall -Wextra --pedantic -g $(pkg-config vips --cflags) -I ./libmongoose -c image_content.c -o image_content.o
+gcc -std=c99 -Wall -Wextra --pedantic -g $(pkg-config vips --cflags) -c db_create.c -o db_create.o
+gcc -std=c99 -Wall -Wextra --pedantic -g $(pkg-config vips --cflags) -I ./libmongoose -c pictDBM_tools.c -o pictDBM_tools.o
+gcc -std=c99 -Wall -Wextra --pedantic -g $(pkg-config vips --cflags) -I ./libmongoose -c db_delete.c -o db_delete.o
+gcc -std=c99 -Wall -Wextra --pedantic -g $(pkg-config vips --cflags) -c pictDBM.c -o pictDBM.o
+gcc -std=c99 -Wall -Wextra --pedantic -g $(pkg-config vips --cflags) -I ./libmongoose -c dedup.c -o dedup.o
+gcc -std=c99 -Wall -Wextra --pedantic -g $(pkg-config vips --cflags) -o pictDBM db_list.o db_read.o db_utils.o error.o db_insert.o image_content.o db_create.o pictDBM_tools.o db_delete.o pictDBM.o dedup.o -lssl -lcrypto -lm $(pkg-config vips --libs) -ljson-c
+gcc -std=c99 -Wall -Wextra --pedantic -g $(pkg-config vips --cflags) -I ./libmongoose -c pictDB_server.c -o pictDB_server.o
+make -C ./libmongoose
+make[1]: Entering directory '/home/jbouron/Documents/EPFL/BA6/Assistanat/Projet/pps-student-bouron/grading/week11/grp-7020/libmongoose'
+All done.
+make[1]: Leaving directory '/home/jbouron/Documents/EPFL/BA6/Assistanat/Projet/pps-student-bouron/grading/week11/grp-7020/libmongoose'
+gcc -std=c99 -Wall -Wextra --pedantic -g $(pkg-config vips --cflags) -o pictDB_server db_list.o db_read.o db_utils.o error.o db_insert.o pictDB_server.o image_content.o pictDBM_tools.o db_delete.o dedup.o -lssl -lcrypto -lm $(pkg-config vips --libs) -ljson-c -lmongoose -L ./libmongoose

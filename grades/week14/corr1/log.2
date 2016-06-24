@@ -1,0 +1,13 @@
+gcc -std=c99 -Wall -Wextra --pedantic -g $(pkg-config vips --cflags) -I ./libmongoose6.2 -c db_list.c -o db_list.o
+gcc -std=c99 -Wall -Wextra --pedantic -g $(pkg-config vips --cflags) -I ./libmongoose6.2 -c db_read.c -o db_read.o
+gcc -std=c99 -Wall -Wextra --pedantic -g $(pkg-config vips --cflags) -I ./libmongoose6.2 -c db_utils.c -o db_utils.o
+gcc -std=c99 -Wall -Wextra --pedantic -g $(pkg-config vips --cflags) -I ./libmongoose6.2 -c error.c -o error.o
+gcc -std=c99 -Wall -Wextra --pedantic -g $(pkg-config vips --cflags) -I ./libmongoose6.2 -c db_insert.c -o db_insert.o
+gcc -std=c99 -Wall -Wextra --pedantic -g $(pkg-config vips --cflags) -I ./libmongoose6.2 -c pictDBM_tools.c -o pictDBM_tools.o
+gcc -std=c99 -Wall -Wextra --pedantic -g $(pkg-config vips --cflags) -I ./libmongoose6.2 -c image_content.c -o image_content.o
+gcc -std=c99 -Wall -Wextra --pedantic -g $(pkg-config vips --cflags) -I ./libmongoose6.2 -c db_delete.c -o db_delete.o
+gcc -std=c99 -Wall -Wextra --pedantic -g $(pkg-config vips --cflags) -c pictDBM.c -o pictDBM.o
+gcc -std=c99 -Wall -Wextra --pedantic -g $(pkg-config vips --cflags) -I ./libmongoose6.2 -c dedup.c -o dedup.o
+gcc -std=c99 -Wall -Wextra --pedantic -g $(pkg-config vips --cflags) -c db_gcollect.c -o db_gcollect.o
+gcc -std=c99 -Wall -Wextra --pedantic -g $(pkg-config vips --cflags) -c db_create.c -o db_create.o
+gcc -std=c99 -Wall -Wextra --pedantic -g $(pkg-config vips --cflags) -o pictDBM db_list.o db_read.o db_utils.o error.o db_insert.o pictDBM_tools.o image_content.o db_delete.o pictDBM.o dedup.o db_gcollect.o db_create.o -lssl -lcrypto -lm $(pkg-config vips --libs) -ljson-c

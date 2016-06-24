@@ -1,0 +1,24 @@
+Garbage collecting
+pictDBM [COMMAND] [ARGUMENTS]
+  help: displays this help.
+  list   <dbfilename>: list pictDB content.
+  create <dbfilename> [options]: create a new pictDB.
+      options are:
+          -max_files <MAX_FILES>: maximum number of files.
+                                  default value is 10
+                                  maximum value is 100000
+          -thumb_res <X_RES> <Y_RES>: resolution for thumbnail images.
+                                  default value is 64x64
+                                  maximum value is 128x128
+          -small_res <X_RES> <Y_RES>: resolution for small images.
+                                  default value is 256x256
+                                  maximum value is 512x512
+  read   <dbfilename> <pictID> [original|orig|thumbnail|thumb|small]:
+      read an image from the pictDB and save it to a file.
+      default resolution is "original".
+  insert <dbfilename> <pictID> <filename>: insert a new image in the pictDB.
+  delete <dbfilename> <pictID>: delete picture pictID from pictDB.
+  gc <dbfilename> <temporarypath>: performs garbage collecting on pictDB.
+      requires a temporary filename for copying the pictDB.
+  interpretor: launch command line interpretor.
+  quit: exit interpretor.
